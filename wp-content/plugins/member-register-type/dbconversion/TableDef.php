@@ -4,12 +4,12 @@ require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 class TableDef {
 
-    private $table_prefix = 'mrt_';
+    private $table_prefix = 'wppf_';
 
     function profile() {
         global $wpdb;
 
-        $table_name = $this->table_prefix . 'userprofile';
+        $table_name = 'wppf_profiles';
 
         $charset_collate = $wpdb->get_charset_collate();
         

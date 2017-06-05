@@ -7,17 +7,19 @@
 <div class="tml tml-register" id="theme-my-login<?php $template->the_instance(); ?>">
     <?php $template->the_action_template_message('register'); ?>
     <?php $template->the_errors(); ?>
+    <?php $form = mrt_display_user_register(); ?>
+    <h2><?php echo $form['heading']; ?></h2>
+    
     <form name="registerform" id="registerform<?php $template->the_instance(); ?>" action="<?php $template->the_action_url('register', 'login_post'); ?>" method="post">
+        
         <?php if ('email' != $theme_my_login->get_option('login_type')) : ?>
             <p class="tml-user-login-wrap">
                 <label for="user_login<?php $template->the_instance(); ?>"><?php _e('Username', 'theme-my-login'); ?></label>
                 <input type="text" name="user_login" id="user_login<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_login'); ?>" size="20" />
             </p>
-
-
         <?php endif; ?>
 
-        <?php mrt_display_user_register(); ?>
+        <?php echo $form['form_html']; ?>
 
 
         <p class="tml-user-email-wrap">

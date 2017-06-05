@@ -7,7 +7,7 @@ class Profile {
     function __construct() {
         global $wpdb;
         $this->link = $wpdb;
-        $this->table = 'profiles';
+        $this->table = 'wppf_profiles';
         $this->fields = [
             'first_name',
             'last_name',

@@ -21,37 +21,44 @@ function mrt_display_user_register() {
     $gform = new Gform();
     $formhtmljq = new FormHtmlJq();
     $type = '';
+    
+    $return = [];
     if (isset($_GET['rft']) && $_GET['rft'] == 1) {
 
         $form = $gform->set_form(AppForm::adoptive_family());
-        echo $formhtmljq->create_form($form);
+        $return['heading'] = 'Adoptive Family';
+        $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 2) {
 
         $form = $gform->set_form(AppForm::adoption_agency());
-        echo $formhtmljq->create_form($form);
+        $return['heading'] = 'Adoptive Agency';
+        $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 3) {
         
         $form = $gform->set_form(AppForm::birth_mother());
-        echo $formhtmljq->create_form($form);
+        $return['heading'] = 'Birth Mother';
+        $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (!isset($_GET['rft'])) {
 
         $user = get_userdata(get_current_user_id());
         $user_info = $mrt_profile->user_info(get_current_user_id());
-
+        $return['heading'] = '';
         if (in_array('adoptive_family', $user->roles)) {
 
             $form = $gform->set_form(AppForm::adoptive_family(), $user_info);
-            echo $formhtmljq->create_form($form);
+            $return['form_html'] = $formhtmljq->create_form($form);
         } elseif (in_array('adoption_agency', $user->roles)) {
 
             $form = $gform->set_form(AppForm::adoption_agency(), $user_info);
-            echo $formhtmljq->create_form($form);
+            $return['form_html'] = $formhtmljq->create_form($form);
         } elseif (in_array('birth_mother', $user->roles)) {
 
             $form = $gform->set_form(AppForm::birth_mother(), $user_info);
-            echo $formhtmljq->create_form($form);
+            $return['form_html'] = $formhtmljq->create_form($form);
         }
     }
+    
+    return $return;
 }
 
 

@@ -16,8 +16,6 @@ class Gform {
     }
 
     function set_form($form, $form_values = null) {
-
-
         //$this->form_normal = $this->get_sample_form();
         $this->form_normal = $form;
         $this->form_name = $this->form_normal['form_name'];

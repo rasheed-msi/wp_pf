@@ -13,7 +13,8 @@
 
   <form class="mepr-account-form mepr-form" id="mepr_account_form" action="" method="post" >
     <input type="hidden" name="mepr-process-account" value="Y" />
-    <?php mrt_display_user_register(); ?>
+    <?php $form = mrt_display_user_register(); ?>
+    <?php echo $form['form_html']; ?>
     
     <div class="mp-form-row mepr_email">
       <div class="mp-form-label">
