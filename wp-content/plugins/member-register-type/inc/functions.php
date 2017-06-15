@@ -16,7 +16,7 @@ function mrt_get_current_page_url() {
 
 function mrt_display_user_register() {
 
-    global $mrt_profile;
+    
 
     $gform = new Gform();
     $formhtmljq = new FormHtmlJq();
@@ -40,20 +40,22 @@ function mrt_display_user_register() {
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (!isset($_GET['rft'])) {
 
-        $user = get_userdata(get_current_user_id());
-        $user_info = $mrt_profile->user_info(get_current_user_id());
+        $profile = new Profile;
+        
         $return['heading'] = '';
-        if (in_array('adoptive_family', $user->roles)) {
+        if (in_array('adoptive_family', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::adoptive_family(), $user_info);
+            $form = $gform->set_form(AppForm::adoptive_family(), $profile->private_profile);
             $return['form_html'] = $formhtmljq->create_form($form);
-        } elseif (in_array('adoption_agency', $user->roles)) {
+            
+        } elseif (in_array('adoption_agency', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::adoption_agency(), $user_info);
+            $form = $gform->set_form(AppForm::adoption_agency(), $profile->private_profile);
             $return['form_html'] = $formhtmljq->create_form($form);
-        } elseif (in_array('birth_mother', $user->roles)) {
+            
+        } elseif (in_array('birth_mother', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::birth_mother(), $user_info);
+            $form = $gform->set_form(AppForm::birth_mother(), $profile->private_profile);
             $return['form_html'] = $formhtmljq->create_form($form);
         }
     }

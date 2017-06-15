@@ -2,20 +2,21 @@
 add_shortcode('test-page', 'test_page');
 
 function test_page() {
-    global $mrt_profile;
-    $gform = new Gform();
-    $form = $gform->set_form(AppForm::new_adoptive_family());
-    
-    echo '<pre>', print_r($form), '</pre>';
-    exit();
-}
 
+    
+    
+    $profile = new Profile(36);
+    
+    echo '<pre>', print_r($profile->profile), '</pre>';
+    echo '<pre>', print_r($profile->private_profile), '</pre>';
+    exit();
+    
+    
+}
 
 add_action('user_register', 'mrt_user_register');
 
 function mrt_user_register($user_id) {
-
-    global $mrt_profile;
 
     if (isset($_POST['user_type'])) {
         $user = new WP_User($user_id);
@@ -23,7 +24,9 @@ function mrt_user_register($user_id) {
         $user->add_role($_POST['user_type']);
 
         $_POST['wp_user_id'] = $user_id;
-        $mrt_profile->insert($_POST);
+        $profile = new Profile($user_id);
+        
+        $profile->insert($_POST);
 
         if ($_POST['user_type'] == 'adoption_agency') {
             wp_update_user([
@@ -37,10 +40,13 @@ function mrt_user_register($user_id) {
 add_action('mrt_edit_user_profile', 'mrt_profile_update', 10, 2);
 
 function mrt_profile_update($user_id) {
-    global $mrt_profile;
+
+    $profile = new Profile;
+
     if (isset($_POST['user_type'])) {
         $_POST['wp_user_id'] = $user_id;
-        $mrt_profile->update($_POST);
+        
+        $profile->save($_POST);
     }
 
     if (isset($_POST['user_type']) && $_POST['user_type'] == 'adoption_agency') {
@@ -62,16 +68,14 @@ function mrt_remove_admin_bar() {
 add_action('delete_user', 'mrt_delete_user');
 
 function mrt_delete_user($user_id) {
-    global $mrt_profile;
-    $mrt_profile->delete($user_id);
+    $profile = new Profile();
+    $profile->delete($user_id);
 }
 
 add_shortcode('filter-page', 'page_filter_user');
 
 function page_filter_user() {
 
-
-    $mrt_muser = new Muser;
     $gform = new Gform();
     $formhtmljq = new FormHtmlJq();
 

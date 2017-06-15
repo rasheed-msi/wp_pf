@@ -73,6 +73,7 @@ class Stock {
                     'groups_admin_groups',
                     'groups_admin_options',
                     'groups_restrict_access',
+                    'draft_to_profile',
                 ),
             ),
             'adoption_agency' => array(
@@ -81,6 +82,7 @@ class Stock {
                     'publish_posts',
                     'edit_posts',
                     'delete_posts',
+                    'draft_to_profile',
                 ),
             ),
             'adoptive_family' => array(

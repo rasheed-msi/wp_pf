@@ -10,9 +10,11 @@ function mrt_rewrite_rules() {
     add_rewrite_rule('^register-options/?$', 'index.php?pagename=mrt-page-manager&screen=register-options', 'top');
     add_rewrite_rule('^update-user-capabilities/?$', 'index.php?pagename=mrt-page-manager&screen=update-user-capabilities', 'top');
     add_rewrite_rule('^create-table-profile/?$', 'index.php?pagename=mrt-page-manager&screen=create-table-profile', 'top');
+    add_rewrite_rule('^draft-to-profile/([0-9]+)?$', 'index.php?pagename=mrt-page-manager&user_id=$matches[1]&screen=draft-to-profile', 'top');
+    add_rewrite_rule('^profile/([a-z0-9_-]+)?$', 'index.php?pagename=mrt-page-manager&user_name=$matches[1]&screen=public-profile', 'top');
     //add_rewrite_rule('^unsubscribe/?$', 'index.php?pagename=mrt-page-manager&screen=unsubscribe', 'top');
-    
-    if(get_option('mrt_plugin_rewrite_rules_status') != 'mrt_flush_rewrite_rules'){
+
+    if (get_option('mrt_plugin_rewrite_rules_status') != 'mrt_flush_rewrite_rules') {
         flush_rewrite_rules();
         update_option('mrt_plugin_rewrite_rules_status', 'mrt_flush_rewrite_rules');
     }
@@ -28,6 +30,8 @@ add_action('init', 'mrt_rewrite_rules');
  */
 function mrt_query_vars($qvars) {
     $qvars[] = 'screen';
+    $qvars[] = 'user_id';
+    $qvars[] = 'user_name';
     return $qvars;
 }
 
@@ -91,31 +95,57 @@ function mrt_remove_page_manager($title) {
 
 add_filter('the_title', 'mrt_remove_page_manager');
 
-
 /**
  * 
  * Execute the function for the shortcode [mrt-page-manager]
  */
 function mrt_page_manager_display() {
 
-
-
     $screen = get_query_var('screen');
 
     // example.com/confirm-subscription
- 
+
     if ($screen == 'register-options') {
         include MRT_PLUGIN_PATH . 'templates/register-options.php';
-    } 
-    if ($screen == 'update-user-capabilities') {
+    } elseif ($screen == 'update-user-capabilities') {
         Dot::update_user_roles_capabilities();
-    } 
-    if ($screen == 'create-table-profile') {
+    } elseif ($screen == 'create-table-profile') {
         $dbObj = new TableDef();
         $dbObj->profile();
-    }
-    
+    } elseif ($screen == 'draft-to-profile') {
+        //if(current_user_can('draft_to_profile')){
+        $user_id = get_query_var('user_id');
+        $profile = new Profile();
+        $profile->draftToProfile($user_id);
+        //}
+    } elseif ($screen == 'public-profile') {
 
+        $user_name = get_query_var('user_name');
+        $user = get_user_by('login', $user_name);
+        $profile = new Profile($user->ID);
+        $gform = new Gform();
+        $list = new ListHtml();
+        
+        $return['form_html'] = $list->create_list($form);
+        
+        if (in_array('adoptive_family', $profile->user_meta->roles)) {
+
+            $form = $gform->set_form(AppForm::adoptive_family(), $profile->profile);
+            $return['form_html'] = $list->create_list($form);
+            
+        } elseif (in_array('adoption_agency', $profile->user_meta->roles)) {
+
+            $form = $gform->set_form(AppForm::adoption_agency(), $profile->profile);
+            $return['form_html'] = $list->create_list($form);
+            
+        } elseif (in_array('birth_mother', $profile->user_meta->roles)) {
+
+            $form = $gform->set_form(AppForm::birth_mother(), $profile->profile);
+            $return['form_html'] = $list->create_list($form);
+        }
+        
+        echo $return['form_html'];
+    }
 }
 
 add_shortcode('mrt-page-manager', 'mrt_page_manager_display');
