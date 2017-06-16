@@ -45,17 +45,17 @@ function mrt_display_user_register() {
         $return['heading'] = '';
         if (in_array('adoptive_family', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::adoptive_family(), $profile->private_profile);
+            $form = $gform->set_form(AppForm::adoptive_family(), $profile->profile);
             $return['form_html'] = $formhtmljq->create_form($form);
             
         } elseif (in_array('adoption_agency', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::adoption_agency(), $profile->private_profile);
+            $form = $gform->set_form(AppForm::adoption_agency(), $profile->profile);
             $return['form_html'] = $formhtmljq->create_form($form);
             
         } elseif (in_array('birth_mother', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::birth_mother(), $profile->private_profile);
+            $form = $gform->set_form(AppForm::birth_mother(), $profile->profile);
             $return['form_html'] = $formhtmljq->create_form($form);
         }
     }

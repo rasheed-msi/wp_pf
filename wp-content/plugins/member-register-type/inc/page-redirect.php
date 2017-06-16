@@ -12,7 +12,7 @@ function mrt_rewrite_rules() {
     add_rewrite_rule('^create-table-profile/?$', 'index.php?pagename=mrt-page-manager&screen=create-table-profile', 'top');
     add_rewrite_rule('^draft-to-profile/([0-9]+)?$', 'index.php?pagename=mrt-page-manager&user_id=$matches[1]&screen=draft-to-profile', 'top');
     add_rewrite_rule('^profile/([a-z0-9_-]+)?$', 'index.php?pagename=mrt-page-manager&user_name=$matches[1]&screen=public-profile', 'top');
-    //add_rewrite_rule('^unsubscribe/?$', 'index.php?pagename=mrt-page-manager&screen=unsubscribe', 'top');
+    // add_rewrite_rule('^unsubscribe/?$', 'index.php?pagename=mrt-page-manager&screen=unsubscribe', 'top');
 
     if (get_option('mrt_plugin_rewrite_rules_status') != 'mrt_flush_rewrite_rules') {
         flush_rewrite_rules();

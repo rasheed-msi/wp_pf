@@ -22,8 +22,7 @@ class Profile extends ProfileBase {
         parent::__construct();
 
         $this->user = get_user_by('ID', $this->user_id);
-        $this->private_profile = $this->get_profile();
-        $this->profile = $this->get_public_profile();
+        $this->profile = $this->get_profile();
         $this->profile_id = $this->profile['id'];
         $this->user_meta = get_userdata($this->user_id);
         $this->agency_settings = $this->get_agency_settings();
@@ -103,11 +102,7 @@ class Profile extends ProfileBase {
     }
 
     public function save($data) {
-        if ($this->agency_settings['approvals']['auto_activation_profiles']) {
-            $this->update($data);
-        } else {
-            $this->set_draft($this->user_id, $data);
-        }
+        $this->update($data);
     }
 
     /**
@@ -116,17 +111,6 @@ class Profile extends ProfileBase {
      * @return array
      */
     public function get_profile() {
-
-        $draft = $this->get_draft($this->user_id);
-
-        if (empty($draft)) {
-            return $this->get_profileByWpUserId($this->user_id);
-        }
-
-        return $draft;
-    }
-
-    public function get_public_profile() {
         return $this->get_profileByWpUserId($this->user_id);
     }
 

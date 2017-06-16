@@ -71,29 +71,4 @@ class ProfileBase {
         $this->link->delete($this->table, ['wp_user_id' => $user_id]);
     }
 
-    public function get_draft($user_id) {
-        return get_user_meta($user_id, 'mrt_profile_draft', true);
-    }
-
-    public function set_draft($user_id, $data) {
-        
-        update_user_meta($user_id, 'mrt_profile_draft', $data);
-    }
-
-    public function delete_draft($user_id) {
-        delete_user_meta($user_id, 'mrt_profile_draft');
-    }
-
-    public function draftToProfile($user_id) {
-
-        $draft = $this->get_draft($user_id);
-
-        if (!empty($draft)) {
-            $this->update($draft);
-            $this->delete_draft($user_id);
-        }
-
-        return true;
-    }
-
 }
