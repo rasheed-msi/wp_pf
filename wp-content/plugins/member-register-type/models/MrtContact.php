@@ -1,12 +1,12 @@
 <?php
 
-class ContactBase extends DBBase {
+class MrtContact extends MrtDbbase {
 
     function __construct() {
         global $wpdb;
         $this->link = $wpdb;
         $this->table = 'pf_contact_details';
-        $this->primary_key = 'pf_contact_detail_id';
+        $this->pkey = 'pf_contact_detail_id';
         $this->fields = [
             'pf_profile_id',
             'StreetAddress',

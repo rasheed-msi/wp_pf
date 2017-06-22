@@ -40,19 +40,20 @@ function mrt_display_user_register() {
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (!isset($_GET['rft'])) {
 
-        $profile = new Profile;
+        $mrtuser = new MrtUser;
         
         $return['heading'] = '';
-        if (in_array('adoptive_family', $profile->user_meta->roles)) {
-            $form = $gform->set_form(AppForm::edit_adoptive_family(), $profile->profile);
+        if (in_array('adoptive_family', $mrtuser->user_meta->roles)) {
+            
+            $form = $gform->set_form(AppForm::edit_adoptive_family(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
-        } elseif (in_array('adoption_agency', $profile->user_meta->roles)) {
-            $form = $gform->set_form(AppForm::adoption_agency(), $profile->profile);
+        } elseif (in_array('adoption_agency', $mrtuser->user_meta->roles)) {
+            $form = $gform->set_form(AppForm::adoption_agency(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
             
-        } elseif (in_array('birth_mother', $profile->user_meta->roles)) {
-
-            $form = $gform->set_form(AppForm::birth_mother(), $profile->profile);
+        } elseif (in_array('birth_mother', $mrtuser->user_meta->roles)) {
+            
+            $form = $gform->set_form(AppForm::birth_mother(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
         }
     }

@@ -1,9 +1,9 @@
 <?php
 
-class DBBase {
+class MrtDbbase {
 
     public function get($id) {
-        return $this->link->get_row("SELECT * FROM {$this->table} WHERE {$this->primary_key} = {$id}", ARRAY_A);
+        return $this->link->get_row("SELECT * FROM {$this->table} WHERE {$this->pkey} = {$id}", ARRAY_A);
     }
 
     public function get_default($key) {
@@ -11,6 +11,8 @@ class DBBase {
     }
 
     public function insert($inputs) {
+        
+       
 
         $insert = [];
 
@@ -32,7 +34,7 @@ class DBBase {
         $update = [];
 
         if (is_null($where_key)) {
-            $where_key = $this->primary_key;
+            $where_key = $this->pkey;
         }
         
         if (is_null($where_value)) {
@@ -53,7 +55,7 @@ class DBBase {
 
     public function delete($where_key = null, $where_value = null) {
         if (is_null($where_key)) {
-            $where_key = $this->primary_key;
+            $where_key = $this->pkey;
         }
         
         if (is_null($where_value)) {

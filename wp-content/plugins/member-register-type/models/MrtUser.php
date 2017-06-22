@@ -1,35 +1,11 @@
 <?php
 
-class Profile extends DBBase {
-
-    public $user_id;
-    public $logged_in = false;
+class MrtUser {
 
     public function __construct($user_id = null) {
 
         global $wpdb;
         $this->link = $wpdb;
-        $this->table = 'wppf_profiles';
-        $this->primary_key = 'id';
-        $this->fields = [
-            'wp_user_id',
-            'pf_old_id',
-            'first_name',
-            'last_name',
-            'gender',
-            'dob',
-            'marital_status',
-            'occupation',
-            'agency_attorney_name',
-            'agency_website',
-            'religion_id',
-            'faith_id',
-            'ethnicity_id',
-            'education_id',
-            'status_id',
-        ];
-
-        $this->field_default = [];
 
         if (!is_null($user_id)) {
             $this->user_id = $user_id;
@@ -43,12 +19,15 @@ class Profile extends DBBase {
             }
         }
 
-       
+        $this->profile = new MrtProfile;
+        $this->contact = new MrtContact;
 
         $this->user = get_user_by('ID', $this->user_id);
-        $this->id = $this->get_profile_id($this->user_id);
-        $this->profile = $this->get($this->id);
+        $this->profile->id = $this->profile->get_profile_id($this->user_id);
+        $this->contact->pkey = 'pf_profile_id';
+        $this->contact->id = $this->profile->id;
 
+        $this->profile->data = $this->profile->get($this->profile->id);
         $this->user_meta = get_userdata($this->user_id);
     }
 
@@ -108,27 +87,66 @@ class Profile extends DBBase {
 //        LEFT JOIN wp_users wu ON rl.user_id = wu.ID ORDER BY `ID` ASC
     }
 
-    public function get_profile_id($user_id) {
-        return $this->link->get_var("SELECT {$this->primary_key} FROM {$this->table} WHERE wp_user_id = {$user_id}");
+    public function create_profile($data) {
+
+        if (is_null($this->user_id)) {
+            return false;
+        }
+        
+        if (isset($data['user_type'])) {
+            $user = new WP_User($this->user_id);
+            $user->remove_role('subscriber');
+            $user->add_role($data['user_type']);
+        }
+
+        $data['wp_user_id'] = $this->user_id;
+        $this->profile->id = $this->profile->insert($data);
+
+        $data['pf_profile_id'] = $this->profile->id;
+        $this->contact->insert($data);
+        $this->contact->id = $this->profile->id;
+        $this->profile->data = $this->profile->get($this->profile->id);
+
+
+        if (isset($data['joined_agency_id'])) {
+            $this->update_agency($data['joined_agency_id']);
+        }
     }
 
-    public function create_profile($data) {
-        $this->insert($data);
-        $contact = new ContactBase;
-        $contact->update($data, 'pf_profile_id', $this->id);
-        
-    }
-    
     public function update_profile($data) {
-        $this->update($data);
-        $contact = new ContactBase;
-        $contact->update($data, 'pf_profile_id', $this->id);
+
+        if (is_null($this->profile->id)) {
+
+            $this->create_profile($data);
+        } else {
+
+            $data['wp_user_id'] = $this->user_id;
+            $data['pf_profile_id'] = $this->profile->id;
+            $this->profile->update($data);
+            $this->contact->update($data);
+            if (isset($data['joined_agency_id'])) {
+                $this->update_agency($data['joined_agency_id']);
+            }
+        }
     }
 
     public function delete_profile() {
-        $this->delete();
-        $contact = new ContactBase;
-        $contact->delete('pf_profile_id', $this->id);
+        $this->profile->delete();
+        $this->contact->delete();
+        $agency_user = new MrtRelationAgencyUser;
+        $agency_user->delete('pf_profile_id', $this->profile->id);
+    }
+
+    public function update_agency($agency) {
+        // Add agency
+        $agency_user = new MrtRelationAgencyUser;
+        $agency_user->delete('pf_profile_id', $this->profile->id);
+
+        $insert = [];
+        $insert['wp_users_id'] = $this->user_id;
+        $insert['pf_profile_id'] = $this->profile->id;
+        $insert['pf_agency_id'] = $agency;
+        $agency_user->insert($insert);
     }
 
 }

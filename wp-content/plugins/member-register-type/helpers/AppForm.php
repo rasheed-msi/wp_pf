@@ -45,7 +45,7 @@ class AppForm {
             [
                 'type' => 'select',
                 'label' => 'Adoption Agency',
-                'name' => 'agency_id',
+                'name' => 'joined_agency_id',
                 'options' => Dot::get_user_id_role('adoption_agency'),
             ],
             [
@@ -139,7 +139,7 @@ class AppForm {
                 'user_type',
                 'first_name',
                 'last_name',
-                'agency_id',
+                'joined_agency_id',
                 'gender',
                 'marital_status',
             ]
@@ -157,7 +157,7 @@ class AppForm {
             'fields' => [
                 'first_name',
                 'last_name',
-                'agency_id',
+                'joined_agency_id',
                 'gender',
                 'marital_status',
                 'ethnicity_id',
@@ -199,7 +199,7 @@ class AppForm {
                 'user_type',
                 'first_name',
                 'last_name',
-                'agency_id',
+                'joined_agency_id',
                 'gender',
                 'marital_status',
             ]

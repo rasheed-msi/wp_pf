@@ -3,12 +3,23 @@ add_shortcode('test-page', 'test_page');
 
 function test_page() {
 
-    
-    
-    $test = Dot::get_table_select_option('ethnicity', 'ethnicity_id', 'ethnicity');
-    
-    
-    
+
+    $data = [
+        'wp_user_id' => 46,
+        'first_name' => 'Aneesh',
+        'last_name' => 'C',
+        'gender' => 'male',
+        'marital_status' => 'couple',
+        'user_type' => 'adoptive_family',
+        'agencies' => [
+            26, 35
+        ],
+    ];
+
+    $mrtuser = new MrtUser(47);
+    if(is_null($mrtuser->profile->id)){
+        echo 'NULL';
+    }
 }
 
 add_action('user_register', 'mrt_user_register');
@@ -16,14 +27,9 @@ add_action('user_register', 'mrt_user_register');
 function mrt_user_register($user_id) {
 
     if (isset($_POST['user_type'])) {
-        $user = new WP_User($user_id);
-        $user->remove_role('subscriber');
-        $user->add_role($_POST['user_type']);
 
-        $_POST['wp_user_id'] = $user_id;
-        $profile = new Profile($user_id);
-        
-        $profile->create_profile($_POST);
+        $mrtuser = new MrtUser($user_id);
+        $mrtuser->create_profile($_POST);
 
         if ($_POST['user_type'] == 'adoption_agency') {
             wp_update_user([
@@ -38,13 +44,8 @@ add_action('mrt_edit_user_profile', 'mrt_profile_update', 10, 2);
 
 function mrt_profile_update($user_id) {
 
-    $profile = new Profile($user_id);
-    
-
-    if (isset($_POST['user_type'])) {
-        $_POST['wp_user_id'] = $user_id;
-        $profile->update_profile($_POST);
-    }
+    $mrtuser = new MrtUser($user_id);
+    $mrtuser->update_profile($_POST);
 
     if (isset($_POST['user_type']) && $_POST['user_type'] == 'adoption_agency') {
         wp_update_user([
@@ -65,7 +66,7 @@ function mrt_remove_admin_bar() {
 add_action('delete_user', 'mrt_delete_user');
 
 function mrt_delete_user($user_id) {
-    $profile = new Profile($user_id);
+    $profile = new MrtUser($user_id);
     $profile->delete_profile();
 }
 
