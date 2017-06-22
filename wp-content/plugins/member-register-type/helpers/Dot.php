@@ -154,5 +154,16 @@ class Dot {
 
         return $return;
     }
+    
+    public static function get_table_select_option($table, $column1, $column2) {
+        
+        global $wpdb;
+        $keys = $wpdb->get_col("SELECT {$column1} FROM {$table}");
+        $values = $wpdb->get_col("SELECT {$column2} FROM {$table}");
+        $results = array_combine($keys, $values);
+        return $results;
+        
+    
+    }
 
 }

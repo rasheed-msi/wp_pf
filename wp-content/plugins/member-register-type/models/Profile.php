@@ -1,11 +1,35 @@
 <?php
 
-class Profile extends ProfileBase {
+class Profile extends DBBase {
 
     public $user_id;
     public $logged_in = false;
 
     public function __construct($user_id = null) {
+
+        global $wpdb;
+        $this->link = $wpdb;
+        $this->table = 'wppf_profiles';
+        $this->primary_key = 'id';
+        $this->fields = [
+            'wp_user_id',
+            'pf_old_id',
+            'first_name',
+            'last_name',
+            'gender',
+            'dob',
+            'marital_status',
+            'occupation',
+            'agency_attorney_name',
+            'agency_website',
+            'religion_id',
+            'faith_id',
+            'ethnicity_id',
+            'education_id',
+            'status_id',
+        ];
+
+        $this->field_default = [];
 
         if (!is_null($user_id)) {
             $this->user_id = $user_id;
@@ -19,30 +43,13 @@ class Profile extends ProfileBase {
             }
         }
 
-        parent::__construct();
+       
 
         $this->user = get_user_by('ID', $this->user_id);
-        $this->profile = $this->get_profile();
-        $this->profile_id = $this->profile['id'];
+        $this->id = $this->get_profile_id($this->user_id);
+        $this->profile = $this->get($this->id);
+
         $this->user_meta = get_userdata($this->user_id);
-        $this->agency_settings = $this->get_agency_settings();
-    }
-
-    public function get_agency_settings() {
-
-        if (in_array('adoption_agency', $this->user_meta->roles)) {
-            $agency_id = $this->profile_id;
-        } else {
-            $agency_id = $this->profile['agency_id'];
-        }
-
-        // return get_user_meta($agency_id, 'mrt_agency_settings');
-
-        return [
-            'approvals' => [
-                'auto_activation_profiles' => false
-            ]
-        ];
     }
 
     /**
@@ -101,17 +108,27 @@ class Profile extends ProfileBase {
 //        LEFT JOIN wp_users wu ON rl.user_id = wu.ID ORDER BY `ID` ASC
     }
 
-    public function save($data) {
-        $this->update($data);
+    public function get_profile_id($user_id) {
+        return $this->link->get_var("SELECT {$this->primary_key} FROM {$this->table} WHERE wp_user_id = {$user_id}");
     }
 
-    /**
-     * 
-     * Get profile for logged in user
-     * @return array
-     */
-    public function get_profile() {
-        return $this->get_profileByWpUserId($this->user_id);
+    public function create_profile($data) {
+        $this->insert($data);
+        $contact = new ContactBase;
+        $contact->update($data, 'pf_profile_id', $this->id);
+        
+    }
+    
+    public function update_profile($data) {
+        $this->update($data);
+        $contact = new ContactBase;
+        $contact->update($data, 'pf_profile_id', $this->id);
+    }
+
+    public function delete_profile() {
+        $this->delete();
+        $contact = new ContactBase;
+        $contact->delete('pf_profile_id', $this->id);
     }
 
 }

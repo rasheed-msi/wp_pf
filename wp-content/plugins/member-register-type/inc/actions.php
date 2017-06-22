@@ -5,11 +5,8 @@ function test_page() {
 
     
     
-    $profile = new Profile(36);
+    $test = Dot::get_table_select_option('ethnicity', 'ethnicity_id', 'ethnicity');
     
-    echo '<pre>', print_r($profile->profile), '</pre>';
-    echo '<pre>', print_r($profile->private_profile), '</pre>';
-    exit();
     
     
 }
@@ -26,7 +23,7 @@ function mrt_user_register($user_id) {
         $_POST['wp_user_id'] = $user_id;
         $profile = new Profile($user_id);
         
-        $profile->insert($_POST);
+        $profile->create_profile($_POST);
 
         if ($_POST['user_type'] == 'adoption_agency') {
             wp_update_user([
@@ -41,12 +38,12 @@ add_action('mrt_edit_user_profile', 'mrt_profile_update', 10, 2);
 
 function mrt_profile_update($user_id) {
 
-    $profile = new Profile;
+    $profile = new Profile($user_id);
+    
 
     if (isset($_POST['user_type'])) {
         $_POST['wp_user_id'] = $user_id;
-        
-        $profile->save($_POST);
+        $profile->update_profile($_POST);
     }
 
     if (isset($_POST['user_type']) && $_POST['user_type'] == 'adoption_agency') {
@@ -68,8 +65,8 @@ function mrt_remove_admin_bar() {
 add_action('delete_user', 'mrt_delete_user');
 
 function mrt_delete_user($user_id) {
-    $profile = new Profile();
-    $profile->delete($user_id);
+    $profile = new Profile($user_id);
+    $profile->delete_profile();
 }
 
 add_shortcode('filter-page', 'page_filter_user');

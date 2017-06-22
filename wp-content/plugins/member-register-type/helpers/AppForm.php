@@ -120,6 +120,12 @@ class AppForm {
                 'required' => true,
                 'options' => Dot::get_groups_select_option('Location'),
             ],
+            [
+                'type' => 'select',
+                'label' => 'Ethnicity',
+                'name' => 'ethnicity_id',
+                'options' => Dot::get_table_select_option('ethnicity', 'ethnicity_id', 'ethnicity'),
+            ],
         ];
     }
 
@@ -141,6 +147,24 @@ class AppForm {
 
         $form['fields'] = self::get_required_fields($form['fields']);
         $form['fields']['user_type']['value'] = 'adoptive_family';
+        return $form;
+    }
+    
+    public static function edit_adoptive_family() {
+        $form = [
+            'form_name' => 'form_adoptive_family',
+            'submit' => false,
+            'fields' => [
+                'first_name',
+                'last_name',
+                'agency_id',
+                'gender',
+                'marital_status',
+                'ethnicity_id',
+            ]
+        ];
+
+        $form['fields'] = self::get_required_fields($form['fields']);
         return $form;
     }
 
