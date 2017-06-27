@@ -34,8 +34,7 @@ class MrtProfile extends MrtDbbase {
  
     }
 
-    public function get_profile_id($user_id) {
-        
+    public function getId($user_id) {
         return $this->link->get_var("SELECT {$this->pkey} FROM {$this->table} WHERE wp_user_id = {$user_id}");
     }
     

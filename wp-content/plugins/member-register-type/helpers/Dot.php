@@ -104,7 +104,7 @@ class Dot {
      */
     public static function update_user_roles_capabilities() {
 
-        
+
 
         $roles = Stock::system_roles();
         $banned_roles = Stock::wordpress_user_roles();
@@ -132,11 +132,10 @@ class Dot {
                 remove_role($key);
             }
         }
-        
+
 //        $roles = get_option('wp_user_roles');
 //        echo '<pre>' , print_r($roles) , '<pre>';
 //        exit();
-
     }
 
     /**
@@ -154,16 +153,40 @@ class Dot {
 
         return $return;
     }
-    
-    public static function get_table_select_option($table, $column1, $column2) {
-        
+
+    /**
+     * 
+     * Create array to use in html select options (key => 120, value => test)
+     * converted to 120 => test
+     * @param type $array
+     * @return type
+     */
+    public static function set_array_key_value($array, $column1 = 'key', $column2 = 'value') {
+        $return = [];
+        foreach ($array as $key => $value) {
+            if (!isset($value[$column1]) || !isset($value[$column2])) {
+                continue;
+            }
+            $return[$value[$column1]] = $value[$column2];
+        }
+
+        return $return;
+    }
+
+    public static function get_table_select_option($table, $column1, $column2, $null_select = false) {
         global $wpdb;
-        $keys = $wpdb->get_col("SELECT {$column1} FROM {$table}");
-        $values = $wpdb->get_col("SELECT {$column2} FROM {$table}");
-        $results = array_combine($keys, $values);
+        $records = $wpdb->get_results("SELECT {$column1}, {$column2} FROM {$table}", ARRAY_A);
+        $results = self::set_array_key_value($records, $column1, $column2);
+        if($null_select){
+            array_unshift($results, "-- select --");
+        }
         return $results;
-        
+    }
     
+    public static function get_states($country_id) {
+        global $wpdb;
+        return $wpdb->get_results("SELECT state_id, State FROM pf_states WHERE country_id = {$country_id}", ARRAY_A);
+     
     }
 
 }

@@ -40,6 +40,7 @@ class Gform {
                 $new_fields[$key]['description'] = (isset($field['description'])) ? $field['description'] : '';
                 $new_fields[$key]['placeholder'] = (isset($field['placeholder'])) ? $field['placeholder'] : '';
                 $new_fields[$key]['required'] = (isset($field['required']) && $field['required']) ? 'required' : '';
+                $new_fields[$key]['class'] = (isset($field['class']) && $field['class']) ? $field['class'] : '';
                 $new_fields[$key]['value'] = $this->get_field_value($field);
                 
             }

@@ -2,24 +2,8 @@
 add_shortcode('test-page', 'test_page');
 
 function test_page() {
-
-
-    $data = [
-        'wp_user_id' => 46,
-        'first_name' => 'Aneesh',
-        'last_name' => 'C',
-        'gender' => 'male',
-        'marital_status' => 'couple',
-        'user_type' => 'adoptive_family',
-        'agencies' => [
-            26, 35
-        ],
-    ];
-
-    $mrtuser = new MrtUser(47);
-    if(is_null($mrtuser->profile->id)){
-        echo 'NULL';
-    }
+    $test = new MrtMidController();
+    $test->test();
 }
 
 add_action('user_register', 'mrt_user_register');
@@ -32,6 +16,8 @@ function mrt_user_register($user_id) {
         $mrtuser->create_profile($_POST);
 
         if ($_POST['user_type'] == 'adoption_agency') {
+            
+            
             wp_update_user([
                 'ID' => $user_id,
                 'display_name' => $_POST['agency_attorney_name'],
@@ -42,17 +28,9 @@ function mrt_user_register($user_id) {
 
 add_action('mrt_edit_user_profile', 'mrt_profile_update', 10, 2);
 
-function mrt_profile_update($user_id) {
-
+function mrt_profile_update($user_id) {    
     $mrtuser = new MrtUser($user_id);
     $mrtuser->update_profile($_POST);
-
-    if (isset($_POST['user_type']) && $_POST['user_type'] == 'adoption_agency') {
-        wp_update_user([
-            'ID' => $user_id,
-            'display_name' => $_POST['agency_attorney_name'],
-        ]);
-    }
 }
 
 add_action('after_setup_theme', 'mrt_remove_admin_bar');

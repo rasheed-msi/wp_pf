@@ -16,12 +16,12 @@ function mrt_get_current_page_url() {
 
 function mrt_display_user_register() {
 
-    
+
 
     $gform = new Gform();
     $formhtmljq = new FormHtmlJq();
     $type = '';
-    
+
     $return = [];
     if (isset($_GET['rft']) && $_GET['rft'] == 1) {
 
@@ -30,37 +30,43 @@ function mrt_display_user_register() {
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 2) {
 
-        $form = $gform->set_form(AppForm::adoption_agency());
+        $form = $gform->set_form(AppForm::adoption_agency_register());
         $return['heading'] = 'Adoptive Agency';
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 3) {
-        
+
         $form = $gform->set_form(AppForm::birth_mother());
         $return['heading'] = 'Birth Mother';
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (!isset($_GET['rft'])) {
 
         $mrtuser = new MrtUser;
-        
+
         $return['heading'] = '';
         if (in_array('adoptive_family', $mrtuser->user_meta->roles)) {
-            
+
             $form = $gform->set_form(AppForm::edit_adoptive_family(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
         } elseif (in_array('adoption_agency', $mrtuser->user_meta->roles)) {
-            $form = $gform->set_form(AppForm::adoption_agency(), $mrtuser->profile->data);
+            $form = $gform->set_form(AppForm::adoption_agency_edit(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
-            
         } elseif (in_array('birth_mother', $mrtuser->user_meta->roles)) {
-            
             $form = $gform->set_form(AppForm::birth_mother(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
         }
     }
-    
+
     return $return;
 }
 
+function mrt_display_user_contact() {
+    $gform = new Gform();
+    $formhtmljq = new FormHtmlJq();
+    $mrtuser = new MrtUser;
+    $form = $gform->set_form(AppForm::contact_adoptive_family(['country_id' => $mrtuser->contact->data['Country']]), $mrtuser->contact->data);
+    $return['form_html'] = $formhtmljq->create_form($form);
+    return $return;
+}
 
 function mrt_get_customposts($post_type, $display_count = -1) {
     $page = get_query_var('paged') ? get_query_var('paged') : 1;

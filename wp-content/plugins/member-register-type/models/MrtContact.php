@@ -10,8 +10,8 @@ class MrtContact extends MrtDbbase {
         $this->fields = [
             'pf_profile_id',
             'StreetAddress',
-            'city',
-            'state',
+            'City',
+            'State',
             'Country',
             'Region',
             'Zip',
@@ -23,7 +23,16 @@ class MrtContact extends MrtDbbase {
             'AllowDefaultContact',
             'website',
         ];
+        
         $this->field_default = [];
     }
 
+    public function getId($profile_id) {
+        if (is_null($profile_id)) {
+            return false;
+        }
+        return $this->link->get_var("SELECT {$this->pkey} FROM {$this->table} WHERE pf_profile_id = {$profile_id}");
+    }
+
+   
 }

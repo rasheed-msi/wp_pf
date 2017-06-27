@@ -23,11 +23,12 @@ class MrtUser {
         $this->contact = new MrtContact;
 
         $this->user = get_user_by('ID', $this->user_id);
-        $this->profile->id = $this->profile->get_profile_id($this->user_id);
-        $this->contact->pkey = 'pf_profile_id';
-        $this->contact->id = $this->profile->id;
+        $this->profile->id = $this->profile->getId($this->user_id);
+        $this->contact->id = $this->contact->getId($this->profile->id);
 
         $this->profile->data = $this->profile->get($this->profile->id);
+        $this->contact->data = $this->contact->get($this->contact->id);
+        
         $this->user_meta = get_userdata($this->user_id);
     }
 
@@ -92,21 +93,25 @@ class MrtUser {
         if (is_null($this->user_id)) {
             return false;
         }
-        
+
+
         if (isset($data['user_type'])) {
             $user = new WP_User($this->user_id);
             $user->remove_role('subscriber');
             $user->add_role($data['user_type']);
         }
 
+        if (isset($data['user_type']) && $data['user_type'] == 'adoption_agency') {
+            $agency = new MrtAgencies();
+            $agency->insert($data);
+        }
+
         $data['wp_user_id'] = $this->user_id;
         $this->profile->id = $this->profile->insert($data);
-
-        $data['pf_profile_id'] = $this->profile->id;
-        $this->contact->insert($data);
-        $this->contact->id = $this->profile->id;
         $this->profile->data = $this->profile->get($this->profile->id);
 
+        $data['pf_profile_id'] = $this->profile->id;
+        $this->contact->id = $this->contact->insert($data);
 
         if (isset($data['joined_agency_id'])) {
             $this->update_agency($data['joined_agency_id']);
@@ -115,17 +120,28 @@ class MrtUser {
 
     public function update_profile($data) {
 
-        if (is_null($this->profile->id)) {
+        $data['wp_user_id'] = $this->user_id;
 
-            $this->create_profile($data);
-        } else {
+        if (isset($data['action']) && $data['action'] == 'edit_profile') {
+            if (is_null($this->profile->id)) {
+                $this->profile->id = $this->profile->insert($data);
+            } else {
+                $data['pf_profile_id'] = $this->profile->id;
+                $this->profile->update($data);
+                if (isset($data['joined_agency_id'])) {
+                    $this->update_agency($data['joined_agency_id']);
+                }
+            }
+        }
 
-            $data['wp_user_id'] = $this->user_id;
-            $data['pf_profile_id'] = $this->profile->id;
-            $this->profile->update($data);
-            $this->contact->update($data);
-            if (isset($data['joined_agency_id'])) {
-                $this->update_agency($data['joined_agency_id']);
+        if (isset($data['action']) && $data['action'] == 'edit_contact') {
+
+            if (is_null($this->contact->id)) {
+                $data['pf_profile_id'] = $this->profile->id;
+                $this->contact->id = $this->contact->insert($data);
+            } else {
+                $data['pf_profile_id'] = $this->profile->id;
+                $this->contact->update($data);
             }
         }
     }

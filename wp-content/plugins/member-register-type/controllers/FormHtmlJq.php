@@ -18,7 +18,7 @@ class FormHtmlJq {
             $html .= $this->form_group_html($field);
         }
 
-        if (isset($this->form['submit']) && $this->form['submit'] !== false) {
+        if (isset($this->form['submit']) && $this->form['submit'] != false) {
             $html .= $this->get_submit_button();
         }
 
@@ -129,7 +129,7 @@ class FormHtmlJq {
                 <?php echo $col; ?>
                 <div class="form-group">
                     <label class="control-label" for="<?php echo $id ?>"><?php echo $label ?></label>
-                    <select class="form-control selectpicker" name="<?php echo $name; ?>" id="<?php echo $id ?>" <?php echo $required; ?>>
+                    <select class="form-control selectpicker <?php echo $class; ?>" name="<?php echo $name; ?>" id="<?php echo $id ?>" <?php echo $required; ?>>
                         <?php
                         foreach ($options as $key => $option_value):
                             $selected = ($key == $value) ? 'selected' : '';

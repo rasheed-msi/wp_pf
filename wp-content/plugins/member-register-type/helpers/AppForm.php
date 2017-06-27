@@ -33,6 +33,16 @@ class AppForm {
                 'value' => 'adoptive_family',
             ],
             [
+                'type' => 'hidden',
+                'name' => 'action',
+                'value' => 'sample_action_name',
+            ],
+            [
+                'type' => 'email',
+                'label' => 'Email',
+                'name' => 'email',
+            ],
+            [
                 'type' => 'text',
                 'label' => 'First Name',
                 'name' => 'first_name',
@@ -47,6 +57,7 @@ class AppForm {
                 'label' => 'Adoption Agency',
                 'name' => 'joined_agency_id',
                 'options' => Dot::get_user_id_role('adoption_agency'),
+                'options' => Dot::get_table_select_option('pf_agencies', 'pf_agency_id', 'title'),
             ],
             [
                 'type' => 'radio',
@@ -69,37 +80,46 @@ class AppForm {
             [
                 'type' => 'text',
                 'label' => 'Agency or Attorney Name',
-                'name' => 'agency_attorney_name',
+                'name' => 'title',
             ],
             [
                 'type' => 'text',
                 'label' => 'Agency Website',
-                'name' => 'agency_website',
+                'name' => 'uri',
             ],
             [
                 'type' => 'text',
                 'label' => 'Phone Number',
-                'name' => 'phone',
+                'name' => 'mobile_num',
             ],
             [
                 'type' => 'text',
                 'label' => 'Street Address',
-                'name' => 'street_address',
+                'name' => 'StreetAddress',
             ],
             [
                 'type' => 'text',
                 'label' => 'City',
-                'name' => 'city',
+                'name' => 'City',
             ],
             [
-                'type' => 'text',
+                'type' => 'select',
                 'label' => 'State',
-                'name' => 'state',
+                'name' => 'State',
+                'class' => 'select_state',
+                'options' => [],
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Country',
+                'name' => 'Country',
+                'class' => 'select_country',
+                'options' => Dot::get_table_select_option('pf_countries', 'country_id', 'country', true),
             ],
             [
                 'type' => 'text',
                 'label' => 'Postal / Zip Code',
-                'name' => 'zip',
+                'name' => 'Zip',
             ],
             [
                 'type' => 'select',
@@ -122,9 +142,27 @@ class AppForm {
             ],
             [
                 'type' => 'select',
+                'label' => 'Religion',
+                'name' => 'religion_id',
+                'options' => Dot::get_table_select_option('pf_religions', 'ReligionId', 'Religion'),
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Fith',
+                'name' => 'faith_id',
+                'options' => Dot::get_table_select_option('pf_faith', 'faith_id', 'faith'),
+            ],
+            [
+                'type' => 'select',
                 'label' => 'Ethnicity',
                 'name' => 'ethnicity_id',
-                'options' => Dot::get_table_select_option('ethnicity', 'ethnicity_id', 'ethnicity'),
+                'options' => Dot::get_table_select_option('pf_ethnicity', 'ethnicity_id', 'ethnicity'),
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Education',
+                'name' => 'education_id',
+                'options' => Dot::get_table_select_option('pf_education', 'education_id', 'education_text'),
             ],
         ];
     }
@@ -149,7 +187,34 @@ class AppForm {
         $form['fields']['user_type']['value'] = 'adoptive_family';
         return $form;
     }
-    
+
+    public static function contact_adoptive_family($param) {
+        $form = [
+            'form_name' => 'form_adoptive_family',
+            'submit' => 'Submit',
+            'fields' => [
+                'action',
+                'StreetAddress',
+                'City',
+                'Country',
+                'State',
+                'Zip',
+                'mobile_num',
+            ]
+        ];
+
+        $form['fields'] = self::get_required_fields($form['fields']);
+        $form['fields']['action']['value'] = 'edit_contact';
+
+        if (isset($param['country_id'])) {
+            $states = Dot::get_states($param['country_id']);
+            $results = Dot::set_array_key_value($states, 'state_id', 'State');
+            $form['fields']['State']['options'] = $results;
+        }
+
+        return $form;
+    }
+
     public static function edit_adoptive_family() {
         $form = [
             'form_name' => 'form_adoptive_family',
@@ -160,11 +225,15 @@ class AppForm {
                 'joined_agency_id',
                 'gender',
                 'marital_status',
+                'religion_id',
                 'ethnicity_id',
+                'education_id',
+                'action',
             ]
         ];
 
         $form['fields'] = self::get_required_fields($form['fields']);
+        $form['fields']['action']['value'] = 'edit_profile';
         return $form;
     }
 
@@ -174,15 +243,16 @@ class AppForm {
             'submit' => false,
             'fields' => [
                 'user_type',
-                'agency_attorney_name',
-                'agency_website',
+                'title',
+                'uri',
                 'first_name',
                 'last_name',
-                'phone',
-                'street_address',
-                'city',
-                'state',
-                'zip',
+                'mobile_num',
+                'StreetAddress',
+                'City',
+                'Country',
+                'State',
+                'Zip',
             ]
         ];
 
@@ -190,6 +260,47 @@ class AppForm {
         $form['fields']['user_type']['value'] = 'adoption_agency';
         return $form;
     }
+    public static function adoption_agency_register() {
+        $form = [
+            'form_name' => 'adoption_agency_register',
+            'submit' => false,
+            'fields' => [
+                'user_type',
+                'title',
+                'uri',
+                'first_name',
+                'last_name',
+                'mobile_num',
+                'StreetAddress',
+                'City',
+                'Country',
+                'State',
+                'Zip',
+            ]
+        ];
+
+        $form['fields'] = self::get_required_fields($form['fields']);
+        $form['fields']['user_type']['value'] = 'adoption_agency';
+        return $form;
+    }
+    
+    public static function adoption_agency_edit() {
+        $form = [
+            'form_name' => 'adoption_agency_edit',
+            'submit' => false,
+            'fields' => [
+                'first_name',
+                'last_name',
+                'action',
+            ]
+        ];
+
+        $form['fields'] = self::get_required_fields($form['fields']);
+        $form['fields']['action']['value'] = 'edit_profile';
+        return $form;
+    }
+    
+    
 
     public static function birth_mother() {
         $form = [

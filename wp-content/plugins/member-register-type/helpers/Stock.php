@@ -74,6 +74,7 @@ class Stock {
                     'groups_admin_options',
                     'groups_restrict_access',
                     'draft_to_profile',
+                    'view_subscriptions_nav',
                 ),
             ),
             'adoption_agency' => array(
@@ -91,6 +92,7 @@ class Stock {
                     'publish_posts',
                     'edit_posts',
                     'delete_posts',
+                    'view_subscriptions_nav',
                 ),
             ),
             'birth_mother' => array(

@@ -2,8 +2,19 @@
 
 class MrtDbbase {
 
-    public function get($id) {
+    public function get($id = null) {
+        if(is_null($id)){
+            $id = $this->id;
+        }
         return $this->link->get_row("SELECT * FROM {$this->table} WHERE {$this->pkey} = {$id}", ARRAY_A);
+    }
+
+    public function getValue($key) {
+        if (isset($this->input[$key])) {
+            return $this->input[$key];
+        } else {
+            return $this->get_default($key);
+        }
     }
 
     public function get_default($key) {
@@ -11,8 +22,8 @@ class MrtDbbase {
     }
 
     public function insert($inputs) {
-        
-       
+
+
 
         $insert = [];
 
@@ -36,7 +47,7 @@ class MrtDbbase {
         if (is_null($where_key)) {
             $where_key = $this->pkey;
         }
-        
+
         if (is_null($where_value)) {
             $where_value = $this->id;
         }
@@ -57,7 +68,7 @@ class MrtDbbase {
         if (is_null($where_key)) {
             $where_key = $this->pkey;
         }
-        
+
         if (is_null($where_value)) {
             $where_value = $this->id;
         }
