@@ -15,14 +15,6 @@ function mrt_user_register($user_id) {
         $mrtuser = new MrtUser($user_id);
         $mrtuser->create_profile($_POST);
 
-        if ($_POST['user_type'] == 'adoption_agency') {
-            
-            
-            wp_update_user([
-                'ID' => $user_id,
-                'display_name' => $_POST['agency_attorney_name'],
-            ]);
-        }
     }
 }
 

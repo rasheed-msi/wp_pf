@@ -10,7 +10,6 @@ function mrt_rewrite_rules() {
     add_rewrite_rule('^register-options/?$', 'index.php?pagename=mrt-page-manager&screen=register-options', 'top');
     add_rewrite_rule('^update-user-capabilities/?$', 'index.php?pagename=mrt-page-manager&screen=update-user-capabilities', 'top');
     add_rewrite_rule('^create-table-profile/?$', 'index.php?pagename=mrt-page-manager&screen=create-table-profile', 'top');
-    add_rewrite_rule('^draft-to-profile/([0-9]+)?$', 'index.php?pagename=mrt-page-manager&user_id=$matches[1]&screen=draft-to-profile', 'top');
     add_rewrite_rule('^profile/([a-z0-9_-]+)?$', 'index.php?pagename=mrt-page-manager&user_name=$matches[1]&screen=public-profile', 'top');
     // add_rewrite_rule('^unsubscribe/?$', 'index.php?pagename=mrt-page-manager&screen=unsubscribe', 'top');
 
@@ -112,17 +111,11 @@ function mrt_page_manager_display() {
     } elseif ($screen == 'create-table-profile') {
         $dbObj = new TableDef();
         $dbObj->profile();
-    } elseif ($screen == 'draft-to-profile') {
-        //if(current_user_can('draft_to_profile')){
-        $user_id = get_query_var('user_id');
-        $profile = new Profile();
-        $profile->draftToProfile($user_id);
-        //}
     } elseif ($screen == 'public-profile') {
 
         $user_name = get_query_var('user_name');
         $user = get_user_by('login', $user_name);
-        $profile = new Profile($user->ID);
+        $profile = new MrtUser($user->ID);
         $gform = new Gform();
         $list = new ListHtml();
         
@@ -130,17 +123,16 @@ function mrt_page_manager_display() {
         
         if (in_array('adoptive_family', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::adoptive_family(), $profile->profile);
+            $form = $gform->set_form(AppForm::adoptive_family(), $profile->profile->data);
             $return['form_html'] = $list->create_list($form);
             
         } elseif (in_array('adoption_agency', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::adoption_agency(), $profile->profile);
+            $form = $gform->set_form(AppForm::adoption_agency(), $profile->profile->data);
             $return['form_html'] = $list->create_list($form);
             
         } elseif (in_array('birth_mother', $profile->user_meta->roles)) {
-
-            $form = $gform->set_form(AppForm::birth_mother(), $profile->profile);
+            $form = $gform->set_form(AppForm::birth_mother(), $profile->profile->data);
             $return['form_html'] = $list->create_list($form);
         }
         

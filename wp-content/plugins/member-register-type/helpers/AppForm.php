@@ -55,7 +55,7 @@ class AppForm {
             [
                 'type' => 'select',
                 'label' => 'Adoption Agency',
-                'name' => 'joined_agency_id',
+                'name' => 'pf_agency_id',
                 'options' => Dot::get_user_id_role('adoption_agency'),
                 'options' => Dot::get_table_select_option('pf_agencies', 'pf_agency_id', 'title'),
             ],
@@ -177,7 +177,7 @@ class AppForm {
                 'user_type',
                 'first_name',
                 'last_name',
-                'joined_agency_id',
+                'pf_agency_id',
                 'gender',
                 'marital_status',
             ]
@@ -222,7 +222,7 @@ class AppForm {
             'fields' => [
                 'first_name',
                 'last_name',
-                'joined_agency_id',
+                'pf_agency_id',
                 'gender',
                 'marital_status',
                 'religion_id',
@@ -260,6 +260,7 @@ class AppForm {
         $form['fields']['user_type']['value'] = 'adoption_agency';
         return $form;
     }
+
     public static function adoption_agency_register() {
         $form = [
             'form_name' => 'adoption_agency_register',
@@ -283,7 +284,7 @@ class AppForm {
         $form['fields']['user_type']['value'] = 'adoption_agency';
         return $form;
     }
-    
+
     public static function adoption_agency_edit() {
         $form = [
             'form_name' => 'adoption_agency_edit',
@@ -299,8 +300,6 @@ class AppForm {
         $form['fields']['action']['value'] = 'edit_profile';
         return $form;
     }
-    
-    
 
     public static function birth_mother() {
         $form = [
@@ -310,7 +309,7 @@ class AppForm {
                 'user_type',
                 'first_name',
                 'last_name',
-                'joined_agency_id',
+                'pf_agency_id',
                 'gender',
                 'marital_status',
             ]

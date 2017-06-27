@@ -8,9 +8,14 @@ class MrtMidController {
     }
 
     function test() {
-        $states = $this->link->get_results("SELECT state_id, State FROM pf_states WHERE country_id = 181", ARRAY_A);
-        $results = Dot::set_array_key_value($states, 'state_id', 'State');
-        echo '<pre>', print_r($results), '</pre>';
+        $mrtuser = new MrtProfile(8226);
+        $data = [
+            'wp_users_id' => '8226',
+            'gender' => 'male',
+        ];
+        $mrtuser->insert($data);
+        
+        
         exit();
     }
 

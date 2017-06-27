@@ -16,7 +16,7 @@ class TableDef {
 
         $sql = "CREATE TABLE $table_name (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
-                wp_user_id bigint(20),
+                wp_users_id bigint(20),
                 role varchar(20),
                 first_name varchar(55),
                 last_name varchar(55),

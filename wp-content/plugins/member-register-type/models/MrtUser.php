@@ -106,21 +106,21 @@ class MrtUser {
             $agency->insert($data);
         }
 
-        $data['wp_user_id'] = $this->user_id;
+        $data['wp_users_id'] = $this->user_id;
         $this->profile->id = $this->profile->insert($data);
         $this->profile->data = $this->profile->get($this->profile->id);
 
         $data['pf_profile_id'] = $this->profile->id;
         $this->contact->id = $this->contact->insert($data);
 
-        if (isset($data['joined_agency_id'])) {
-            $this->update_agency($data['joined_agency_id']);
+        if (isset($data['pf_agency_id'])) {
+            $this->update_agency($data['pf_agency_id']);
         }
     }
 
     public function update_profile($data) {
 
-        $data['wp_user_id'] = $this->user_id;
+        $data['wp_users_id'] = $this->user_id;
 
         if (isset($data['action']) && $data['action'] == 'edit_profile') {
             if (is_null($this->profile->id)) {
@@ -128,8 +128,8 @@ class MrtUser {
             } else {
                 $data['pf_profile_id'] = $this->profile->id;
                 $this->profile->update($data);
-                if (isset($data['joined_agency_id'])) {
-                    $this->update_agency($data['joined_agency_id']);
+                if (isset($data['pf_agency_id'])) {
+                    $this->update_agency($data['pf_agency_id']);
                 }
             }
         }
@@ -149,7 +149,7 @@ class MrtUser {
     public function delete_profile() {
         $this->profile->delete();
         $this->contact->delete();
-        $agency_user = new MrtRelationAgencyUser;
+        $agency_user = new MrtRelationAgencyUser();
         $agency_user->delete('pf_profile_id', $this->profile->id);
     }
 
