@@ -115,28 +115,48 @@ function mrt_page_manager_display() {
 
         $user_name = get_query_var('user_name');
         $user = get_user_by('login', $user_name);
-        $profile = new MrtUser($user->ID);
+        if (!$user) {
+            global $wp_query;
+            $wp_query->set_404();
+            status_header(404);
+            get_template_part(404);
+            exit();
+        }
+        $mrtuser = new MrtUser($user->ID);
         $gform = new Gform();
         $list = new ListHtml();
-        
+
         $return['form_html'] = $list->create_list($form);
-        
-        if (in_array('adoptive_family', $profile->user_meta->roles)) {
 
-            $form = $gform->set_form(AppForm::adoptive_family(), $profile->profile->data);
-            $return['form_html'] = $list->create_list($form);
-            
-        } elseif (in_array('adoption_agency', $profile->user_meta->roles)) {
+        if ($mrtuser->user_role == 'adoptive_family') {
+            $form = $gform->set_form(AppForm::adoptive_family_edit(), $mrtuser->profile->data);
+            $form = $list->prepare_user_basic_details($form);
+            echo '<h2>Basic Details</h2>';
+            echo $list->create_list($form);
 
-            $form = $gform->set_form(AppForm::adoption_agency(), $profile->profile->data);
-            $return['form_html'] = $list->create_list($form);
-            
-        } elseif (in_array('birth_mother', $profile->user_meta->roles)) {
-            $form = $gform->set_form(AppForm::birth_mother(), $profile->profile->data);
-            $return['form_html'] = $list->create_list($form);
+            echo '<h2>Contact Details</h2>';
+            $form = $gform->set_form(AppForm::general_user_contact(['country_id' => $mrtuser->contact->data['Country']]), $mrtuser->contact->data);
+            $form = $list->prepare_user_contact_details($form);
+            echo $list->create_list($form);
+        } elseif ($mrtuser->user_role == 'adoption_agency') {
+            $form = $gform->set_form(AppForm::adoption_agency_edit(), $mrtuser->profile->data);
+            $form = $list->prepare_user_basic_details($form);
+            echo $list->create_list($form);
+
+            echo '<h2>Contact Details</h2>';
+            $form = $gform->set_form(AppForm::general_user_contact(['country_id' => $mrtuser->contact->data['Country']]), $mrtuser->contact->data);
+            $form = $list->prepare_user_contact_details($form);
+            echo $list->create_list($form);
+        } elseif ($mrtuser->user_role == 'birth_mother') {
+            $form = $gform->set_form(AppForm::birth_mother_register(), $mrtuser->profile->data);
+            $form = $list->prepare_user_basic_details($form);
+            echo $list->create_list($form);
+
+            echo '<h2>Contact Details</h2>';
+            $form = $gform->set_form(AppForm::general_user_contact(['country_id' => $mrtuser->contact->data['Country']]), $mrtuser->contact->data);
+            $form = $list->prepare_user_contact_details($form);
+            echo $list->create_list($form);
         }
-        
-        echo $return['form_html'];
     }
 }
 

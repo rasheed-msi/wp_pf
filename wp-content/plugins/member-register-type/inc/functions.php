@@ -25,7 +25,7 @@ function mrt_display_user_register() {
     $return = [];
     if (isset($_GET['rft']) && $_GET['rft'] == 1) {
 
-        $form = $gform->set_form(AppForm::adoptive_family());
+        $form = $gform->set_form(AppForm::adoptive_family_register());
         $return['heading'] = 'Adoptive Family';
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 2) {
@@ -35,23 +35,23 @@ function mrt_display_user_register() {
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 3) {
 
-        $form = $gform->set_form(AppForm::birth_mother());
+        $form = $gform->set_form(AppForm::birth_mother_register());
         $return['heading'] = 'Birth Mother';
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (!isset($_GET['rft'])) {
 
         $mrtuser = new MrtUser;
+        
 
         $return['heading'] = '';
-        if (in_array('adoptive_family', $mrtuser->user_meta->roles)) {
-
-            $form = $gform->set_form(AppForm::edit_adoptive_family(), $mrtuser->profile->data);
+        if ($mrtuser->user_role == 'adoptive_family') {            
+            $form = $gform->set_form(AppForm::adoptive_family_edit(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
-        } elseif (in_array('adoption_agency', $mrtuser->user_meta->roles)) {
+        } elseif ($mrtuser->user_role == 'adoption_agency') {
             $form = $gform->set_form(AppForm::adoption_agency_edit(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
-        } elseif (in_array('birth_mother', $mrtuser->user_meta->roles)) {
-            $form = $gform->set_form(AppForm::birth_mother(), $mrtuser->profile->data);
+        } elseif ($mrtuser->user_role == 'birth_mother') {
+            $form = $gform->set_form(AppForm::birth_mother_register(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
         }
     }
@@ -63,7 +63,7 @@ function mrt_display_user_contact() {
     $gform = new Gform();
     $formhtmljq = new FormHtmlJq();
     $mrtuser = new MrtUser;
-    $form = $gform->set_form(AppForm::contact_adoptive_family(['country_id' => $mrtuser->contact->data['Country']]), $mrtuser->contact->data);
+    $form = $gform->set_form(AppForm::general_user_contact(['country_id' => $mrtuser->contact->data['Country']]), $mrtuser->contact->data);
     $return['form_html'] = $formhtmljq->create_form($form);
     return $return;
 }

@@ -169,9 +169,9 @@ class AppForm {
 
     // CREATE FORMS
 
-    public static function adoptive_family() {
+    public static function adoptive_family_register() {
         $form = [
-            'form_name' => 'form_adoptive_family',
+            'form_name' => 'adoptive_family_register',
             'submit' => false,
             'fields' => [
                 'user_type',
@@ -187,10 +187,10 @@ class AppForm {
         $form['fields']['user_type']['value'] = 'adoptive_family';
         return $form;
     }
-    
+
     public static function adoptive_family_couple() {
         $form = [
-            'form_name' => 'form_adoptive_family',
+            'form_name' => 'adoptive_family_couple',
             'submit' => 'Save',
             'fields' => [
                 'first_name',
@@ -208,9 +208,9 @@ class AppForm {
         return $form;
     }
 
-    public static function contact_adoptive_family($param) {
+    public static function general_user_contact($param) {
         $form = [
-            'form_name' => 'form_adoptive_family',
+            'form_name' => 'adoptive_family_contact',
             'submit' => 'Submit',
             'fields' => [
                 'action',
@@ -235,9 +235,9 @@ class AppForm {
         return $form;
     }
 
-    public static function edit_adoptive_family() {
+    public static function adoptive_family_edit() {
         $form = [
-            'form_name' => 'form_adoptive_family',
+            'form_name' => 'adoptive_family_edit',
             'submit' => false,
             'fields' => [
                 'first_name',
@@ -254,30 +254,6 @@ class AppForm {
 
         $form['fields'] = self::get_required_fields($form['fields']);
         $form['fields']['action']['value'] = 'edit_profile';
-        return $form;
-    }
-
-    public static function adoption_agency() {
-        $form = [
-            'form_name' => 'form_adoption_agency',
-            'submit' => false,
-            'fields' => [
-                'user_type',
-                'title',
-                'uri',
-                'first_name',
-                'last_name',
-                'mobile_num',
-                'StreetAddress',
-                'City',
-                'Country',
-                'State',
-                'Zip',
-            ]
-        ];
-
-        $form['fields'] = self::get_required_fields($form['fields']);
-        $form['fields']['user_type']['value'] = 'adoption_agency';
         return $form;
     }
 
@@ -321,7 +297,7 @@ class AppForm {
         return $form;
     }
 
-    public static function birth_mother() {
+    public static function birth_mother_register() {
         $form = [
             'form_name' => 'form_birth_mother',
             'submit' => false,

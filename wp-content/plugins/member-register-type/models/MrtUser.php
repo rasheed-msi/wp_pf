@@ -32,6 +32,7 @@ class MrtUser {
         $this->profile->data['marital_status'] = (is_null($this->profile->data['couple_id']))? 'single' : 'couple';
 
         $this->user_meta = get_userdata($this->user_id);
+        $this->user_role = $this->user_meta->roles[0];
     }
 
     public function set_couple() {
@@ -193,7 +194,7 @@ class MrtUser {
         $agency_user->delete('pf_profile_id', $this->profile->id);
     }
 
-    public function update_agency($agency) {
+    public function update_agency($agency_id) {
         // Add agency
         $agency_user = new MrtRelationAgencyUser;
         $agency_user->delete('pf_profile_id', $this->profile->id);
@@ -201,7 +202,7 @@ class MrtUser {
         $insert = [];
         $insert['wp_users_id'] = $this->user_id;
         $insert['pf_profile_id'] = $this->profile->id;
-        $insert['pf_agency_id'] = $agency;
+        $insert['pf_agency_id'] = $agency_id;
         $agency_user->insert($insert);
     }
 

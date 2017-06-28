@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
         </span>
         
         <?php if (current_user_can('view_subscriptions_nav')): ?>
-            <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('contact'); ?>">
+            <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('couple'); ?>">
                 <a href="<?php echo MeprHooks::apply_filters('mepr_account-nav-payments-link', $account_url . $delim . 'action=couple'); ?>" id="mepr-account-payments"><?php _e('Couple', 'memberpress'); ?></a>
             </span>
             <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('subscriptions'); ?>">

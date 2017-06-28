@@ -13,8 +13,8 @@ class ListHtml {
         $this->form = $form;
 
         $html = '';
-        
-        if(!is_array($this->form['fields'])){
+
+        if (!is_array($this->form['fields'])) {
             return false;
         }
 
@@ -34,7 +34,6 @@ class ListHtml {
         $col = (isset($col) && $col == 6) ? '<div class="col-sm-6 col-md-6">' : '<div class="col-sm-12 col-md-12">';
 
         switch ($type):
-
 
             case 'email':
             case 'password':
@@ -65,12 +64,12 @@ class ListHtml {
                 ?>
                 <?php echo $col; ?>
                 <?php
-                foreach ($options as $key => $optval){
-                    if($key == $value){
+                foreach ($options as $key => $optval) {
+                    if ($key == $value) {
                         $option_value = $optval;
                         break;
-                    }   
-                } 
+                    }
+                }
                 ?>
                 <p><?php echo $label . ': ' . $option_value; ?></p>
                 <?php echo '</div>'; ?>
@@ -82,12 +81,12 @@ class ListHtml {
                 <?php echo $col; ?>
                 <?php
                 $option_value = [];
-                foreach ($options as $key => $optval){
-                    if($key == $value){
+                foreach ($options as $key => $optval) {
+                    if ($key == $value) {
                         $option_value[] = $optval;
                         break;
-                    }   
-                } 
+                    }
+                }
                 ?>
                 <p><?php echo $label . ': ' . implode(', ', $option_value); ?></p>
                 <?php echo '</div>'; ?>
@@ -98,12 +97,12 @@ class ListHtml {
                 ?>
                 <?php echo $col; ?>
                 <?php
-                foreach ($options as $key => $optval){
-                    if($key == $value){
+                foreach ($options as $key => $optval) {
+                    if ($key == $value) {
                         $option_value = $optval;
                         break;
-                    }   
-                } 
+                    }
+                }
                 ?>
                 <p><?php echo $label . ': ' . $option_value; ?></p>
                 <?php echo '</div>'; ?>
@@ -113,12 +112,13 @@ class ListHtml {
             case 'select-multiple':
                 ?>
                 <?php echo $col; ?>
-                        <?php
-                        $checked = '';
-                        foreach ($options as $key => $option_value):
-                            $checked = ($key == $value) ? ', ' . $option_value : '';
-                        endforeach; ?>
-                    <p><?php echo $label . ': ' . $option_value?></p>
+                <?php
+                $checked = '';
+                foreach ($options as $key => $option_value):
+                    $checked = ($key == $value) ? ', ' . $option_value : '';
+                endforeach;
+                ?>
+                <p><?php echo $label . ': ' . $option_value ?></p>
                 <?php echo '</div>'; ?>
                 <?php
                 break;
@@ -172,6 +172,22 @@ class ListHtml {
         $html = ob_get_contents();
         ob_end_clean();
         return $html;
+    }
+
+    function prepare_user_basic_details($form) {
+        if (isset($form['fields']['first_name'])) {
+            $last_name = (isset($form['fields']['last_name']['value'])) ? $form['fields']['last_name']['value'] : '';
+            $form['fields']['first_name']['value'] = $form['fields']['first_name']['value'] . ' ' . $last_name;
+            $form['fields']['first_name']['label'] = 'Name';
+            unset($form['fields']['last_name']);
+        }
+        
+        return $form;
+    }
+    function prepare_user_contact_details($form) {
+        unset($form['fields']['mobile_num']);
+        
+        return $form;
     }
 
 }
