@@ -187,6 +187,26 @@ class AppForm {
         $form['fields']['user_type']['value'] = 'adoptive_family';
         return $form;
     }
+    
+    public static function adoptive_family_couple() {
+        $form = [
+            'form_name' => 'form_adoptive_family',
+            'submit' => 'Save',
+            'fields' => [
+                'first_name',
+                'last_name',
+                'gender',
+                'religion_id',
+                'ethnicity_id',
+                'education_id',
+                'action',
+            ]
+        ];
+
+        $form['fields'] = self::get_required_fields($form['fields']);
+        $form['fields']['action']['value'] = 'adoptive_family_couple';
+        return $form;
+    }
 
     public static function contact_adoptive_family($param) {
         $form = [

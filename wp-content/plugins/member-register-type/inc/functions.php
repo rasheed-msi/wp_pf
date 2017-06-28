@@ -68,6 +68,16 @@ function mrt_display_user_contact() {
     return $return;
 }
 
+function mrt_display_user_couple() {
+    $gform = new Gform();
+    $formhtmljq = new FormHtmlJq();
+    $mrtuser = new MrtUser;
+    $mrtuser->set_couple();
+    $form = $gform->set_form(AppForm::adoptive_family_couple(), $mrtuser->couple->data);
+    $return['form_html'] = $formhtmljq->create_form($form);
+    return $return;
+}
+
 function mrt_get_customposts($post_type, $display_count = -1) {
     $page = get_query_var('paged') ? get_query_var('paged') : 1;
     $offset = ( $page - 1 ) * $display_count;

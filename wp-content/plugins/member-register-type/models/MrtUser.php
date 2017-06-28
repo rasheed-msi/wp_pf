@@ -28,8 +28,43 @@ class MrtUser {
 
         $this->profile->data = $this->profile->get($this->profile->id);
         $this->contact->data = $this->contact->get($this->contact->id);
-        
+
+        $this->profile->data['marital_status'] = (is_null($this->profile->data['couple_id']))? 'single' : 'couple';
+
         $this->user_meta = get_userdata($this->user_id);
+    }
+
+    public function set_couple() {
+        if (is_null($this->profile->data['couple_id'])) {
+            $this->profile->data['marital_status'] = false;
+            return false;
+        }
+        
+        $this->couple = new MrtProfile();
+        $this->couple->id = $this->profile->data['couple_id'];
+        $this->couple->data = $this->couple->get($this->couple->id);
+
+        if (!empty($this->couple->data)) {
+            $this->profile->data['marital_status'] = true;
+        }
+    }
+
+    public function create_couple($data) {
+        echo 'new couple set';
+        $this->couple = new MrtProfile();
+        $data['couple_id'] = $this->profile->id;
+        $this->couple->id = $this->couple->insert($data);
+        $this->couple->data = $this->couple->get($this->couple->id);
+        $this->profile->update(['couple_id' => $this->couple->id]);
+    }
+
+    public function update_couple($data) {
+        if (isset($this->couple->id)) {
+            $this->couple->update($data);
+            $this->couple->data = $this->couple->get($this->couple->id);
+        }else{
+            $this->create_couple($data);
+        }
     }
 
     /**
@@ -143,6 +178,11 @@ class MrtUser {
                 $data['pf_profile_id'] = $this->profile->id;
                 $this->contact->update($data);
             }
+        }
+
+        if (isset($data['action']) && $data['action'] == 'adoptive_family_couple') {
+            $this->set_couple();
+            $this->update_couple($data);
         }
     }
 

@@ -12,7 +12,11 @@ if (!defined('ABSPATH')) {
         <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('contact'); ?>">
             <a href="<?php echo MeprHooks::apply_filters('mepr_account-nav-payments-link', $account_url . $delim . 'action=contact'); ?>" id="mepr-account-payments"><?php _e('Contact', 'memberpress'); ?></a>
         </span>
+        
         <?php if (current_user_can('view_subscriptions_nav')): ?>
+            <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('contact'); ?>">
+                <a href="<?php echo MeprHooks::apply_filters('mepr_account-nav-payments-link', $account_url . $delim . 'action=couple'); ?>" id="mepr-account-payments"><?php _e('Couple', 'memberpress'); ?></a>
+            </span>
             <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('subscriptions'); ?>">
                 <a href="<?php echo MeprHooks::apply_filters('mepr-account-nav-subscriptions-link', $account_url . $delim . 'action=subscriptions'); ?>" id="mepr-account-subscriptions"><?php _e('Subscriptions', 'memberpress'); ?></a>
             </span>

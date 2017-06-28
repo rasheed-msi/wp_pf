@@ -4,6 +4,8 @@
 <?php do_action('mrt_edit_user_profile', $mepr_current_user->ID); ?>
 <?php if ($_GET['action'] == 'contact'): ?>
     <?php include 'contact.php';; ?>
+<?php elseif ($_GET['action'] == 'couple'): ?>
+    <?php include 'couple.php';; ?>
 <?php else: ?>
     
     <div class="mp_wrapper">

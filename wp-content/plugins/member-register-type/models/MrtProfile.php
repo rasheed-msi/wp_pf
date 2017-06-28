@@ -14,8 +14,8 @@ class MrtProfile extends MrtDbbase {
         $this->fields = [
             'wp_users_id',
             'pf_old_id',
-//            'first_name',
-//            'last_name',
+            'first_name',
+            'last_name',
             'gender',
             'dob',
 //            'marital_status',
@@ -26,6 +26,7 @@ class MrtProfile extends MrtDbbase {
             'education_id',
             'Status_id',
             'pf_agency_id',
+            'couple_id',
         ];
 
         $this->field_default = [];
