@@ -8,14 +8,9 @@ class MrtMidController {
     }
 
     function test() {
-        $mrtuser = new MrtProfile(8226);
-        $data = [
-            'wp_users_id' => '8226',
-            'gender' => 'male',
-        ];
-        $mrtuser->insert($data);
+        $form = AppForm::sample_test_form();
         
-        
+        echo '<pre>', print_r($form), '</pre>';
         exit();
     }
 

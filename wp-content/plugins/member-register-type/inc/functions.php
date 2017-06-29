@@ -51,7 +51,7 @@ function mrt_display_user_register() {
             $form = $gform->set_form(AppForm::adoption_agency_edit(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
         } elseif ($mrtuser->user_role == 'birth_mother') {
-            $form = $gform->set_form(AppForm::birth_mother_register(), $mrtuser->profile->data);
+            $form = $gform->set_form(AppForm::birth_mother_edit(), $mrtuser->profile->data);
             $return['form_html'] = $formhtmljq->create_form($form);
         }
     }

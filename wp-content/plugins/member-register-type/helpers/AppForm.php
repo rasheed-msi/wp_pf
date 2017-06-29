@@ -4,10 +4,16 @@ class AppForm {
 
     public static function get_required_fields($fields) {
         $all_fields = self::set_array_key(self::fields());
+        
         $return = [];
         foreach ($fields as $key => $value) {
             if (is_array($value)) {
-                $return[] = $value;
+                if (isset($all_fields[$key])) {
+                    $return[$key] = array_merge($all_fields[$key], $value);
+                }else{
+                    $return[$key] = $value;
+                }
+                
                 continue;
             }
             if (isset($all_fields[$value])) {
@@ -307,12 +313,28 @@ class AppForm {
                 'last_name',
                 'pf_agency_id',
                 'gender',
-                'marital_status',
             ]
         ];
 
         $form['fields'] = self::get_required_fields($form['fields']);
         $form['fields']['user_type']['value'] = 'birth_mother';
+        return $form;
+    }
+    public static function birth_mother_edit() {
+        $form = [
+            'form_name' => 'form_birth_mother',
+            'submit' => false,
+            'fields' => [
+                'action',
+                'first_name',
+                'last_name',
+                'pf_agency_id',
+                'gender',
+            ]
+        ];
+
+        $form['fields'] = self::get_required_fields($form['fields']);
+        $form['fields']['action']['value'] = 'edit_profile';
         return $form;
     }
 
@@ -330,6 +352,27 @@ class AppForm {
         ];
 
         $form['fields'] = self::get_required_fields($form['fields']);
+        return $form;
+    }
+    
+    public static function sample_test_form() {
+        $form = [
+            'form_name' => 'form_birth_mother',
+            'submit' => false,
+            'fields' => [
+                'user_type' => [
+                    'value' => 'birth_mother',
+                    'col' => '6'
+                ],
+                'first_name',
+                'last_name',
+                'pf_agency_id',
+                'gender',
+            ]
+        ];
+
+        $form['fields'] = self::get_required_fields($form['fields']);
+        
         return $form;
     }
 
