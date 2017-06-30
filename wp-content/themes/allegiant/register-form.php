@@ -9,23 +9,30 @@
     <?php $template->the_errors(); ?>
     <?php $form = mrt_display_user_register(); ?>
     <h2><?php echo $form['heading']; ?></h2>
-    
+
+    <?php if (isset($form['errors'])): ?>
+        <?php foreach ($form['errors'] as $key => $value): ?>
+            <p class="error"><?php echo $value; ?></p>
+        <?php endforeach; ?>
+    <?php endif; ?>
+
+
     <form name="registerform" id="registerform<?php $template->the_instance(); ?>" action="<?php $template->the_action_url('register', 'login_post'); ?>" method="post">
-        
+
         <?php if ('email' != $theme_my_login->get_option('login_type')) : ?>
-            <p class="tml-user-login-wrap">
-                <label for="user_login<?php $template->the_instance(); ?>"><?php _e('Username', 'theme-my-login'); ?></label>
-                <input type="text" name="user_login" id="user_login<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_login'); ?>" size="20" />
-            </p>
+    <!--            <p class="tml-user-login-wrap">
+            <label for="user_login<?php $template->the_instance(); ?>"><?php _e('Username', 'theme-my-login'); ?></label>
+            <input type="text" name="user_login" id="user_login<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_login'); ?>" size="20" />
+        </p>-->
         <?php endif; ?>
 
         <?php echo $form['form_html']; ?>
 
 
-        <p class="tml-user-email-wrap">
+<!--        <p class="tml-user-email-wrap">
             <label for="user_email<?php $template->the_instance(); ?>"><?php _e('E-mail', 'theme-my-login'); ?></label>
             <input type="text" name="user_email" id="user_email<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_email'); ?>" size="20" />
-        </p>
+        </p>-->
 
         <?php do_action('register_form'); ?>
 

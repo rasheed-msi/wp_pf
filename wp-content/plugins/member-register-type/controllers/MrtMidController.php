@@ -8,10 +8,9 @@ class MrtMidController {
     }
 
     function test() {
-        $form = AppForm::sample_test_form();
+        echo $form = MrtApiController::base('set_agency_status_approve');
         
-        echo '<pre>', print_r($form), '</pre>';
-        exit();
+      
     }
 
 }

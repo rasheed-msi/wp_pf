@@ -24,11 +24,16 @@ class MrtUser {
 
         $this->user = get_user_by('ID', $this->user_id);
         $this->profile->id = $this->profile->getId($this->user_id);
-        $this->contact->id = $this->contact->getId($this->profile->id);
+        
 
-        $this->profile->data = $this->profile->get($this->profile->id);
-        $this->contact->data = $this->contact->get($this->contact->id);
-
+        if(!is_null($this->profile->id)){
+            $this->contact->id = $this->contact->getId($this->profile->id);
+            $this->profile->data = $this->profile->get($this->profile->id);
+        }
+        if(!is_null($this->contact->id)){
+            $this->contact->data = $this->contact->get($this->contact->id);
+        }
+        
         $this->profile->data['marital_status'] = (is_null($this->profile->data['couple_id']))? 'single' : 'couple';
 
         $this->user_meta = get_userdata($this->user_id);
@@ -125,6 +130,8 @@ class MrtUser {
     }
 
     public function create_profile($data) {
+        
+        $errors = [];
 
         if (is_null($this->user_id)) {
             return false;
@@ -138,11 +145,26 @@ class MrtUser {
         }
 
         if (isset($data['user_type']) && $data['user_type'] == 'adoption_agency') {
+            
             $agency = new MrtAgencies();
-            $agency->insert($data);
+            $errors1 = $agency->validate($data);
+            
+            if(empty($errors1)){
+                $data['status'] = 2; // Set agency status to pending
+                $data['admin_id'] = $this->user_id;
+                $agency_id = $agency->insert($data);
+                echo 'agency created';
+                echo $agency_id ;
+                exit();
+            }else{
+                $errors = array_merge($errors, $errors1);
+                echo 'agency not created';
+                return $errors;
+            }
         }
 
         $data['wp_users_id'] = $this->user_id;
+        $data['pf_agency_id'] = $agency_id;
         $this->profile->id = $this->profile->insert($data);
         $this->profile->data = $this->profile->get($this->profile->id);
 
@@ -152,6 +174,8 @@ class MrtUser {
         if (isset($data['pf_agency_id'])) {
             $this->update_agency($data['pf_agency_id']);
         }
+        
+        return $errors;
     }
 
     public function update_profile($data) {

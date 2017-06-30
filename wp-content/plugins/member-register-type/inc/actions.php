@@ -9,18 +9,21 @@ function test_page() {
 add_action('user_register', 'mrt_user_register');
 
 function mrt_user_register($user_id) {
-
     if (isset($_POST['user_type'])) {
-
         $mrtuser = new MrtUser($user_id);
-        $mrtuser->create_profile($_POST);
-
+        $error = $mrtuser->create_profile($_POST);
+        $wp_error = new WP_Error();
+        $wp_error->add('error', $error);
+        if (!empty($error)) {
+            $wp_error->add('error', $error);
+            unset($error);
+        }
     }
 }
 
 add_action('mrt_edit_user_profile', 'mrt_profile_update', 10, 2);
 
-function mrt_profile_update($user_id) {    
+function mrt_profile_update($user_id) {
     $mrtuser = new MrtUser($user_id);
     $mrtuser->update_profile($_POST);
 }
@@ -61,4 +64,14 @@ function page_filter_user() {
         </ul>
     <?php endforeach; ?>
     <?php
+}
+
+function mrt_admin_menu_item() {
+add_menu_page('Agencies', 'Agencies', 'manage_options', 'mrt-agencies', 'mrt_admin_page_agencies');    
+}
+
+add_action('admin_menu', 'mrt_admin_menu_item');
+
+function mrt_admin_page_agencies() {
+    include MRT_PLUGIN_PATH . 'templates/admin/agency.php';
 }

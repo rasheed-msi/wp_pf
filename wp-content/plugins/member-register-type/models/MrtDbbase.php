@@ -59,9 +59,11 @@ class MrtDbbase {
         }
 
 
-        $this->link->update(
+        $result = $this->link->update(
                 $this->table, $update, [$where_key => $where_value]
         );
+        
+        return $result;
     }
 
     public function delete($where_key = null, $where_value = null) {

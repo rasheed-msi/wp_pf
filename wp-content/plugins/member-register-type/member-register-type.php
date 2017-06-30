@@ -22,6 +22,8 @@ include_once MRT_PLUGIN_PATH . 'controllers/MrtApiController.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Stock.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Dot.php';
 include_once MRT_PLUGIN_PATH . 'helpers/AppForm.php';
+include_once MRT_PLUGIN_PATH . 'helpers/State.php';
+include_once MRT_PLUGIN_PATH . 'helpers/Temp.php';
 include_once MRT_PLUGIN_PATH . 'models/MrtDbbase.php';
 include_once MRT_PLUGIN_PATH . 'models/MrtProfile.php';
 include_once MRT_PLUGIN_PATH . 'models/MrtContact.php';
@@ -38,6 +40,16 @@ add_action('wp_enqueue_scripts', 'mrt_add_user_scripts', 20);
 
 function mrt_add_user_scripts() {
     wp_enqueue_style('mrt-styles', MRT_PLUGIN_URL . 'css/styles.css');
+    
     wp_enqueue_script('mrt-scripts', MRT_PLUGIN_URL . 'js/mrt-scrpts.js', array('jquery'), '1.0.0', true);
     wp_enqueue_script('mrt-app-const-scripts', MRT_PLUGIN_URL . 'js/appConst.js', array('jquery'), '1.0.0', true);
+    
 }
+
+
+function mrt_admin_scripts() {
+    wp_enqueue_script('mrt-scripts', MRT_PLUGIN_URL . 'js/mrt-scrpts.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_style('mrt-data-table-style', 'https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css');
+    wp_enqueue_script('mrt-data-table-scripts', 'https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js', array('jquery'), '1.0.0', true);
+}
+add_action( 'admin_enqueue_scripts', 'mrt_admin_scripts' );
