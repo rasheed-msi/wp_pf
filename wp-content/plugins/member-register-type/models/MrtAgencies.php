@@ -16,6 +16,12 @@ class MrtAgencies extends MrtDbbase {
             'agency_phone',
             'admin_id',
             'status',
+            'street_1',
+            'street_2',
+            'City',
+            'Country',
+            'State',
+            'Zip',
         ];
         
         $this->field_default = [];

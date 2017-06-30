@@ -153,12 +153,9 @@ class MrtUser {
                 $data['status'] = 2; // Set agency status to pending
                 $data['admin_id'] = $this->user_id;
                 $agency_id = $agency->insert($data);
-                echo 'agency created';
-                echo $agency_id ;
-                exit();
+                
             }else{
                 $errors = array_merge($errors, $errors1);
-                echo 'agency not created';
                 return $errors;
             }
         }

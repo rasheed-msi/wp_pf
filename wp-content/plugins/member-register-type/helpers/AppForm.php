@@ -129,6 +129,16 @@ class AppForm {
             ],
             [
                 'type' => 'text',
+                'label' => 'Street 1',
+                'name' => 'street_1',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Street 2',
+                'name' => 'street_2',
+            ],
+            [
+                'type' => 'text',
                 'label' => 'City',
                 'name' => 'City',
             ],
@@ -300,7 +310,12 @@ class AppForm {
                     'required' => true,
                 ],
                 'agency_email',
-                'agency_address',
+                'street_1',
+                'street_2',
+                'City',
+                'Country',
+                'State',
+                'Zip',
                 'uri',
                 'agency_phone',
                 'user_login' => [
