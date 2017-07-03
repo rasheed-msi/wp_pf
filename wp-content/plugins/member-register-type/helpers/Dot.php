@@ -127,7 +127,7 @@ class Dot {
             if (in_array($key, $banned_roles)) {
                 continue;
             }
-
+            
             if (!in_array($key, $required_roles)) {
                 remove_role($key);
             }
@@ -177,16 +177,16 @@ class Dot {
         global $wpdb;
         $records = $wpdb->get_results("SELECT {$column1}, {$column2} FROM {$table}", ARRAY_A);
         $results = self::set_array_key_value($records, $column1, $column2);
-        if($null_select){
-            array_unshift($results, "-- select --");
+        if ($null_select) {
+            $null_array = ['' => "-- select --"];
+            $results = $null_array + $results;
         }
         return $results;
     }
-    
+
     public static function get_states($country_id) {
         global $wpdb;
         return $wpdb->get_results("SELECT state_id, State FROM pf_states WHERE country_id = {$country_id}", ARRAY_A);
-     
     }
 
 }

@@ -25,14 +25,13 @@ class MrtApiController extends WP_REST_Controller {
         return (isset(self::$request[$id]['base'])) ? self::$request[$id]['base'] : false;
     }
 
-    public function format($id, $param = []) {
+    public static function format($id, $param = []) {
 
         $format = (isset(self::$request[$id]['format'])) ? self::$request[$id]['format'] : false;
 
         if (!$format) {
             return false;
         }
-
 
         foreach ($param as $key => $value) {
             $format = str_replace('{{' . $key . '}}', $value, $format);

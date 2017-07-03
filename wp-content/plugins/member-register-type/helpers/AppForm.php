@@ -31,6 +31,19 @@ class AppForm {
         return $return;
     }
 
+    public static function set_all_required($fields) {
+        foreach ($fields as $key => $value) {
+            if (isset($value['required'])) {
+                continue;
+            }
+            if (isset($value['type']) && $value['type'] == 'hidden') {
+                continue;
+            }
+            $fields[$key]['required'] = true;
+        }
+        return $fields;
+    }
+
     public static function fields() {
         return [
             [
@@ -214,17 +227,21 @@ class AppForm {
             'form_name' => 'adoptive_family_register',
             'submit' => false,
             'fields' => [
-                'user_type',
+                'user_type' => ['value' => 'adoptive_family'],
+                'marital_status',
                 'first_name',
                 'last_name',
-                'pf_agency_id',
                 'gender',
-                'marital_status',
+                'user_email',
+                'user_login',
+                'Country',
+                'mobile_num',
+                'pf_agency_id',
             ]
         ];
 
         $form['fields'] = self::get_required_fields($form['fields']);
-        $form['fields']['user_type']['value'] = 'adoptive_family';
+        $form['fields'] = self::set_all_required($form['fields']);
         return $form;
     }
 
@@ -280,8 +297,8 @@ class AppForm {
             'form_name' => 'adoptive_family_edit',
             'submit' => false,
             'fields' => [
-                'first_name',
-                'last_name',
+                'first_name' => ['required' => true],
+                'last_name' => ['required' => true],
                 'pf_agency_id',
                 'gender',
                 'marital_status',
@@ -311,7 +328,7 @@ class AppForm {
                 ],
                 'agency_email',
                 'street_1',
-                'street_2',
+                'street_2' => ['required' => false],
                 'City',
                 'Country',
                 'State',
@@ -319,15 +336,18 @@ class AppForm {
                 'uri',
                 'agency_phone',
                 'user_login' => [
-                    'label' => 'Admin Username'
+                    'label' => 'Admin Username',
+                    'required' => true
                 ],
                 'user_email' => [
-                    'label' => 'Admin Email'
+                    'label' => 'Admin Email',
+                    'required' => true
                 ],
             ]
         ];
 
         $form['fields'] = self::get_required_fields($form['fields']);
+        $form['fields'] = self::set_all_required($form['fields']);
         return $form;
     }
 
@@ -352,16 +372,21 @@ class AppForm {
             'form_name' => 'form_birth_mother',
             'submit' => false,
             'fields' => [
-                'user_type',
+                'user_type' => ['value' => 'birth_mother'],
+                'marital_status',
                 'first_name',
                 'last_name',
-                'pf_agency_id',
                 'gender',
+                'user_email',
+                'user_login',
+                'Country',
+                'mobile_num',
+                'pf_agency_id',
             ]
         ];
 
         $form['fields'] = self::get_required_fields($form['fields']);
-        $form['fields']['user_type']['value'] = 'birth_mother';
+        $form['fields'] = self::set_all_required($form['fields']);
         return $form;
     }
 
@@ -370,16 +395,15 @@ class AppForm {
             'form_name' => 'form_birth_mother',
             'submit' => false,
             'fields' => [
-                'action',
-                'first_name',
-                'last_name',
-                'pf_agency_id',
-                'gender',
+                'action' => ['value' => 'edit_profile'],
+                'first_name' => ['required' => true],
+                'last_name' => ['required' => true],
+                'pf_agency_id' => ['required' => true],
+                'gender' => ['required' => true],
             ]
         ];
 
         $form['fields'] = self::get_required_fields($form['fields']);
-        $form['fields']['action']['value'] = 'edit_profile';
         return $form;
     }
 

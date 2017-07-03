@@ -2,8 +2,24 @@
 add_shortcode('test-page', 'test_page');
 
 function test_page() {
-    $test = new MrtMidController();
-    $test->test();
+    $test = AppForm::adoptive_family_register();
+    echo '<pre>', print_r($test), '</pre>';
+    exit();
+}
+
+add_filter('registration_errors', 'mrt_tml_registration_errors');
+
+function mrt_tml_registration_errors($errors) {
+    $mrt_errors = MrtProfile::validate($_POST);
+    foreach ($mrt_errors as $key => $error) {
+        $errors->add('empty_' . $key, $error);
+    }
+    $agency = new MrtAgencies();
+    $agency_errors = $agency->validate($_POST);
+    foreach ($agency_errors as $key => $error) {
+        $errors->add('empty_' . $key, $error);
+    }
+    return $errors;
 }
 
 add_action('user_register', 'mrt_user_register');
@@ -67,7 +83,7 @@ function page_filter_user() {
 }
 
 function mrt_admin_menu_item() {
-add_menu_page('Agencies', 'Agencies', 'manage_options', 'mrt-agencies', 'mrt_admin_page_agencies');    
+    add_menu_page('Agencies', 'Agencies', 'manage_options', 'mrt-agencies', 'mrt_admin_page_agencies');
 }
 
 add_action('admin_menu', 'mrt_admin_menu_item');
