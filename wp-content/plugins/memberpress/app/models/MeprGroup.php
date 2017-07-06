@@ -3,7 +3,9 @@ if(!defined('ABSPATH')) {die('You are not allowed to call this page directly.');
 
 class MeprGroup extends MeprCptModel {
   public static $pricing_page_disabled_str         = '_mepr_group_pricing_page_disabled';
+  public static $disable_change_plan_popup_str     = '_mepr_group_disable_change_plan_popup';
   public static $is_upgrade_path_str               = '_mepr_group_is_upgrade_path';
+  public static $upgrade_path_reset_period_str     = '_mepr_group_upgrade_path_reset_period';
   public static $group_theme_str                   = '_mepr_group_theme';
   public static $page_button_class_str             = '_mepr_page_button_class';
   public static $page_button_highlighted_class_str = '_mepr_page_button_highlighted_class';
@@ -28,7 +30,7 @@ class MeprGroup extends MeprCptModel {
 
   public $default_style_options;
 
-  public function __construct($id = null) {
+  public function __construct($obj = null) {
     $this->default_style_options = array(
       'layout'        => 'mepr-vertical',
       'style'         => 'mepr-gray',
@@ -40,11 +42,13 @@ class MeprGroup extends MeprCptModel {
     );
 
     $this->load_cpt(
-      $id,
+      $obj,
       self::$cpt,
       array(
         'pricing_page_disabled' => false,
+        'disable_change_plan_popup' => false,
         'is_upgrade_path' => false,
+        'upgrade_path_reset_period' => false,
         'group_theme' => 'minimal_gray_horizontal.css',
         'page_button_class' => '',
         'page_button_highlighted_class' => '',
@@ -65,8 +69,10 @@ class MeprGroup extends MeprCptModel {
 
   public function validate() {
     $this->validate_is_bool($this->pricing_page_disabled, 'pricing_page_disabled');
+    $this->validate_is_bool($this->disable_change_plan_popup, 'disable_change_plan_popup');
 
     $this->validate_is_bool($this->is_upgrade_path, 'is_upgrade_path');
+    $this->validate_is_bool($this->upgrade_path_reset_period, 'upgrade_path_reset_period');
 
     $this->validate_is_in_array(
       $this->group_theme,
@@ -92,7 +98,9 @@ class MeprGroup extends MeprCptModel {
     $id = $this->ID;
 
     update_post_meta($id, self::$pricing_page_disabled_str, $this->pricing_page_disabled);
+    update_post_meta($id, self::$disable_change_plan_popup_str, $this->disable_change_plan_popup);
     update_post_meta($id, self::$is_upgrade_path_str, $this->is_upgrade_path);
+    update_post_meta($id, self::$upgrade_path_reset_period_str, $this->upgrade_path_reset_period);
     update_post_meta($id, self::$group_theme_str, $this->group_theme);
     update_post_meta($id, self::$page_button_class_str, $this->page_button_class);
     update_post_meta($id, self::$page_button_highlighted_class_str, $this->page_button_highlighted_class);

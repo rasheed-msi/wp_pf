@@ -147,6 +147,14 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
       $timestamp = isset($_POST['payment_date']) ? strtotime($_POST['payment_date']) : time();
       $first_txn = new MeprTransaction($sub->first_txn_id);
 
+      //Prevent recording duplicates
+      $existing_txn = MeprTransaction::get_one_by_trans_num($_POST['txn_id']);
+      if( isset($existing_txn->id) &&
+          $existing_txn->id > 0 &&
+          in_array($existing_txn->status, array(MeprTransaction::$complete_str, MeprTransaction::$confirmed_str)) ) {
+        return;
+      }
+
       //If this is a trial payment, let's just convert the confirmation txn into a payment txn
       //then we won't have to mess with setting expires_at as it was already handled
       if($this->is_subscr_trial_payment($sub)) {
@@ -158,7 +166,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
         $txn->txn_type   = MeprTransaction::$payment_str;
         $txn->status     = MeprTransaction::$complete_str;
         $txn->response   = json_encode($_POST);
-        $txn->subscription_id = $sub->ID;
+        $txn->subscription_id = $sub->id;
         $txn->store();
       }
       else {
@@ -173,7 +181,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
         $txn->txn_type   = MeprTransaction::$payment_str;
         $txn->status     = MeprTransaction::$complete_str;
         $txn->response   = json_encode($_POST);
-        $txn->subscription_id = $sub->ID;
+        $txn->subscription_id = $sub->id;
         $txn->store();
 
         //Check that the subscription status is still enabled
@@ -191,7 +199,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
                           MeprUtils::object_to_string($txn->rec, true),
                           $this->settings->debug);
 
-      $this->send_transaction_receipt_notices( $txn );
+      MeprUtils::send_transaction_receipt_notices( $txn );
 
       return $txn;
     }
@@ -201,9 +209,10 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
 
   /** Used to record a declined payment. */
   public function record_payment_failure() {
-    if(isset($_POST['txn_id']) &&
-       $txn_res = MeprTransaction::get_one_by_trans_num($_POST['txn_id']) &&
-       isset($txn_res->id)) {
+    if(isset($_POST['ipn_track_id']) && $txn_res = MeprTransaction::get_one_by_trans_num($_POST['ipn_track_id']) && isset($txn_res->id)) {
+      return false; //We've already recorded this failure duh - don't send more emails
+    }
+    elseif(isset($_POST['txn_id']) && $txn_res = MeprTransaction::get_one_by_trans_num($_POST['txn_id']) && isset($txn_res->id)) {
       $txn = new MeprTransaction($txn_res->id);
       $txn->status = MeprTransaction::$failed_str;
       $txn->store();
@@ -213,7 +222,6 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
            (isset($_POST['subscr_id']) &&
             $sub = MeprSubscription::get_one_by_subscr_id($_POST['subscr_id']))) {
       $first_txn = $sub->first_txn();
-      $latest_txn = $sub->latest_txn(); //Don't think this is being used anywhere?
 
       $txn = new MeprTransaction();
       $txn->set_gross(isset($_POST['mc_gross'])?$_POST['mc_gross']:(isset($_POST['amount'])?$_POST['amount']:0.00));
@@ -222,10 +230,10 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
       $txn->coupon_id = $first_txn->coupon_id;
       $txn->txn_type = MeprTransaction::$payment_str;
       $txn->status = MeprTransaction::$failed_str;
-      $txn->subscription_id = $sub->ID;
+      $txn->subscription_id = $sub->id;
       $txn->response = json_encode($_POST);
-      // if txn_id isn't set then just use uniqid
-      $txn->trans_num = (isset($_POST['txn_id'])?$_POST['txn_id']:uniqid());
+      // if ipn_track_id isn't set then just use uniqid
+      $txn->trans_num = ( isset($_POST['ipn_track_id']) ? $_POST['ipn_track_id'] : uniqid() );
       $txn->gateway = $this->id;
       $txn->store();
 
@@ -236,7 +244,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
       return false; // Nothing we can do here ... so we outta here
     }
 
-    $this->send_failed_txn_notices($txn);
+    MeprUtils::send_failed_txn_notices($txn);
 
     return $txn;
   }
@@ -341,21 +349,20 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
       if( $prd->period_type=='lifetime' ) {
         if( $upgrade ) {
           $this->upgraded_sub($txn);
-          $this->send_upgraded_txn_notices( $txn );
+          MeprUtils::send_upgraded_txn_notices( $txn );
         }
         else if( $downgrade ) {
           $this->downgraded_sub($txn);
-          $this->send_downgraded_txn_notices( $txn );
+          MeprUtils::send_downgraded_txn_notices( $txn );
         }
         else {
           $this->new_sub($txn);
         }
 
-        $this->send_product_welcome_notices($txn);
-        $this->send_signup_notices( $txn );
+        MeprUtils::send_signup_notices( $txn );
       }
 
-      $this->send_transaction_receipt_notices( $txn );
+      MeprUtils::send_transaction_receipt_notices( $txn );
 
       return $txn;
     }
@@ -408,7 +415,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
 
       $txn->store();
 
-      $this->send_refunded_txn_notices($txn);
+      MeprUtils::send_refunded_txn_notices($txn);
 
       return $txn;
     }
@@ -429,7 +436,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
     $prd = $txn->product();
     $sub = $txn->subscription();
     $usr = $txn->user();
-    $tkn = get_post_meta($sub->ID, self::$paypal_token_str, true);
+    $tkn = get_post_meta($sub->id, self::$paypal_token_str, true);
 
     //IMPORTANT - PayPal txn will fail if the descriptions do not match exactly
     //so if you change the description here you also need to mirror it
@@ -531,7 +538,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
 
       $sub->subscr_id=$res['PROFILEID'];
       $sub->status=MeprSubscription::$active_str;
-      $sub->created_at = date('c',$timestamp);
+      $sub->created_at = gmdate('c',$timestamp);
 
       $sub->cc_last4 = substr($_REQUEST['mepr_cc_num'],-4);
       $sub->cc_exp_month = $_REQUEST['mepr_cc_exp_month'];
@@ -548,23 +555,22 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
                            MeprUtils::object_to_string($txn->rec, true),
                            $this->settings->debug );
 
-      $txn->set_gross($old_total); // Artificially set the old amount for notices
+      // $txn->set_gross($old_total); // Artificially set the old amount for notices
 
       if($upgrade) {
         $this->upgraded_sub($sub);
-        $this->send_upgraded_sub_notices($sub);
+        MeprUtils::send_upgraded_sub_notices($sub);
       }
       else if($downgrade) {
         $this->downgraded_sub($sub);
-        $this->send_downgraded_sub_notices($sub);
+        MeprUtils::send_downgraded_sub_notices($sub);
       }
       else {
         $this->new_sub($sub);
-        $this->send_new_sub_notices($sub);
+        MeprUtils::send_new_sub_notices($sub);
       }
 
-      $this->send_product_welcome_notices($txn);
-      $this->send_signup_notices( $txn );
+      MeprUtils::send_signup_notices( $txn );
 
       return array('subscription' => $sub, 'transaction' => $txn);
     }
@@ -642,7 +648,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
     $sub->status = MeprSubscription::$suspended_str;
     $sub->store();
 
-    $this->send_suspended_sub_notices($sub);
+    MeprUtils::send_suspended_sub_notices($sub);
 
     return $sub;
   }
@@ -676,7 +682,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
     $prior_txn = $sub->latest_txn();
     if(strtotime($prior_txn->expires_at) < time()) {
       $txn = new MeprTransaction();
-      $txn->subscription_id = $sub->ID;
+      $txn->subscription_id = $sub->id;
       $txn->trans_num  = $sub->subscr_id . '-' . uniqid();
       $txn->status     = MeprTransaction::$confirmed_str;
       $txn->txn_type   = MeprTransaction::$subscription_confirmation_str;
@@ -686,7 +692,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
       $txn->store();
     }
 
-    $this->send_resumed_sub_notices($sub);
+    MeprUtils::send_resumed_sub_notices($sub);
 
     return $sub;
   }
@@ -727,7 +733,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
       $sub->limit_reached_actions();
 
     if(!isset($_REQUEST['silent']) || ($_REQUEST['silent']==false))
-      $this->send_cancelled_sub_notices($sub);
+      MeprUtils::send_cancelled_sub_notices($sub);
 
     return $sub;
   }
@@ -751,7 +757,24 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
     * scripts for use on the page containing the payment form
     */
   public function enqueue_payment_form_scripts() {
-    // No need, handled on the PayPal side
+    wp_enqueue_script('mepr-gateway-checkout', MEPR_JS_URL . '/gateway/checkout.js', array('mepr-checkout-js'), MEPR_VERSION);
+  }
+
+  /** This gets called on wp_enqueue_script and enqueues a set of
+    * scripts for use on the front end user account page.
+    * Can be overridden if custom scripts are necessary.
+    */
+  public function enqueue_user_account_scripts() {
+    if( MeprUtils::valid_url_param('action','update','GET') && // (routing) Are we on the update credit card page?
+        MeprUtils::valid_url_param('sub', null, 'GET') && // (routing) Do we have a sub url parameter?
+        MeprSubscription::exists((int)$_GET['sub']) ) { // Does the subscription exist?
+      $sub = new MeprSubscription((int)$_GET['sub']);
+
+      // Ensure that the gateway associated with the subscription we're updating is for PayPalPro
+      if($sub->gateway == $this->id) {
+        wp_enqueue_script('mepr-default-gateway-checkout-js');
+      }
+    }
   }
 
   /** This gets called on the_content and just renders the payment form
@@ -774,9 +797,9 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
     echo $invoice;
 
     ?>
-    <div class="mp_wrapper">
+    <div class="mp_wrapper mp_payment_form_wrapper">
       <?php MeprView::render('/shared/errors', get_defined_vars()); ?>
-      <form action="<?php echo $prd->url('',true); ?>" method="post" id="payment-form" class="mepr-form" novalidate>
+      <form action="<?php //echo $prd->url('',true); //COMMENTING THIS OUT FOR https://github.com/caseproof/memberpress/issues/790  ?>" method="post" id="payment-form" class="mepr-checkout-form mepr-form mepr-card-form" novalidate>
         <input type="hidden" name="mepr_process_payment_form" value="Y" />
         <input type="hidden" name="mepr_transaction_id" value="<?php echo $txn_id; ?>" />
         <div class="mp-form-row">
@@ -784,7 +807,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
             <label><?php _e('Credit Card Number', 'memberpress'); ?></label>
             <span class="cc-error"><?php _e('Invalid Credit Card Number', 'memberpress'); ?></span>
           </div>
-          <input type="text" class="mepr-form-input cc-number validation" pattern="\d*" autocomplete="cc-number" required />
+          <input type="tel" class="mepr-form-input cc-number validation" pattern="\d*" autocomplete="cc-number" required />
           <input type="hidden" class="mepr-cc-num" name="mepr_cc_num"/>
           <script>
             jQuery(document).ready(function($) {
@@ -803,7 +826,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
             <label><?php _e('Expiration', 'memberpress'); ?></label>
             <span class="cc-error"><?php _e('Invalid Expiration', 'memberpress'); ?></span>
           </div>
-          <input type="text" class="mepr-form-input cc-exp validation" pattern="\d*" autocomplete="cc-exp" placeholder="mm/yy" required>
+          <input type="tel" class="mepr-form-input cc-exp validation" pattern="\d*" autocomplete="cc-exp" placeholder="mm/yy" required>
           <input type="hidden" class="cc-exp-month" name="mepr_cc_exp_month"/>
           <input type="hidden" class="cc-exp-year" name="mepr_cc_exp_year"/>
           <script>
@@ -822,7 +845,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
             <label><?php _e('CVC', 'memberpress'); ?></label>
             <span class="cc-error"><?php _e('Invalid CVC Code', 'memberpress'); ?></span>
           </div>
-          <input type="text" name="mepr_cvv_code" class="mepr-form-input card-cvc cc-cvc validation" pattern="\d*" autocomplete="off" required />
+          <input type="tel" name="mepr_cvv_code" class="mepr-form-input card-cvc cc-cvc validation" pattern="\d*" autocomplete="off" required />
         </div>
 
         <?php if(empty($usr->first_name) || empty($usr->last_name)): ?>
@@ -993,7 +1016,7 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
 
     ?>
     <div class="mp_wrapper">
-      <form action="" method="post" id="mepr_paypal_pro_update_cc_form" class="mepr-form" novalidate>
+      <form action="" method="post" id="mepr_paypal_pro_update_cc_form" class="mepr-checkout-form mepr-form" novalidate>
         <input type="hidden" name="_mepr_nonce" value="<?php echo wp_create_nonce('mepr_process_update_account_form'); ?>" />
         <div class="mepr_update_account_table">
           <div><strong><?php _e('Update your Credit Card information below', 'memberpress'); ?></strong></div>
@@ -1146,7 +1169,9 @@ class MeprPayPalProGateway extends MeprBasePayPalGateway {
       try {
         $this->process_payment_form($txn);
         $txn = new MeprTransaction($txn->id); //Grab the txn again, now that we've updated it
-        MeprUtils::wp_redirect($mepr_options->thankyou_page_url("trans_num={$txn->trans_num}"));
+        $product = new MeprProduct($txn->product_id);
+        $sanitized_title = sanitize_title($product->post_title);
+        MeprUtils::wp_redirect($mepr_options->thankyou_page_url("membership={$sanitized_title}&trans_num={$txn->trans_num}"));
       }
       catch( Exception $e ) {
         $prd = $txn->product();
@@ -1227,7 +1252,7 @@ The MemberPress Team
 
     if($prd->register_price_action == 'hidden' && !empty($prd->post_title))
       return $prd->post_title;
-    elseif($prd->register_price_action == 'custom' && !empty($prd->register_price))
+    elseif($prd->register_price_action == 'custom' && !empty($prd->register_price) && !$txn->coupon_id && !$txn->prorated)
       return "{$prd->post_title} - " . stripslashes($prd->register_price);
     else
       return "{$prd->post_title} - " . MeprTransactionsHelper::format_currency($txn);

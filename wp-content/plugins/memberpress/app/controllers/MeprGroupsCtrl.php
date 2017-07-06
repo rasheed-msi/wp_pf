@@ -35,13 +35,13 @@ class MeprGroupsCtrl extends MeprCptCtrl {
           'parent_item_colon' => __('Parent Group:', 'memberpress')
         ),
         'public' => true,
-        'show_ui' => true,
+        'show_ui' => true, //MeprUpdateCtrl::is_activated(),
         'show_in_menu' => 'memberpress',
         'capability_type' => 'page',
         'hierarchical' => true,
         'register_meta_box_cb' => 'MeprGroupsCtrl::add_meta_boxes',
         'rewrite' => array("slug" => $mepr_options->group_pages_slug, "with_front" => false),
-        'supports' => array('title', 'editor', 'page-attributes', 'comments')
+        'supports' => array('title', 'editor', 'page-attributes', 'comments', 'thumbnail')
       )
     );
     register_post_type( $this->cpt->slug, $this->cpt->config );
@@ -101,6 +101,7 @@ class MeprGroupsCtrl extends MeprCptCtrl {
   public static function columns($columns) {
     $columns = array(
       "cb" => "<input type=\"checkbox\" />",
+      "ID" => __("ID", 'memberpress'),
       "title" => __("Group Title", "memberpress"),
       "url" => __("URL", "memberpress"),
       "group-products" => __("Memberships in Group", "memberpress")
@@ -127,6 +128,8 @@ class MeprGroupsCtrl extends MeprCptCtrl {
   // Template selection
   public static function template_include($template) {
     global $post, $wp_query;
+
+    if(!is_singular()) { return $template; }
 
     if(isset($post) && is_a($post, 'WP_Post') && $post->post_type == MeprGroup::$cpt) {
       $group = new MeprGroup($post->ID);
@@ -174,7 +177,9 @@ class MeprGroupsCtrl extends MeprCptCtrl {
     if(!empty($post) && $post->post_type == MeprGroup::$cpt) {
       $group = new MeprGroup($post_id);
       $group->pricing_page_disabled = isset($_POST[MeprGroup::$pricing_page_disabled_str]);
+      $group->disable_change_plan_popup = isset($_POST[MeprGroup::$disable_change_plan_popup_str]);
       $group->is_upgrade_path = isset($_POST[MeprGroup::$is_upgrade_path_str]);
+      $group->upgrade_path_reset_period = isset($_POST[MeprGroup::$upgrade_path_reset_period_str]);
       //$group->group_page_style_options = self::get_style_options_array();
       $group->group_theme = $_POST[MeprGroup::$group_theme_str];
       $group->page_button_class = $_POST[MeprGroup::$page_button_class_str];
@@ -258,9 +263,13 @@ class MeprGroupsCtrl extends MeprCptCtrl {
     global $current_screen;
 
     if($current_screen->post_type == MeprGroup::$cpt) {
-      wp_enqueue_style('mepr-groups-css', MEPR_CSS_URL.'/admin-groups.css', array(), MEPR_VERSION);
+      wp_register_style('mepr-settings-table', MEPR_CSS_URL.'/settings_table.css', array(), MEPR_VERSION);
+      wp_enqueue_style('mepr-groups-css', MEPR_CSS_URL.'/admin-groups.css', array('mepr-settings-table'), MEPR_VERSION);
+
       wp_dequeue_script('autosave'); //Disable auto-saving
-      wp_enqueue_script('mepr-groups-js', MEPR_JS_URL.'/admin_groups.js', array('jquery-ui-sortable'), MEPR_VERSION);
+
+      wp_register_script('mepr-settings-table', MEPR_JS_URL.'/settings_table.js', array(), MEPR_VERSION);
+      wp_enqueue_script('mepr-groups-js', MEPR_JS_URL.'/admin_groups.js', array('jquery','jquery-ui-sortable','mepr-settings-table'), MEPR_VERSION);
     }
   }
 

@@ -16,7 +16,7 @@ class MeprVatTaxCtrl extends MeprBaseCtrl {
       add_filter('mepr-signup-scripts', array($this,'product_scripts'), 10, 3);
 
       // Filter for signup / payment page
-      add_action('mepr-user-signup-fields', array($this,'signup'));
+      add_action('mepr-checkout-before-submit', array($this,'signup'), 9, 1);
 
       // Validate the VAT number
       add_filter('mepr-validate-signup', array($this,'validate_signup'));
@@ -27,7 +27,8 @@ class MeprVatTaxCtrl extends MeprBaseCtrl {
       // Filter for tax calculation
       add_filter('mepr_find_tax_rate', array($this,'find_rate'), 20, 7);
 
-      add_filter('mepr-tax-rate-use-customer-address', array($this,'use_customer_address'), 10, 2);
+      // Follow use merchant address from here on out?
+      //add_filter('mepr-tax-rate-use-customer-address', array($this,'use_customer_address'), 10, 2);
 
       add_action('mepr_extra_profile_fields', array($this,'extra_profile_fields'));
 
@@ -65,7 +66,9 @@ class MeprVatTaxCtrl extends MeprBaseCtrl {
   }
 
   public function validate_signup($errors) {
-    if($this->vat_calc_possible()) {
+    $prd = new MeprProduct($_POST['mepr_product_id']);
+
+    if($this->vat_calc_possible() && ($prd->price > 0.00 || ($prd->price <= 0.00 && !$prd->disable_address_fields))) {
       $country = $_POST['mepr-address-country'];
       $customer_type = $this->get_customer_type();
       $vat_number = $_POST['mepr_vat_number'];
@@ -90,8 +93,10 @@ class MeprVatTaxCtrl extends MeprBaseCtrl {
     update_option('mepr_vat_tax_businesses', $vat_tax_businesses);
   }
 
-  public function signup() {
-    if($this->vat_calc_possible()) {
+  public function signup($prd_id) {
+    $prd = new MeprProduct($prd_id);
+
+    if($this->vat_calc_possible() && ($prd->price > 0.00 || ($prd->price <= 0.00 && !$prd->disable_address_fields))) {
       $vat_customer_type = $this->get_customer_type();
       $vat_number = $this->get_vat_number();
 
@@ -113,19 +118,34 @@ class MeprVatTaxCtrl extends MeprBaseCtrl {
 
   /** VAT overrides anything that could possibly be set by the standard tax rate db tables */
   public function find_rate($tax_rate, $country, $state, $postcode, $city, $street, $usr=null) {
+    $mepr_options = MeprOptions::fetch();
+
     $countries = $this->get_vat_countries();
     $customer_type = $this->get_customer_type($usr);
     $vat_number = $this->get_vat_number($usr);
     $vat_tax_businesses = get_option('mepr_vat_tax_businesses', false);
 
+    // Default to merchant country
+    $usr_country = $mepr_options->attr('biz_country');
+
+    if(!empty($usr) && $usr instanceof MeprUser && $usr->address_is_set()) {
+      $usr_country = $usr->address('country');
+
+      // If the user's address is set and their country is outside the UK then bail
+      if($usr_country != $country && !array_key_exists($usr_country,$countries)) {
+        return $tax_rate;
+      }
+    }
+
     // Make sure this is an EU country
     if(array_key_exists($country,$countries)) {
       // Conditions for calculating VAT or not
       // If we're taxing all businesses then vat tax validation doesn't matter
-      if($customer_type=='consumer' ||
-         ($customer_type=='business' &&
-          ($vat_tax_businesses ||
-           !$this->vat_number_is_valid($vat_number, $country)))) {
+      if( $customer_type=='consumer' ||
+          ( $customer_type=='business' &&
+            ( $usr_country==$country || // ALWAYS tax customer in our country ... even if they have a valid VAT number
+              $vat_tax_businesses ||
+              !$this->vat_number_is_valid($vat_number, $country) ) ) ) {
         $tax_rate = $this->get_rate($tax_rate, $country);
       }
     }

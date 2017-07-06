@@ -17,9 +17,11 @@ if(!isset($_REQUEST['mepruri']))
 
 $mepr_uri = untrailingslashit($_REQUEST['mepruri']);
 
-$full_uri = 'http' . (($_SERVER['SERVER_PORT']==443) ? 's' : '') . '://' .
+$is_ssl = MeprUtils::is_ssl();
+
+$full_uri = 'http' . ($is_ssl ? 's' : '') . '://' .
             $_SERVER['HTTP_HOST'] .
-            ( ( $_SERVER['SERVER_PORT']==80 or $_SERVER['SERVER_PORT']==443 ) ? "" : ":{$_SERVER['SERVER_PORT']}" ) .
+            ( ( $_SERVER['SERVER_PORT'] == 80 || $_SERVER['SERVER_PORT'] == 443 ) ? "" : ":{$_SERVER['SERVER_PORT']}" ) .
             $_SERVER['REQUEST_URI'];
 
 $mepr_full_uri = preg_replace( '#^(https?://[^/]*).*$#', '$1', home_url() ) . $mepr_uri;
@@ -45,7 +47,17 @@ mepr_clean_rule_files();
 // Handle when a URI is locked
 if(MeprRule::is_uri_locked($mepr_uri)) {
   $mepr_options = MeprOptions::fetch();
-  $redirect_to = $mepr_options->login_page_url("action=mepr_unauthorized&redirect_to=".urlencode($mepr_full_uri));
+  $delim = MeprAppCtrl::get_param_delimiter_char($mepr_options->unauthorized_redirect_url);
+
+  if($mepr_options->redirect_on_unauthorized) { //Send to unauth page
+    $redirect_to = $mepr_options->unauthorized_redirect_url . $delim . "action=mepr_unauthorized&redirect_to=" . urlencode($mepr_full_uri);
+  }
+  else { //Send to login page
+    $redirect_to = $mepr_options->login_page_url('action=mepr_unauthorized&redirect_to=' . urlencode($mepr_full_uri));
+  }
+
+  //Handle SSL
+  $redirect_to = ($is_ssl ? str_replace('http:', 'https:', $redirect_to) : $redirect_to);
 
   MeprUtils::wp_redirect($redirect_to);
   exit;

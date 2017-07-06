@@ -2,15 +2,20 @@
 if(!defined('ABSPATH')) {die('You are not allowed to call this page directly.');}
 
 class MeprAccountCtrl extends MeprBaseCtrl {
+  //Prevent a silly error with BuddyPress and our account links widget
+  //We should eventually change our account links widget to properly inherit the WP_Widget class
+  public $id_base = 'mepr_account_links_widget';
+
   public function load_hooks() {
-    add_action('wp_enqueue_scripts', array($this,'enqueue_scripts'));
-    add_filter('init', array($this, 'maybe_update_username'), 3, 2); //Need to use this hook to get old and new emails
+    add_action('wp_enqueue_scripts',  array($this,'enqueue_scripts'));
+    add_action('init',                array($this, 'maybe_update_username')); //Need to use init for cookie stuff and to get old and new emails
 
     //Shortcodes
-    add_shortcode('mepr-account-form', array($this,'account_form_shortcode'));
-    add_shortcode('mepr-account-link', array($this,'get_account_links'));
-    add_shortcode('mepr_account_link', array($this,'get_account_links')); // Deprecated
-    add_shortcode('mepr-account-info', array($this,'output_account_meta'));
+    add_shortcode('mepr-account-form',          array($this, 'account_form_shortcode'));
+    add_shortcode('mepr-account-link',          array($this, 'get_account_links'));
+    add_shortcode('mepr_account_link',          array($this, 'get_account_links')); // Deprecated
+    add_shortcode('mepr-account-info',          array($this, 'output_account_meta'));
+    add_shortcode('mepr-offline-instructions',  array($this, 'offline_gateway_instructions')); //Offline gateway instructions shortcode
   }
 
   //Update username if username is email address and email address is changing
@@ -28,9 +33,10 @@ class MeprAccountCtrl extends MeprBaseCtrl {
         $mepr_options->username_is_email &&
         is_email($new_email) && //make sure this isn't sql injected or something
         is_email($mepr_user->user_login) && //make sure we're not overriding a non-email username
+        $old_email == $mepr_user->user_login && //Make sure old email and old username match up
         $old_email != $new_email ) {
       //Some trickery here to keep the user logged in
-      $wpdb->query("UPDATE {$wpdb->users} SET user_login = '{$new_email}' WHERE ID = {$mepr_user->ID}");
+      $wpdb->query($wpdb->prepare("UPDATE {$wpdb->users} SET user_login = %s WHERE ID = %d", $new_email, $mepr_user->ID));
       clean_user_cache($mepr_user->ID); //Get rid of the user cache
       wp_clear_auth_cookie(); //Clear their old cookie
       wp_set_current_user($mepr_user->ID); //Set the current user again
@@ -39,20 +45,26 @@ class MeprAccountCtrl extends MeprBaseCtrl {
     }
   }
 
-  public function enqueue_scripts() {
+  public function enqueue_scripts($force = false) {
     global $post;
     $mepr_options = MeprOptions::fetch();
 
-    if(MeprUser::is_account_page($post)) {
-      wp_enqueue_style('jquery-magnific-popup', MEPR_CSS_URL.'/vendor/magnific-popup.css');
+    if($force || MeprUser::is_account_page($post)) {
+      $popup_ctrl = new MeprPopupCtrl();
+
+      wp_register_style('jquery-magnific-popup', $popup_ctrl->popup_css);
+      wp_enqueue_style('mp-account', MEPR_CSS_URL.'/account.css',array('jquery-magnific-popup'));
+
       wp_register_script('jquery-clippy', MEPR_JS_URL.'/jquery.clippy.js', array('jquery'));
-      wp_register_script('jquery-magnific-popup', MEPR_JS_URL.'/vendor/jquery.magnific-popup.js', array('jquery'));
+      wp_register_script('jquery-magnific-popup', $popup_ctrl->popup_js, array('jquery'));
       wp_enqueue_script('mp-account', MEPR_JS_URL.'/account.js', array('jquery','jquery-clippy','jquery-magnific-popup'), MEPR_VERSION);
       wp_localize_script('mp-account', 'clippy', array( 'url' => MEPR_JS_URL.'/clippy.swf' ));
 
       $pms = $mepr_options->payment_methods();
 
       if($pms) {
+        wp_register_script('mepr-checkout-js', MEPR_JS_URL . '/checkout.js', array('jquery', 'jquery.payment'), MEPR_VERSION);
+        wp_register_script('mepr-default-gateway-checkout-js', MEPR_JS_URL . '/gateway/checkout.js', array('mepr-checkout-js'), MEPR_VERSION);
         foreach($pms as $pm) {
           if($pm instanceof MeprBaseRealGateway) {
             $pm->enqueue_user_account_scripts();
@@ -65,7 +77,7 @@ class MeprAccountCtrl extends MeprBaseCtrl {
   public function render() {
     global $post;
 
-    if(!isset($post) or !($post instanceof WP_Post)) { return; }
+    if(!isset($post->ID) || (int)$post->ID <= 0) { return; }
 
     $mepr_current_user = MeprUtils::get_currentuserinfo();
     $expired_subs = $mepr_current_user->subscription_expirations('expired',true);
@@ -165,7 +177,12 @@ class MeprAccountCtrl extends MeprBaseCtrl {
     $delim = MeprAppCtrl::get_param_delimiter_char($account_url);
 
     if(isset($_REQUEST['error'])) {
-      $errors = array(__('Password update failed, please be sure your passwords match and try again.', 'memberpress'));
+      if($_REQUEST['error'] == 'weak') {
+        $errors = array(__('Password update failed, please check that your password meets the minimum strength requirement.', 'memberpress'));
+      }
+      else {
+        $errors = array(__('Password update failed, please be sure your passwords match and try again.', 'memberpress'));
+      }
     }
 
     MeprView::render('/account/password', get_defined_vars());
@@ -181,10 +198,16 @@ class MeprAccountCtrl extends MeprBaseCtrl {
     $curr_page = (isset($_GET['currpage']) && is_numeric($_GET['currpage']))?$_GET['currpage']:1;
     $start = ($curr_page - 1) * $perpage;
     $end = $start + $perpage;
-    $list_table = MeprTransaction::list_table( 'created_at', 'DESC',
-                                               $curr_page, '', $perpage,
-                                               array( 'member' => $mepr_current_user->user_login,
-                                                      'statuses' => array( MeprTransaction::$complete_str ) ) );
+
+    $list_table = MeprTransaction::list_table(
+      'created_at', 'DESC', $curr_page,
+      '', 'any', $perpage,
+      array(
+        'member' => $mepr_current_user->user_login,
+        'statuses' => array( MeprTransaction::$complete_str )
+      )
+    );
+
     $payments = $list_table['results'];
     $all = $list_table['count'];
     $next_page = (($curr_page * $perpage) >= $all)?false:$curr_page+1;
@@ -205,11 +228,11 @@ class MeprAccountCtrl extends MeprBaseCtrl {
     $end = $start + $perpage;
 
     // This is necessary to optimize the queries ... only query what we need
-    $sub_cols = array('ID','user_id','product_id','subscr_id','status','created_at','expires_at','active');
+    $sub_cols = array('id','user_id','product_id','subscr_id','status','created_at','expires_at','active');
 
     $table = MeprSubscription::account_subscr_table(
       'created_at', 'DESC',
-      $curr_page, '', $perpage, false,
+      $curr_page, '', 'any', $perpage, false,
       array(
         'member' => $mepr_current_user->user_login,
         'statuses' => array(
@@ -241,7 +264,7 @@ class MeprAccountCtrl extends MeprBaseCtrl {
 
       if($pm->can('suspend-subscriptions')) {
         try {
-          $pm->process_suspend_subscription($sub->ID);
+          $pm->process_suspend_subscription($sub->id);
           $message = __('Your subscription was successfully paused.', 'memberpress');
         }
         catch( Exception $e ) {
@@ -264,7 +287,7 @@ class MeprAccountCtrl extends MeprBaseCtrl {
 
       if($pm->can('suspend-subscriptions')) {
         try {
-          $pm->process_resume_subscription($sub->ID);
+          $pm->process_resume_subscription($sub->id);
           $message = __('You successfully resumed your subscription.', 'memberpress');
         }
         catch(Exception $e) {
@@ -288,7 +311,7 @@ class MeprAccountCtrl extends MeprBaseCtrl {
 
       if($pm->can('cancel-subscriptions')) {
         try {
-          $pm->process_cancel_subscription($sub->ID);
+          $pm->process_cancel_subscription($sub->id);
           $message = __('Your subscription was successfully cancelled.', 'memberpress');
         }
         catch(Exception $e) {
@@ -308,14 +331,14 @@ class MeprAccountCtrl extends MeprBaseCtrl {
       $pm = $sub->payment_method();
 
       if(strtoupper($_SERVER['REQUEST_METHOD'] == 'GET')) // DISPLAY FORM
-        $pm->display_update_account_form($sub->ID, array());
+        $pm->display_update_account_form($sub->id, array());
       elseif(strtoupper($_SERVER['REQUEST_METHOD'] == 'POST')) { // PROCESS FORM
         $errors = $pm->validate_update_account_form(array());
         $message='';
 
         if(empty($errors)) {
           try {
-            $pm->process_update_account_form($sub->ID);
+            $pm->process_update_account_form($sub->id);
             $message = __('Your account information was successfully updated.', 'memberpress');
           }
           catch(Exception $e) {
@@ -323,7 +346,7 @@ class MeprAccountCtrl extends MeprBaseCtrl {
           }
         }
 
-        $pm->display_update_account_form($sub->ID, $errors, $message);
+        $pm->display_update_account_form($sub->id, $errors, $message);
       }
     }
   }
@@ -348,8 +371,24 @@ class MeprAccountCtrl extends MeprBaseCtrl {
     return $this->display_account_form($content);
   }
 
-  public function display_account_form($content='') {
+  public function display_account_form($content = '') {
     global $post;
+
+    //Static var to prevent duplicate token issues with Stripe
+    static $new_content;
+    static $content_length;
+
+    //Init this posts static values
+    if(!isset($new_content) || empty($new_content) || !isset($content_length)) {
+      $new_content = '';
+      $content_length = -1;
+    }
+
+    if($new_content && strlen($content) == $content_length) {
+      return $new_content;
+    }
+
+    $content_length = strlen($content);
 
     if(MeprUtils::is_user_logged_in()) {
       ob_start();
@@ -360,7 +399,9 @@ class MeprAccountCtrl extends MeprBaseCtrl {
       $content = do_shortcode(MeprRulesCtrl::unauthorized_message($post));
     }
 
-    return $content;
+    $new_content = $content;
+
+    return $new_content;
   }
 
   public function get_account_links() {
@@ -433,6 +474,9 @@ class MeprAccountCtrl extends MeprBaseCtrl {
       case 'last_name_first_initial':
         return ucfirst($usermeta['last_name'][0]) . ', ' . ucfirst($usermeta['first_name'][0][0]) . '.';
         break;
+      case 'user_registered':
+        return MeprAppHelper::format_date($usermeta[$atts['field']][0]);
+        break;
       default:
         return $usermeta[$atts['field']][0];
         break;
@@ -446,15 +490,31 @@ class MeprAccountCtrl extends MeprBaseCtrl {
 
     $user = MeprUtils::get_currentuserinfo();
 
+    //Check password strength first
+    if($mepr_options->enforce_strong_password && isset($_POST['mp-pass-strength']) && (int)$_POST['mp-pass-strength'] < MeprZxcvbnCtrl::get_required_int()) {
+      MeprUtils::wp_redirect($account_url.$delim.'action=newpassword&error=weak');
+    }
+
     if($user_id && $user && ($user->ID==$user_id)) {
       if(($new_pass == $new_pass_confirm) && !empty($new_pass)) {
-        $user->rec->user_pass = $new_pass;
+        $user->set_password($new_pass);
         $user->store();
         MeprUtils::wp_redirect($account_url.$delim.'action=home&message=password_updated');
       }
     }
 
     MeprUtils::wp_redirect($account_url.$delim.'action=newpassword&error=failed');
+  }
+
+  //Shortcode is meant to be placed on the thank you page or per-membership thank you page messages
+  public function offline_gateway_instructions($atts = array(), $content = '') {
+    if(!isset($_GET['trans_num']) || empty($_GET['trans_num']) || !isset($atts['gateway_id']) || empty($atts['gateway_id'])) { return ''; }
+
+    $txn = MeprTransaction::get_one_by_trans_num($_GET['trans_num']);
+
+    if(!isset($txn->gateway) || $txn->gateway != $atts['gateway_id']) { return ''; }
+
+    return $content;
   }
 }
 

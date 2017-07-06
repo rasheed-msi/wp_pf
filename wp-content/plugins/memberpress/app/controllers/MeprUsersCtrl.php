@@ -34,6 +34,9 @@ class MeprUsersCtrl extends MeprBaseCtrl {
     add_action('pre_user_query', 'MeprUsersCtrl::extra_user_columns_query_override');
 
     add_action('wp_ajax_mepr_user_search', 'MeprUsersCtrl::user_search');
+
+    //Shortcodes
+    add_shortcode('mepr-list-subscriptions', 'MeprUsersCtrl::list_users_subscriptions');
   }
 
   public static function display_unauthorized_page() {
@@ -98,13 +101,15 @@ class MeprUsersCtrl extends MeprBaseCtrl {
   //}
 
   public static function enqueue_scripts($hook) {
-    global $wp_scripts;
+    $wp_scripts = new WP_Scripts();
     $ui = $wp_scripts->query('jquery-ui-core');
     $url = "//ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/smoothness/jquery-ui.css";
 
     if($hook == 'user-edit.php' || $hook == 'profile.php') {
       wp_enqueue_style('mepr-jquery-ui-smoothness', $url);
-      wp_enqueue_script('mepr-date-picker-js', MEPR_JS_URL.'/date_picker.js', array('jquery-ui-datepicker'), MEPR_VERSION);
+      wp_enqueue_style('jquery-ui-timepicker-addon', MEPR_CSS_URL.'/jquery-ui-timepicker-addon.css', array('mepr-jquery-ui-smoothness'));
+      wp_register_script('mepr-timepicker-js', MEPR_JS_URL.'/jquery-ui-timepicker-addon.js', array('jquery-ui-datepicker'));
+      wp_register_script('mepr-date-picker-js', MEPR_JS_URL.'/date_picker.js', array('mepr-timepicker-js'), MEPR_VERSION);
       wp_enqueue_script('jquery-clippy', MEPR_JS_URL.'/jquery.clippy.js', array('jquery'));
       wp_enqueue_script('mp-i18n', MEPR_JS_URL.'/i18n.js', array('jquery'));
       wp_localize_script('mp-i18n', 'MeprI18n', array('states' => MeprUtils::states()));
@@ -125,8 +130,8 @@ class MeprUsersCtrl extends MeprBaseCtrl {
     $errors = array();
     $user = new MeprUser($user_id);
 
-    if(isset($_POST[MeprUser::$user_message_str]) && !empty($_POST[MeprUser::$user_message_str])) {
-      update_user_meta($user_id, MeprUser::$user_message_str, $_POST[MeprUser::$user_message_str]);
+    if(isset($_POST[MeprUser::$user_message_str])) {
+      update_user_meta($user_id, MeprUser::$user_message_str, (string)$_POST[MeprUser::$user_message_str]);
     }
 
     //Get the right custom fields
@@ -184,7 +189,7 @@ class MeprUsersCtrl extends MeprBaseCtrl {
           if($line->field_type === 'checkbox') {
             update_user_meta($user_id, $line->field_key, false);
           }
-          elseif(in_array($line->field_type, array('checkboxes', 'multiselect', 'dropdown'))) {
+          elseif(in_array($line->field_type, array('checkboxes', 'multiselect'))) {
             update_user_meta($user_id, $line->field_key, array());
           }
           else {
@@ -236,7 +241,7 @@ class MeprUsersCtrl extends MeprBaseCtrl {
       $custom_fields = $mepr_options->custom_fields;
     }
 
-    if($mepr_options->show_address_fields) {
+    if($mepr_options->show_address_fields && (!$product || !$product->disable_address_fields)) {
       $custom_fields = array_merge($mepr_options->address_fields, $custom_fields);
     }
 
@@ -247,7 +252,7 @@ class MeprUsersCtrl extends MeprBaseCtrl {
         $line->required = false;
       }
 
-      if((!isset($_POST[$line->field_key]) || empty($_POST[$line->field_key])) && $line->required) {
+      if((!isset($_POST[$line->field_key]) || (empty($_POST[$line->field_key]) && $_POST[$line->field_key] != '0')) && $line->required) {
         $errs[] = sprintf(__('%s is required.', 'memberpress'), stripslashes($line->field_name));
 
         //This allows us to run this on dashboard profile fields as well as front end
@@ -319,8 +324,8 @@ class MeprUsersCtrl extends MeprBaseCtrl {
     $user = new MeprUser($user_id);
 
     if($column_name == 'mepr_registered') {
-      $registered = strtotime($user->user_registered);
-      return date_i18n('M j, Y', $registered) . '<br/>' . date_i18n('g:i A', $registered);
+      $registered = $user->user_registered;
+      return MeprAppHelper::format_date($registered, __('Unknown', 'memberpress'), 'M j, Y') . '<br/>' . MeprAppHelper::format_date($registered, __('Unknown', 'memberpress'), 'g:i A');
     }
 
     if($column_name == 'mepr_products') {
@@ -338,7 +343,7 @@ class MeprUsersCtrl extends MeprBaseCtrl {
       $login = $user->get_last_login_data();
 
       if(!empty($login)) {
-        return date_i18n('M j, Y', strtotime($login->created_at)) . '<br/>' . date_i18n('g:i A', strtotime($login->created_at));
+        return MeprAppHelper::format_date($login->created_at, __('Never', 'memberpress'), 'M j, Y') . '<br/>' . MeprAppHelper::format_date($login->created_at, __('Never', 'memberpress'), 'g:i A');
       }
       else {
         return __('Never', 'memberpress');
@@ -355,7 +360,7 @@ class MeprUsersCtrl extends MeprBaseCtrl {
 
     if(defined('DOING_AJAX')) { return; }
 
-    if($mepr_options->lock_wp_admin && !current_user_can('edit_posts')) {
+    if($mepr_options->lock_wp_admin && !current_user_can('delete_posts')) {
       if(isset($mepr_options->login_redirect_url) && !empty($mepr_options->login_redirect_url)) {
         MeprUtils::wp_redirect($mepr_options->login_redirect_url);
       }
@@ -377,7 +382,7 @@ class MeprUsersCtrl extends MeprBaseCtrl {
   public static function maybe_disable_admin_bar() {
     $mepr_options = MeprOptions::fetch();
 
-    if(!current_user_can('edit_posts') && $mepr_options->disable_wp_admin_bar)
+    if(!current_user_can('delete_posts') && $mepr_options->disable_wp_admin_bar)
       show_admin_bar(false);
   }
 
@@ -425,5 +430,39 @@ class MeprUsersCtrl extends MeprBaseCtrl {
     }
   }
 
-} //End class
+  public static function list_users_subscriptions($atts, $content = '') {
+    $user = MeprUtils::get_currentuserinfo();
+    $active_rows = array();
+    $inactive_rows = array();
+    $alt_row = 'mp_users_subscriptions_list_alt';
 
+    if(!$user) { return ''; }
+
+    $all_ids    = $user->current_and_prior_subscriptions(); //returns an array of Product ID's the user has ever been subscribed to
+    $active_ids = $user->active_product_subscriptions('ids');
+
+    foreach($all_ids as $id) {
+      $prd = new MeprProduct($id);
+
+      if(in_array($id, $active_ids)) {
+        $expiring_txn = MeprUser::get_user_product_expires_at_date($user->ID, $id, true);
+        $renewal_link = '';
+        $expires_at   = _x('Unknown', 'ui', 'memberpress');
+
+        if($expiring_txn instanceof MeprTransaction) {
+          $renewal_link = $user->renewal_link($expiring_txn->id);
+          $expires_at = MeprAppHelper::format_date($expiring_txn->expires_at, _x('Never', 'ui', 'memberpress'));
+        }
+
+        $active_rows[] = (object)array('membership' => $prd->post_title, 'expires' => $expires_at, 'renewal_link' => $renewal_link);
+      }
+      else {
+        $inactive_rows[] = (object)array('membership' => $prd->post_title, 'purchase_link' => $prd->url());
+      }
+    }
+
+    ob_start();
+    MeprView::render('/shortcodes/list_users_subscriptions', get_defined_vars());
+    return ob_get_clean();
+  }
+} //End class

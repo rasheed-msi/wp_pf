@@ -14,9 +14,9 @@ class MeprRulesCtrl extends MeprCptCtrl {
       add_action('template_redirect', 'MeprRulesCtrl::rule_redirection', 3);
     }
 
-    add_action('admin_init', 'MeprRulesCtrl::admin_rule_redirection', 3);
     add_filter('the_content_feed', 'MeprRulesCtrl::rule_content', 999999, 1);
     add_filter('the_content', 'MeprRulesCtrl::rule_content', 999999, 1);
+    add_action('admin_init', 'MeprRulesCtrl::admin_rule_redirection', 3);
     add_filter('comments_template', 'MeprRulesCtrl::rule_comments');
     add_action('mod_rewrite_rules', 'MeprRulesCtrl::mod_rewrite_rules');
 
@@ -63,7 +63,7 @@ class MeprRulesCtrl extends MeprCptCtrl {
           'parent_item_colon' => __('Parent Rule:', 'memberpress')
         ),
         'public' => false,
-        'show_ui' => true,
+        'show_ui' => true, //MeprUpdateCtrl::is_activated(),
         'show_in_menu' => 'memberpress',
         'capability_type' => 'page',
         'hierarchical' => false,
@@ -89,6 +89,7 @@ class MeprRulesCtrl extends MeprCptCtrl {
   public static function columns($columns) {
     $columns = array(
       "cb" => "<input type=\"checkbox\" />",
+      "ID" => __("ID", 'memberpress'),
       "title" => __("Title", 'memberpress'),
       "rule-type" => __("Type", 'memberpress'),
       "rule-content" => __("Content", 'memberpress'),
@@ -156,7 +157,7 @@ class MeprRulesCtrl extends MeprCptCtrl {
     $uri = $_SERVER['REQUEST_URI'];
     $mepr_options = MeprOptions::fetch();
     $delim = MeprAppCtrl::get_param_delimiter_char($mepr_options->unauthorized_redirect_url);
-    $is_ssl = is_ssl();
+    $is_ssl = MeprUtils::is_ssl();
 
     //Add this filter to allow external resources
     //to control whether to redirect away from this content
@@ -166,10 +167,12 @@ class MeprRulesCtrl extends MeprCptCtrl {
     // Let's check the URI's first ok?
     // This is here to perform an unauthorized redirection based on the uri
     if(MeprRule::is_uri_locked($uri)) {
-      if($mepr_options->redirect_on_unauthorized) //Send to unauth page
+      if($mepr_options->redirect_on_unauthorized) { //Send to unauth page
         $redirect_to = "{$mepr_options->unauthorized_redirect_url}{$delim}action=mepr_unauthorized&redirect_to={$uri}";
-      else //Send to login page
+      }
+      else { //Send to login page
         $redirect_to = $mepr_options->login_page_url("action=mepr_unauthorized&redirect_to=".urlencode($uri));
+      }
 
       //Handle SSL
       $redirect_to = ($is_ssl)?str_replace('http:', 'https:', $redirect_to):$redirect_to;
@@ -181,7 +184,9 @@ class MeprRulesCtrl extends MeprCptCtrl {
     if($mepr_options->redirect_on_unauthorized) {
       $do_redirect = MeprHooks::apply_filters('mepr-rule-do-redirection', self::should_do_redirect());
 
-      if((!is_singular() and $do_redirect) or ($do_redirect and isset($post) and MeprRule::is_locked($post))) {
+      if( (!is_singular() && $do_redirect) ||
+          ($do_redirect && isset($post) && MeprRule::is_locked($post)) ||
+          (!is_user_logged_in() && isset($post) && $post->ID == $mepr_options->account_page_id) ) {
         $redirect_to = "{$mepr_options->unauthorized_redirect_url}{$delim}mepr-unauth-page={$post->ID}&redirect_to={$uri}";
 
         //Handle SSL
@@ -199,15 +204,16 @@ class MeprRulesCtrl extends MeprCptCtrl {
     $delim = MeprAppCtrl::get_param_delimiter_char($mepr_options->unauthorized_redirect_url);
 
     // This performs an unauthorized redirection based on the uri
-    if(MeprRule::is_uri_locked($uri))
-    {
-      if($mepr_options->redirect_on_unauthorized) //Send to unauth page
+    if(MeprRule::is_uri_locked($uri)) {
+      if($mepr_options->redirect_on_unauthorized) { //Send to unauth page
         $redirect_to = "{$mepr_options->unauthorized_redirect_url}{$delim}action=mepr_unauthorized&redirect_to={$uri}";
-      else //Send to login page
+      }
+      else { //Send to login page
         $redirect_to = $mepr_options->login_page_url("action=mepr_unauthorized&redirect_to=".urlencode($uri));
+      }
 
       //Handle SSL
-      $redirect_to = (is_ssl())?str_replace('http:', 'https:', $redirect_to):$redirect_to;
+      $redirect_to = (MeprUtils::is_ssl())?str_replace('http:', 'https:', $redirect_to):$redirect_to;
       MeprUtils::wp_redirect($redirect_to);
       exit;
     }
@@ -260,34 +266,45 @@ class MeprRulesCtrl extends MeprCptCtrl {
 
     //Add this filter to allow external resources
     //to control whether to show or hide this content
-    //if the resource sets the filter to FALSE then it will not be hidden
+    //if the resource sets the filter to FALSE then it will not be protected
     if(!MeprHooks::apply_filters('mepr-pre-run-rule-content', true, $current_post, $uri)) {
       //See notes above
       $new_content[$current_post->ID] = $content;
       return $new_content[$current_post->ID];
     }
 
-    if((isset($current_post) and MeprRule::is_locked($current_post)) or (MeprRule::is_uri_locked($uri)))
+    if(MeprRule::is_locked($current_post) || (MeprRule::is_uri_locked($uri))) {
       $content = do_shortcode(self::unauthorized_message($current_post));
+    }
+    else {
+      //The user is allowed to see this content, but let's give developers one last chance to
+      //block it if necessary - will be very helpful for magazine style membership sites
+      //return TRUE here to block the content from this user
+      if(MeprHooks::apply_filters('mepr-last-chance-to-block-content', false, $current_post, $uri)) {
+        $content = do_shortcode(self::unauthorized_message($current_post));
+      }
+    }
 
     //See notes above
     $new_content[$current_post->ID] = $content;
     return $new_content[$current_post->ID];
   }
 
-  public static function unauthorized_message_shortcode($atts = '')
-  {
+  public static function unauthorized_message_shortcode($atts = '') {
     $mepr_options = MeprOptions::fetch();
     $message = '';
 
-    if( isset($_REQUEST['mepr-unauth-page']) and
-        is_numeric($_REQUEST['mepr-unauth-page']) and
-        $post = get_post(esc_html($_REQUEST['mepr-unauth-page'])) )
+    if( isset($_REQUEST['mepr-unauth-page']) &&
+        is_numeric($_REQUEST['mepr-unauth-page']) &&
+        $post = get_post(esc_html($_REQUEST['mepr-unauth-page'])) ) {
       $message = self::unauthorized_message($post);
-    else if(isset($GLOBALS['post']))
+    }
+    elseif(isset($GLOBALS['post'])) {
       $message = self::unauthorized_message($GLOBALS['post']);
-    else
+    }
+    else {
       $message = wpautop($mepr_options->unauthorized_message);
+    }
 
     return do_shortcode($message);
   }
@@ -443,19 +460,22 @@ class MeprRulesCtrl extends MeprCptCtrl {
   }
 
   public static function enqueue_scripts($hook) {
-    global $current_screen, $wp_scripts;
+    global $current_screen;
 
+    $wp_scripts = new WP_Scripts();
     $ui = $wp_scripts->query('jquery-ui-core');
     $url = "//ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/smoothness/jquery-ui.css";
 
     if($current_screen->post_type == MeprRule::$cpt) {
       $rules_json = array( 'mepr_no_products_message' => __('Please select at least one Membership before saving.', 'memberpress'),
                            'types' => MeprRule::get_types() );
-      wp_enqueue_style('mepr-jquery-ui-smoothness', $url);
-      wp_enqueue_script('mepr-date-picker-js', MEPR_JS_URL.'/date_picker.js', array('jquery-ui-datepicker'), MEPR_VERSION);
+      wp_register_style('mepr-jquery-ui-smoothness', $url);
+      wp_enqueue_style('jquery-ui-timepicker-addon', MEPR_CSS_URL.'/jquery-ui-timepicker-addon.css', array('mepr-jquery-ui-smoothness'));
+      wp_register_script('mepr-timepicker-js', MEPR_JS_URL.'/jquery-ui-timepicker-addon.js', array('jquery-ui-datepicker'));
+      wp_register_script('mepr-date-picker-js', MEPR_JS_URL.'/date_picker.js', array('mepr-timepicker-js'), MEPR_VERSION);
       wp_dequeue_script('autosave'); //Disable auto-saving
       //Need mepr-rules-js to load in the footer since this script doesn't fully use document.ready()
-      wp_enqueue_script('mepr-rules-js', MEPR_JS_URL.'/admin_rules.js', array('jquery','jquery-ui-autocomplete'), MEPR_VERSION, true);
+      wp_enqueue_script('mepr-rules-js', MEPR_JS_URL.'/admin_rules.js', array('jquery','jquery-ui-autocomplete','mepr-date-picker-js'), MEPR_VERSION, true);
       wp_enqueue_style('mepr-rules-css', MEPR_CSS_URL.'/admin-rules.css', array(), MEPR_VERSION);
       wp_localize_script('mepr-rules-js', 'MeprRule', $rules_json);
     }
@@ -492,7 +512,7 @@ class MeprRulesCtrl extends MeprCptCtrl {
 
     // File types that we will allow to be protected
     // Eventually we can maybe make this configurable by the user ...
-    $protect_types = MeprHooks::apply_filters('mepr_rewrite_rules_protect_types', array('zip','gz','tar','doc','docx','xls','xlsx','pdf'), $rules);
+    $protect_types = MeprHooks::apply_filters('mepr_rewrite_rules_protect_types', array('zip','gz','tar','rar','doc','docx','xls','xlsx','xlsm','pdf','mp4','m4v','mp3'), $rules);
     $ptstr = implode('|', $protect_types);
     $mepr_rules .= 'RewriteCond %{REQUEST_URI} \.('.strtolower($ptstr).'|'.strtoupper($ptstr).")$\n";
 
@@ -517,42 +537,11 @@ class MeprRulesCtrl extends MeprCptCtrl {
   }
 
   public static function show_shortcode($atts, $content='') {
-    return self::show_hide_shortcode($atts, $content, 'show');
+    return self::protect_shortcode_content($atts, $content, 'mepr-show');
   }
 
   public static function hide_shortcode($atts, $content='') {
-    return self::show_hide_shortcode($atts, $content, 'hide');
-  }
-
-  public static function show_hide_shortcode($atts, $content='', $type='show') {
-    if(isset($atts['if'])) {
-      $full_content = do_shortcode($content);
-
-      switch($atts['if']) {
-        case 'logged in':
-        case 'logged-in':
-        case 'logged_in':
-        case 'loggedin':
-          if($type==='show') {
-            return (MeprUtils::is_user_logged_in()?$full_content:'');
-          }
-          else {
-            return (MeprUtils::is_user_logged_in()?'':$full_content);
-          }
-        case 'logged out':
-        case 'logged-out':
-        case 'logged_out':
-        case 'loggedout':
-          if($type==='show') {
-            return (MeprUtils::is_user_logged_in()?'':$full_content);
-          }
-          else {
-            return (MeprUtils::is_user_logged_in()?$full_content:'');
-          }
-      }
-    }
-
-    return self::protect_shortcode_content($atts, $content, 'mepr-'.$type);
+    return self::protect_shortcode_content($atts, $content, 'mepr-hide');
   }
 
   public static function protect_shortcode_content($atts, $content='', $shortcode_type='mp-active') {
@@ -597,29 +586,38 @@ class MeprRulesCtrl extends MeprCptCtrl {
       }
     }
 
-    //Check if we've been given sanitary input, if not this shortcode
-    //is no good so let's return the full content here
-    if(MeprUtils::is_mepr_admin()) { return ($hide_if_allowed?$unauth:$content); }
-
     $allowed = false;
-    if(MeprUtils::is_user_logged_in()) {
-      if($shortcode_type=='mp-rule') {
-        $allowed = (
-          (isset($atts['id']) && current_user_can('mepr-active',"rule: {$atts['id']}")) ||
-          (isset($atts['ids']) && current_user_can('mepr-active',"rules: {$atts['ids']}"))
-        );
-      }
-      else {
-        $allowed = (
-          (isset($atts['id']) && current_user_can('mepr-active',$atts['id'])) ||
-          (isset($atts['ids']) && current_user_can('mepr-active',$atts['ids'])) ||
-          (isset($atts['rule']) && current_user_can('mepr-active',"rule: {$atts['rule']}")) ||
-          (isset($atts['rules']) && current_user_can('mepr-active',"rules: {$atts['rules']}")) ||
-          (isset($atts['product']) && current_user_can('mepr-active',"product: {$atts['product']}")) ||
-          (isset($atts['products']) && current_user_can('mepr-active',"products: {$atts['products']}")) ||
-          (isset($atts['membership']) && current_user_can('mepr-active',"membership: {$atts['membership']}")) ||
-          (isset($atts['memberships']) && current_user_can('mepr-active',"membership: {$atts['memberships']}"))
-        );
+    if(isset($atts['if']) && preg_match('/^logged[ _-]?in$/', $atts['if'])) {
+      $allowed = MeprUtils::is_user_logged_in();
+    }
+    else if(isset($atts['if']) && preg_match('/^logged[ _-]?out$/', $atts['if'])) {
+      $allowed = !MeprUtils::is_user_logged_in();
+    }
+    else {
+      //Check if we've been given sanitary input, if not this shortcode
+      //is no good so let's return the full content here
+      if(MeprUtils::is_mepr_admin()) { return ($hide_if_allowed?$unauth:$content); }
+
+      if(MeprUtils::is_user_logged_in()) {
+        if($shortcode_type=='mp-rule') {
+          $allowed = (
+            (isset($atts['id']) && current_user_can('mepr-active',"rule: {$atts['id']}")) ||
+            (isset($atts['ids']) && current_user_can('mepr-active',"rules: {$atts['ids']}"))
+          );
+        }
+        else {
+          $allowed = (
+            (isset($atts['if']) && current_user_can('mepr-active',$atts['if'])) ||
+            (isset($atts['id']) && current_user_can('mepr-active',$atts['id'])) ||
+            (isset($atts['ids']) && current_user_can('mepr-active',$atts['ids'])) ||
+            (isset($atts['rule']) && current_user_can('mepr-active',"rule: {$atts['rule']}")) ||
+            (isset($atts['rules']) && current_user_can('mepr-active',"rules: {$atts['rules']}")) ||
+            (isset($atts['product']) && current_user_can('mepr-active',"product: {$atts['product']}")) ||
+            (isset($atts['products']) && current_user_can('mepr-active',"products: {$atts['products']}")) ||
+            (isset($atts['membership']) && current_user_can('mepr-active',"membership: {$atts['membership']}")) ||
+            (isset($atts['memberships']) && current_user_can('mepr-active',"membership: {$atts['memberships']}"))
+          );
+        }
       }
     }
 
@@ -655,6 +653,11 @@ class MeprRulesCtrl extends MeprCptCtrl {
       return $caps;
     }
 
+    //User is most likely a guest, so they don't have access to whatever we're doing here
+    if(!isset($args[1]) || !$args[1]) {
+      return $caps;
+    }
+
     $user = new MeprUser($args[1]);
     $ids = $user->active_product_subscriptions();
 
@@ -668,6 +671,11 @@ class MeprRulesCtrl extends MeprCptCtrl {
     $active_str = 'mepr-active';
 
     if(!isset($cap[0]) || !preg_match("/^{$active_str}$/", $cap[0])) {
+      return $caps;
+    }
+
+    //User is most likely a guest, so they don't have access to whatever we're doing here
+    if(!isset($args[1]) || !$args[1]) {
       return $caps;
     }
 
@@ -688,7 +696,7 @@ class MeprRulesCtrl extends MeprCptCtrl {
         }
         // If it's spelled out as a product or membership do the same thing here
         else if(preg_match('/^((product|membership)s?\s*[=:_-]?\s*)?((\d+\s*,\s*)*\d+)$/i',$args[2],$m)) {
-          $product_ids = explode(',',$m[3]);
+          $product_ids = array_map('trim', explode(',',$m[3]));
           if(is_array($product_ids) && !empty($product_ids) &&
              ($intersect = array_intersect($product_ids, $ids)) &&
              !empty($intersect)) {
@@ -698,7 +706,7 @@ class MeprRulesCtrl extends MeprCptCtrl {
         // If it's an array then check that it's in the active membership subscriptions array
         else if(preg_match('/^rules?\s*[=:_-]?\s*((\d+\s*,\s*)*\d+)$/i',$args[2],$m)) {
           $product_ids = array();
-          $rule_ids = explode(',',$m[1]);
+          $rule_ids = array_map('trim', explode(',',$m[1]));
 
           if(is_array($rule_ids) && !empty($rule_ids)) {
             foreach($rule_ids as $rule_id) {

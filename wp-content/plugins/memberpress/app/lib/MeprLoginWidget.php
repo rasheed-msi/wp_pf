@@ -8,19 +8,19 @@ class MeprLoginWidget extends WP_Widget {
    */
   public function __construct() {
     parent::__construct(
-       'mepr_login_widget', // Base ID
+      'mepr_login_widget', // Base ID
       'MemberPress Login', // Name
-      array( 'description' => __( 'Place a MemberPress Login on any page with a sidebar region', 'memberpress' ), ) // Args
+      array('description' => __('Place a MemberPress Login on any page with a sidebar region', 'memberpress')) // Args
     );
   }
 
   public static function register_widget() {
     $mepr_options = MeprOptions::fetch();
 
-    if( !empty( $mepr_options->login_page_id ) and
-        is_numeric( $mepr_options->login_page_id ) and
-        ( $mepr_options->login_page_id > 0 ) ) {
-      register_widget( "MeprLoginWidget" );
+    if( !empty($mepr_options->login_page_id) and
+        is_numeric($mepr_options->login_page_id) and
+        ($mepr_options->login_page_id > 0) ) {
+      register_widget("MeprLoginWidget");
     }
   }
 
@@ -32,7 +32,7 @@ class MeprLoginWidget extends WP_Widget {
    * @param array $args     Widget arguments.
    * @param array $instance Saved values from database.
    */
-  public function widget( $args, $instance ) {
+  public function widget($args, $instance) {
     extract($args);
     $title = MeprHooks::apply_filters( 'mepr-login-title', $instance['title'] );
     $redirect = (isset($instance['redirect']) && $instance['redirect']);
@@ -69,7 +69,7 @@ class MeprLoginWidget extends WP_Widget {
    *
    * @return array Updated safe values to be saved.
    */
-  public function update( $new_instance, $old_instance ) {
+  public function update($new_instance, $old_instance) {
     $instance = array();
     $instance['title'] = strip_tags($new_instance['title']);
     $instance['redirect'] = isset($new_instance['redirect']);
@@ -84,7 +84,7 @@ class MeprLoginWidget extends WP_Widget {
    *
    * @param array $instance Previously saved values from database.
    */
-  public function form( $instance ) {
+  public function form($instance) {
     $title = (isset($instance['title'])) ? $instance['title'] : __('Login', 'memberpress');
     $redirect = (isset($instance['redirect']) && $instance['redirect']);
 
@@ -99,5 +99,4 @@ class MeprLoginWidget extends WP_Widget {
     </p>
     <?php
   }
-
 } // class MeprLoginWidget

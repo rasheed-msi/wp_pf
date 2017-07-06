@@ -11,8 +11,7 @@ jQuery(document).ready(function($) {
 
   show_chosen_tab(hash);
 
-  function show_chosen_tab(chosen)
-  {
+  function show_chosen_tab(chosen) {
     var hash = '#mepr-' + chosen;
 
     //Adjust tab's style
@@ -30,9 +29,6 @@ jQuery(document).ready(function($) {
   }
 
   $('a.nav-tab').click(function() {
-    if($(this).hasClass('nav-tab-active'))
-      return false;
-
     var chosen = $(this).attr('id');
 
     show_chosen_tab(chosen);
@@ -127,6 +123,7 @@ jQuery(document).ready(function($) {
               <select name="mepr-custom-fields[' + random_id + '][type]" class="mepr-custom-fields-select" data-value="' + random_id + '"> \
                 <option value="text">' + MeprOptions.textOption + '</option> \
                 <option value="email">' + MeprOptions.emailOption + '</option> \
+                <option value="url">' + MeprOptions.urlOption + '</option> \
                 <option value="date">' + MeprOptions.dateOption + '</option> \
                 <option value="textarea">' + MeprOptions.textareaOption + '</option> \
                 <option value="checkbox">' + MeprOptions.checkboxOption + '</option> \

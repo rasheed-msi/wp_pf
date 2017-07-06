@@ -74,7 +74,9 @@ abstract class MeprBaseEmail {
 
   public function send($values=array(),$subject=false,$body=false,$use_template=null,$content_type='html') {
     // Used to filter parameters to be searched and replaced in the email subject & body
-    $values = MeprHooks::apply_filters('mepr_email_send_params', $values, $this, $subject, $body);
+    $values  = MeprHooks::apply_filters('mepr_email_send_params',  $values,  $this, $subject, $body  );
+    $body    = MeprHooks::apply_filters('mepr_email_send_body',    $body,    $this, $subject, $values);
+    $subject = MeprHooks::apply_filters('mepr_email_send_subject', $subject, $this, $body,    $values);
 
     $bkg_enabled = get_option('mp-bkg-email-jobs-enabled');
 
@@ -113,8 +115,9 @@ abstract class MeprBaseEmail {
     }
   }
 
-  public function set_html_content_type() {
-    return 'text/html;charset="UTF-8"';
+  public function set_html_content_type($content_type = 'text/html') {
+    // return 'text/html;charset="UTF-8"'; //UTF-8 is breaking internal WP checks
+    return 'text/html';
   }
 
   // This is for some severe multipart mailing

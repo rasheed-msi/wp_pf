@@ -1,7 +1,7 @@
 <?php
 if(!defined('ABSPATH')) {die('You are not allowed to call this page directly.');}
 
-class MeprSubscriptionsCtrl extends MeprCptCtrl
+class MeprSubscriptionsCtrl extends MeprBaseCtrl
 {
   public function load_hooks()
   {
@@ -14,6 +14,7 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
     add_action('wp_ajax_mepr_cancel_subscription',    array($this, 'cancel_subscription'));
     add_action('wp_ajax_mepr_subscriptions',          array($this, 'csv'));
     add_action('wp_ajax_mepr_lifetime_subscriptions', array($this, 'lifetime_csv'));
+    add_action('mepr_control_table_footer',           array($this, 'export_footer_link'), 10, 2);
 
     // Screen Options
     $hook = $this->get_hook();
@@ -25,6 +26,8 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
     add_filter( "manage_{$hook}_columns", array($this, 'get_lifetime_columns') );
 
     add_filter( 'set-screen-option', array($this,'setup_screen_options'), 10, 3 );
+
+    add_action('mepr_table_controls_search', array($this, 'table_search_box'));
   }
 
   private function get_hook($lifetime=false) {
@@ -45,35 +48,7 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
       return false;
   }
 
-  public function register_post_type()
-  {
-    $this->cpt = (object)array(
-                   'slug' => MeprSubscription::$cpt,
-                   'config' => array(
-                     'labels' => array(
-                       'name' => __( 'Subscriptions' , 'memberpress'),
-                       'singular_name' => __( 'Subscription' , 'memberpress'),
-                       'add_new_item' => __('Add New Subscription', 'memberpress'),
-                       'edit_item' => __('Edit Subscription', 'memberpress'),
-                       'new_item' => __('New Subscription', 'memberpress'),
-                       'view_item' => __('View Subscription', 'memberpress'),
-                       'search_items' => __('Search Subscription', 'memberpress'),
-                       'not_found' => __('No Subscription found', 'memberpress'),
-                       'not_found_in_trash' => __('No Subscription found in Trash', 'memberpress'),
-                       'parent_item_colon' => __('Parent Subscription:', 'memberpress')
-                     ),
-                     'public' => false,
-                     'show_ui' => false,
-                     'capability_type' => 'post',
-                     'hierarchical' => true,
-                     'supports' => array('none')
-                   )
-                 );
-    register_post_type( $this->cpt->slug, $this->cpt->config );
-  }
-
-  public function listing()
-  {
+  public function listing() {
     $screen = get_current_screen();
     $lifetime = ( $screen->id === $this->get_hook(true) );
     $sub_table = new MeprSubscriptionsTable( $screen, $this->get_columns(), $lifetime );
@@ -119,7 +94,7 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
     $value = $_POST['value'];
 
     $sub = new MeprSubscription($id);
-    if( empty($sub->ID) )
+    if( empty($sub->id) )
       die(__('Save Failed', 'memberpress'));
 
     $sub->status = $value;
@@ -184,7 +159,13 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
     }
 
     $sub = new MeprSubscription($_POST['id']);
-    $sub->cancel();
+
+    try {
+      $sub->cancel();
+    }
+    catch( Exception $e ) {
+      die($e->getMessage());
+    }
 
     die('true'); //don't localize this string
   }
@@ -206,19 +187,65 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
   }
 
   public function csv($lifetime = false) {
+    $filename = ( $lifetime ? 'non-recurring-' : '' ) . 'subscriptions-'.time();
+
     // Since we're running WP_List_Table headless we need to do this
     $GLOBALS['hook_suffix'] = false;
 
     $screen = get_current_screen();
-    $subtab = new MeprSubscriptionsTable( $screen, $this->get_columns(), $lifetime );
-    $subtab->prepare_items();
-    $filename = ( $lifetime ? 'non-recurring-' : '' ) . 'subscriptions-'.time();
+    $tab = new MeprSubscriptionsTable( $screen, $this->get_columns(), $lifetime );
 
-    MeprUtils::render_csv( $subtab->get_items(), $filename );
+    if(isset($_REQUEST['all']) && !empty($_REQUEST['all'])) {
+      $search  = isset($_REQUEST["search"]) && !empty($_REQUEST["search"]) ? esc_sql($_REQUEST["search"])  : '';
+      $search_field = isset($_REQUEST["search"]) && !empty($_REQUEST["search-field"])  ? esc_sql($_REQUEST["search-field"])  : 'any';
+      $search_field = isset($tab->db_search_cols[$search_field]) ? $tab->db_search_cols[$search_field] : 'any';
+
+      if($lifetime) {
+        $all = MeprSubscription::lifetime_subscr_table(
+          /* $order_by */     'txn.created_at',
+          /* $order */        'ASC',
+          /* $paged */        '',
+          /* $search */       $search,
+          /* $search_field */ $search_field,
+          /* $perpage */      '',
+          /* $countonly */    false,
+          /* $params */       $_REQUEST
+        );
+      }
+      else {
+        $all = MeprSubscription::subscr_table(
+          /* $order_by */     'sub.created_at',
+          /* $order */        'ASC',
+          /* $paged */        '',
+          /* $search */       $search,
+          /* $search_field */ $search_field,
+          /* $perpage */      '',
+          /* $countonly */    false,
+          /* $params */       $_REQUEST
+        );
+      }
+
+      MeprUtils::render_csv($all['results'], $filename);
+    }
+    else {
+      $tab->prepare_items();
+
+      MeprUtils::render_csv( $tab->get_items(), $filename );
+    }
+
   }
 
   public function lifetime_csv() {
     $this->csv(true);
+  }
+
+  public function export_footer_link($action, $totalitems) {
+    if($action=='mepr_subscriptions' || $action=='mepr_lifetime_subscriptions') {
+      ?>
+      |
+      <a href="<?php echo admin_url('admin-ajax.php?action=' . $action . '&all=1&' . $_SERVER['QUERY_STRING']); ?>"><?php printf(__('Export all as CSV (%s records)', 'memberpress'), MeprAppHelper::format_number($totalitems)); ?></a>
+      <?php
+    }
   }
 
   /* This is here to use wherever we want. */
@@ -226,15 +253,15 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
     $prefix = $lifetime ? 'col_txn_' : 'col_';
     $cols = array(
       $prefix.'id' => __('Id', 'memberpress'),
-      $prefix.'subscr_id' => __('Subscr Num', 'memberpress'),
+      $prefix.'subscr_id' => __('Subscription', 'memberpress'),
       $prefix.'active' => __('Active', 'memberpress'),
       $prefix.'status' => __('Auto Rebill', 'memberpress'),
       $prefix.'product' => __('Membership', 'memberpress'),
       $prefix.'product_meta' => __('Terms', 'memberpress'),
       $prefix.'propername' => __('Name', 'memberpress'),
       $prefix.'member' => __('User', 'memberpress'),
-      $prefix.'gateway' => __('Pmt Method', 'memberpress'),
-      $prefix.'txn_count' => __('Txns', 'memberpress'),
+      $prefix.'gateway' => __('Gateway', 'memberpress'),
+      $prefix.'txn_count' => __('Transaction', 'memberpress'),
       $prefix.'ip_addr' => __('IP', 'memberpress'),
       $prefix.'created_at' => __('Created On', 'memberpress'),
       $prefix.'expires_at' => __('Expires On', 'memberpress')
@@ -244,11 +271,11 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
       unset($cols[$prefix.'status']);
       unset($cols[$prefix.'delete_sub']);
       unset($cols[$prefix.'txn_count']);
-      $cols[$prefix.'subscr_id'] = __('Txn Num', 'memberpress');
+      $cols[$prefix.'subscr_id'] = __('Transaction', 'memberpress');
       $cols[$prefix.'product_meta'] = __('Price', 'memberpress');
     }
 
-    return $cols;
+    return MeprHooks::apply_filters('mepr-admin-subscriptions-cols', $cols, $prefix, $lifetime);
   }
 
   public function get_lifetime_columns() {
@@ -277,6 +304,21 @@ class MeprSubscriptionsCtrl extends MeprCptCtrl
     $optname = $this->is_lifetime() ? 'mp_lifetime_subs_perpage' : 'mp_subs_perpage';
     if ( $optname === $option ) { return $value; }
     return $status;
+  }
+
+  public function table_search_box() {
+    if(isset($_REQUEST['page']) && ($_REQUEST['page']=='memberpress-subscriptions' || $_REQUEST['page']=='memberpress-lifetimes')) {
+      $mepr_options = MeprOptions::fetch();
+
+      $membership = (isset($_REQUEST['membership'])?$_REQUEST['membership']:false);
+      $status = (isset($_REQUEST['status'])?$_REQUEST['status']:'all');
+      $gateway = (isset($_REQUEST['gateway'])?$_REQUEST['gateway']:'all');
+
+      $prds = MeprCptModel::all('MeprProduct');
+      $gateways = $mepr_options->payment_methods();
+
+      MeprView::render('/admin/subscriptions/search_box', compact('membership','status','prds','gateways','gateway'));
+    }
   }
 } //End class
 

@@ -12,6 +12,7 @@
 
 define('MRT_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('MRT_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('MRT_TEMPLATE_PATH', MRT_PLUGIN_PATH . '/templates');
 define('MRT_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
 include_once MRT_PLUGIN_PATH . 'controllers/Gform.php';

@@ -22,53 +22,18 @@
       </td>
     </tr>
   <?php
-    if(MeprUtils::is_mepr_admin()) { //Let admins see all fields
-      $custom_fields = $mepr_options->custom_fields;
-    }
-    else {
-      $custom_fields = $user->custom_profile_fields();
-    }
-
-    if($mepr_options->show_address_fields) {
-      $custom_fields = array_merge($custom_fields, $mepr_options->address_fields); //Genius
-    }
-
-    if(!empty($custom_fields)) {
-      foreach($custom_fields as $line) {
-        $value = get_user_meta($user->ID, $line->field_key, true);
-        $required = ($line->required)?'<span class="description">'.__('(required)', 'memberpress').'</span>':'';
-
-        ?>
-        <tr>
-          <th>
-            <label for="<?php echo $line->field_key; ?>"><?php printf( __('%1$s:%2$s', 'memberpress'), stripslashes($line->field_name), $required ); ?></label>
-          </th>
-          <td>
-            <?php
-              echo MeprUsersHelper::render_custom_field($line, $value, array(
-                'text' => 'regular-text',
-                'email' => 'regular-text',
-                'textarea' => 'regular-text',
-                'date' => 'regular-text',
-                'states' => 'regular-text'
-              ));
-            ?>
-          </td>
-        </tr>
-        <?php
-      }
-    }
+    MeprUsersHelper::render_editable_custom_fields($user);
 
     if(MeprUtils::is_mepr_admin()) { //Allow admins to see
     ?>
       <tr>
         <td colspan="2">
-          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&member='.$user->user_login); ?>" class="button"><?php _e("View Member's Transactions", "memberpress");?></a>
+          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&search='.urlencode($user->user_email)).'&search-field=email'; ?>" class="button"><?php _e("View Member's Transactions", "memberpress");?></a>
         </td>
       </tr>
       <tr>
-        <td>
-          <a href="<?php echo admin_url('admin.php?page=memberpress-subscriptions&member='.$user->user_login); ?>" class="button"><?php _e("View Member's Subscriptions", "memberpress");?></a>
+        <td colspan="2">
+          <a href="<?php echo admin_url('admin.php?page=memberpress-subscriptions&search='.urlencode($user->user_email)).'&search-field=email'; ?>" class="button"><?php _e("View Member's Subscriptions", "memberpress");?></a>
         </td>
       </tr>
       <tr>

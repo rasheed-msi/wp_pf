@@ -5,8 +5,8 @@ class MeprEmailsCtrl extends MeprBaseCtrl
 {
   public function load_hooks()
   {
-    add_action('wp_ajax_set_email_defaults', 'MeprEmailsCtrl::set_email_defaults');
-    add_action('wp_ajax_send_test_email', 'MeprEmailsCtrl::send_test_email');
+    add_action('wp_ajax_mepr_set_email_defaults', 'MeprEmailsCtrl::set_email_defaults');
+    add_action('wp_ajax_mepr_send_test_email', 'MeprEmailsCtrl::send_test_email');
   }
 
   public static function set_email_defaults()
@@ -82,15 +82,15 @@ class MeprEmailsCtrl extends MeprBaseCtrl
         'product_name'              => __('Bronze Edition', 'memberpress'),
         'invoice_num'               => 718,
         'trans_num'                 => '9i8h7g6f5e',
-        'trans_date'                => date(__("F j, Y, g:i a", 'memberpress')),
-        'trans_expires_at'          => date(__("F j, Y, g:i a", 'memberpress'), time() + MeprUtils::days(2)),
+        'trans_date'                => date_i18n(__("F j, Y, g:i a", 'memberpress'), time(), true),
+        'trans_expires_at'          => date_i18n(__("F j, Y, g:i a", 'memberpress'), time() + MeprUtils::days(2), true),
         'trans_gateway'             => __("Credit Card (Stripe)", 'memberpress'),
         'user_remote_addr'          => $_SERVER['REMOTE_ADDR'],
         'payment_amount'            => $amount,
         'subscr_num'                => '1a2b3c4d5e',
-        'subscr_date'               => date(__("F j, Y, g:i a", 'memberpress')),
-        'subscr_next_billing_at'    => date(__("F j, Y, g:i a", 'memberpress'), time() + MeprUtils::days(2)),
-        'subscr_expires_at'         => date(__("F j, Y, g:i a", 'memberpress'), time() + MeprUtils::days(2)),
+        'subscr_date'               => date_i18n(__("F j, Y, g:i a", 'memberpress'), time(), true),
+        'subscr_next_billing_at'    => date_i18n(__("F j, Y, g:i a", 'memberpress'), time() + MeprUtils::days(2), true),
+        'subscr_expires_at'         => date_i18n(__("F j, Y, g:i a", 'memberpress'), time() + MeprUtils::days(2), true),
         'subscr_gateway'            => __("Credit Card (Stripe)", 'memberpress'),
         'subscr_terms'              => sprintf(__("%s / month", 'memberpress'), $amount),
         'subscr_cc_num'             => MeprUtils::cc_num('6710'),

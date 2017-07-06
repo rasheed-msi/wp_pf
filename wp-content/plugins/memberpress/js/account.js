@@ -13,4 +13,18 @@ jQuery(document).ready(function ($) {
   $('.mepr-confirm-yes').on('click', function(e){
     location.href = $(this).data('url');
   });
+
+  $('.mepr-open-upgrade-popup').magnificPopup({
+    type: 'inline',
+    closeBtnInside: false
+  });
+
+  $('.mepr-upgrade-cancel').on('click', function(e) {
+    $.magnificPopup.close();
+  });
+
+  $('.mepr-upgrade-buy-now').on('click', function(e){
+    var url = $('.mepr-upgrade-dropdown').val();
+    location.href = url;
+  });
 });

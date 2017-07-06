@@ -59,7 +59,7 @@
 
     function mepr_send_test_email(obj_name, dashed_obj_name, subject, body, use_template) {
       var data = {
-        action: 'send_test_email',
+        action: 'mepr_send_test_email',
         e: obj_name,
         s: subject,
         b: body,
@@ -122,7 +122,7 @@
 
     function mepr_set_email_defaults(obj_name,dashed_obj_name,subject_id,body_id,use_template_id) {
       var data = {
-        action: 'set_email_defaults',
+        action: 'mepr_set_email_defaults',
         e: obj_name
       };
 

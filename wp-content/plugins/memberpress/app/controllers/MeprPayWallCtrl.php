@@ -87,13 +87,13 @@ class MeprPayWallCtrl extends MeprBaseCtrl {
   }
 
   public static function paywall_allow_through_redirection($protect, $uri, $delim) {
-    if(self::paywall_allow_through())
+    if(self::paywall_allow_through('uri'))
       return false; //Need to return false to allow them through the blocks
 
     return $protect;
   }
 
-  public static function paywall_allow_through() {
+  public static function paywall_allow_through($type = 'content') {
     $post = MeprUtils::get_current_post();
 
     //Do nothing if the member is logged in, or if this is a bot (bots might be allowed through later down the chain)
@@ -109,8 +109,14 @@ class MeprPayWallCtrl extends MeprBaseCtrl {
     if($mepr_options->paywall_enabled && $mepr_options->paywall_num_free_views > 0) {
       $num_views = (isset($_COOKIE[self::$cookie_name]) && !empty($_COOKIE[self::$cookie_name]))?$_COOKIE[self::$cookie_name]:0;
 
-      if($num_views !== 0)
+      if($num_views !== 0) {
         $num_views = base64_decode($num_views);
+      }
+
+      //There's a race condition happening here, so we need to add one to the uri's
+      if($type == 'uri') {
+        $num_views += 1;
+      }
 
       if($num_views <= $mepr_options->paywall_num_free_views)
         return true;

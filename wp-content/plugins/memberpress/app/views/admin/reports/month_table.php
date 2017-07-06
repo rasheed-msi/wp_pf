@@ -24,41 +24,43 @@
       $revenue = (float)MeprReports::get_revenue($curr_month, $r->day, $curr_year, $curr_product);
       $taxes = (float)MeprReports::get_taxes($curr_month, $r->day, $curr_year, $curr_product);
       $refunds = (float)MeprReports::get_refunds($curr_month, $r->day, $curr_year, $curr_product);
+      $all = (float)($revenue + $refunds + $taxes);
       $alternate = ( $row_index++ % 2 ? '' : 'alternate' );
     ?>
       <tr class="<?php echo $alternate; ?>">
         <td>
-          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&product='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year); ?>">
+          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&membership='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year); ?>">
             <?php echo MeprReports::make_table_date($curr_month, $r->day, $curr_year); ?>
           </a>
         </td>
         <td>
-          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&product='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year.'&search=pending'); ?>">
+          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&membership='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year.'&status=pending'); ?>">
             <?php echo $r->p; $pTotal += $r->p; ?>
           </a>
         </td>
         <td>
-          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&product='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year.'&search=failed'); ?>">
+          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&membership='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year.'&status=failed'); ?>">
             <?php echo $r->f; $fTotal += $r->f; ?>
           </a>
         </td>
         <td>
-          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&product='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year.'&search=complete'); ?>">
+          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&membership='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year.'&status=complete'); ?>">
             <?php echo $r->c; $cTotal += $r->c; ?>
           </a>
         </td>
         <td>
-          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&product='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year.'&search=refunded'); ?>">
+          <a href="<?php echo admin_url('admin.php?page=memberpress-trans&membership='.$curr_product.'&month='.$curr_month.'&day='.$r->day.'&year='.$curr_year.'&status=refunded'); ?>">
             <?php echo $r->r; $rTotal += $r->r; ?>
           </a>
         </td>
-        <td style="color:green;"><?php echo MeprAppHelper::format_currency(($revenue + $refunds + $taxes),true,false); $revTotal += $revenue; ?></td>
-        <td style="color:red;"><?php echo MeprAppHelper::format_currency($refunds,true,false); $refTotal += $refunds; ?></td>
-        <td style="color:orange;"><?php echo MeprAppHelper::format_currency($taxes,true,false); $taxTotal += $taxes; ?></td>
-        <td style="color:navy;"><?php echo MeprAppHelper::format_currency($revenue,true,false); ?></td>
+        <td <?php if(!empty($all)) { echo 'style="color:green;font-weight:bold;"'; } ?>><?php echo MeprAppHelper::format_currency(($all),true,false); $revTotal += $revenue; ?></td>
+        <td <?php if(!empty($refunds)) { echo 'style="color:red;font-weight:bold;"'; } ?>><?php echo MeprAppHelper::format_currency($refunds,true,false); $refTotal += $refunds; ?></td>
+        <td <?php if(!empty($taxes)) { echo 'style="color:orange;font-weight:bold;"'; } ?>><?php echo MeprAppHelper::format_currency($taxes,true,false); $taxTotal += $taxes; ?></td>
+        <td <?php if(!empty($revenue)) { echo 'style="color:navy;font-weight:bold;"'; } ?>><?php echo MeprAppHelper::format_currency($revenue,true,false); ?></td>
       </tr>
     <?php
     }
+    $allTotal = (float)($revTotal + $refTotal + $taxTotal);
     ?>
     </tbody>
     <tfoot>
@@ -68,10 +70,10 @@
         <th><?php echo $fTotal; ?></th>
         <th><?php echo $cTotal; ?></th>
         <th><?php echo $rTotal; ?></th>
-        <th style="color:green;"><?php echo MeprAppHelper::format_currency(($revTotal + $refTotal + $taxTotal),true,false); ?></th>
-        <th style="color:red;"><?php echo MeprAppHelper::format_currency($refTotal,true,false); ?></th>
-        <th style="color:orange;"><?php echo MeprAppHelper::format_currency($taxTotal,true,false); ?></th>
-        <th style="color:navy;"><?php echo MeprAppHelper::format_currency($revTotal,true,false); ?></th>
+        <th <?php if(!empty($allTotal)) { echo 'style="color:green;font-weight:bold;"'; } ?>><?php echo MeprAppHelper::format_currency($allTotal,true,false); ?></th>
+        <th <?php if(!empty($refTotal)) { echo 'style="color:red;font-weight:bold;"'; } ?>><?php echo MeprAppHelper::format_currency($refTotal,true,false); ?></th>
+        <th <?php if(!empty($taxTotal)) { echo 'style="color:orange;font-weight:bold;"'; } ?>><?php echo MeprAppHelper::format_currency($taxTotal,true,false); ?></th>
+        <th <?php if(!empty($revTotal)) { echo 'style="color:navy;font-weight:bold;"'; } ?>><?php echo MeprAppHelper::format_currency($revTotal,true,false); ?></th>
       </tr>
   </tfoot>
 </table>

@@ -40,9 +40,16 @@
         <td><?php printf('<b>%1$d of %2$s</b> sites have been activated with this license key', $li['activation_count'], ucwords($li['max_activations'])); ?></td>
       </tr>
     </table>
-    <div class="mepr-deactivate-button"><a href="<?php echo admin_url('admin.php?page=memberpress-updates&action=deactivate&_wpnonce='.wp_create_nonce('memberpress_deactivate')); ?>" class="button button-primary" onclick="return confirm('<?php printf(__("Are you sure? Automatic updates of MemberPress will not be available on %s if this License Key is deactivated.", 'memberpress'), MeprUtils::site_domain()); ?>');"><?php printf(__('Deactivate License Key on %s', 'memberpress'), MeprUtils::site_domain()); ?></a></div>
+    <div class="mepr-deactivate-button"><a href="<?php echo admin_url('admin.php?page=memberpress-updates&action=deactivate&_wpnonce='.wp_create_nonce('memberpress_deactivate')); ?>" class="button button-primary" onclick="return confirm('<?php printf(__("Are you sure? MemberPress will not be functional on %s if this License Key is deactivated.", 'memberpress'), MeprUtils::site_domain()); ?>');"><?php printf(__('Deactivate License Key on %s', 'memberpress'), MeprUtils::site_domain()); ?></a></div>
   </div>
   <?php MeprView::render('/admin/update/edge_updates', get_defined_vars()); ?>
   <br/>
   <div id="mepr-version-string"><?php printf(__("You're currently running version %s of MemberPress", 'memberpress'), '<b>'.MEPR_VERSION.'</b>'); ?></div>
+  <br/>
+  <?php
+  /*
+  <div id="mepr-rollback-version" class="button"><a href="<?php echo MeprUpdateCtrl::rollback_url(); ?>" onclick="confirm('<?php _e('Are you sure you want to rollback MemberPress?', 'memberpress'); ?>');"><?php _e('Rollback to Previous Version', 'memberpress'); ?></a></div>
+  */
+  ?>
 <?php endif; ?>
+<?php MeprHooks::do_action('mepr_activate_license_page'); ?>

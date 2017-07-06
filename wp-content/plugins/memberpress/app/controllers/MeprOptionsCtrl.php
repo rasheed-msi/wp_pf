@@ -1,17 +1,14 @@
 <?php
 if(!defined('ABSPATH')) {die('You are not allowed to call this page directly.');}
 
-class MeprOptionsCtrl extends MeprBaseCtrl
-{
-  public function load_hooks()
-  {
+class MeprOptionsCtrl extends MeprBaseCtrl {
+  public function load_hooks() {
     add_action('wp_ajax_mepr_gateway_form', 'MeprOptionsCtrl::gateway_form');
     add_action('admin_enqueue_scripts', 'MeprOptionsCtrl::enqueue_scripts');
     add_action('admin_notices', 'MeprOptionsCtrl::maybe_configure_options');
   }
 
-  public static function maybe_configure_options()
-  {
+  public static function maybe_configure_options() {
     $mepr_options = MeprOptions::fetch();
 
     if(!$mepr_options->setup_complete and
@@ -31,10 +28,16 @@ class MeprOptionsCtrl extends MeprBaseCtrl
       MeprUpdateCtrl::manually_queue_update();
     }
     else if($action==='upgrade') { // Manually upgrade the database
-      $mepr_db = new MeprDb();
-      $mepr_db->upgrade();
-      $message = __('Database Was Upgraded', 'memberpress');
-      return self::display_form(array(),$message);
+      $mepr_app = new MeprAppCtrl();
+      try {
+        delete_transient('mepr_migration_error');
+        $mepr_app->install();
+        $message = __('Database Was Upgraded', 'memberpress');
+        return self::display_form(array(),$message);
+      }
+      catch(MeprDbMigrationException $e) {
+        return self::display_form(array($e->getMessage()),'');
+      }
     }
     else if($action==='clear_tax_rates') {
       MeprTaxRate::destroy_all();
@@ -58,19 +61,16 @@ class MeprOptionsCtrl extends MeprBaseCtrl
     $mepr_options = MeprOptions::fetch();
 
     if(MeprUtils::is_logged_in_and_an_admin()) {
-      $errors = array();
-
-      $errors = MeprHooks::apply_filters('mepr-validate-options', $mepr_options->validate($_POST, $errors));
-
-      $mepr_options->update($_POST);
+      $errors = MeprHooks::apply_filters('mepr-validate-options', $mepr_options->validate($_POST, array()));
 
       if(count($errors) <= 0) {
-        // Ensure that the rewrite rules are flushed & in place
-        MeprUtils::flush_rewrite_rules();
-
         MeprHooks::do_action('mepr-process-options', $_POST);
 
+        $mepr_options->update($_POST);
         $mepr_options->store();
+
+        // Ensure that the rewrite rules are flushed & in place
+        MeprUtils::flush_rewrite_rules(); //Don't call this before running ->update() - it borks stuff
 
         $message = __('Options saved.', 'memberpress');
       }
@@ -101,6 +101,7 @@ class MeprOptionsCtrl extends MeprBaseCtrl
         'dropdownOption'    => __('Dropdown', 'memberpress'),
         'multiselectOption' => __('Multi-Select', 'memberpress'),
         'emailOption'       => __('Email', 'memberpress'),
+        'urlOption'         => __('URL', 'memberpress'),
         'radiosOption'      => __('Radio Buttons', 'memberpress'),
         'checkboxesOption'  => __('Checkboxes', 'memberpress'),
         'dateOption'        => __('Date', 'memberpress'),

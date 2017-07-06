@@ -55,7 +55,7 @@ class MrtAgencies extends MrtDbbase {
     }
 
     function getApproved() {
-        $sql = "SELECT * FROM {$this->table} WHERE status = 1";
+        $sql = "SELECT * FROM {$this->table} WHERE status = 1 ORDER BY title ASC";
         $results = $this->link->get_results($sql, ARRAY_A);
         return $results;
     }

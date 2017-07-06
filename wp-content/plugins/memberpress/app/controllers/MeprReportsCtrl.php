@@ -16,8 +16,8 @@ class MeprReportsCtrl extends MeprBaseCtrl
   public static function main()
   {
     $mepr_options = MeprOptions::fetch();
-    $curr_month = (isset($_GET['month']) && !empty($_GET['month']))?$_GET['month']:date('n');
-    $curr_year = (isset($_GET['year']) && !empty($_GET['year']))?$_GET['year']:date('Y');
+    $curr_month = (isset($_GET['month']) && !empty($_GET['month']))?$_GET['month']:gmdate('n');
+    $curr_year = (isset($_GET['year']) && !empty($_GET['year']))?$_GET['year']:gmdate('Y');
     $curr_product = (isset($_GET['product']) && !empty($_GET['product']))?$_GET['product']:'all';
 
     MeprView::render("/admin/reports/main", get_defined_vars());
@@ -42,8 +42,8 @@ class MeprReportsCtrl extends MeprBaseCtrl
   }
 
   public static function export_widget() {
-    $start_date = date('Y-m-d', time() - MeprUtils::days(6));
-    $end_date = date('Y-m-d');
+    $start_date = date_i18n('Y-m-d', time() - MeprUtils::days(6), true);
+    $end_date = date_i18n('Y-m-d', time(), true);
     $filename = "memberpress-report-{$start_date}-to-{$end_date}";
     $txns = MeprReports::get_widget_data('transactions');
     $amts = MeprReports::get_widget_data('amounts');
@@ -73,7 +73,7 @@ class MeprReportsCtrl extends MeprBaseCtrl
 
     foreach($results as $r)
     {
-      $tooltip_date = date('M j, Y', mktime(0, 0, 0, date('n'), date('j', strtotime($r->date)), date('Y')));
+      $tooltip_date = date_i18n('M j, Y', mktime(0, 0, 0, gmdate('n'), gmdate('j', strtotime($r->date)), gmdate('Y')), true);
 
       $chart_data['rows'][] =
         array( 'c' =>
@@ -134,8 +134,8 @@ class MeprReportsCtrl extends MeprBaseCtrl
     $mepr_options = MeprOptions::fetch();
     $type = (isset($_REQUEST['type']) && !empty($_REQUEST['type']))?$_REQUEST['type']:'amounts';
     $currency_symbol = ($type == 'amounts')?$mepr_options->currency_symbol:'';
-    $month = (isset($_REQUEST['month']) && !empty($_REQUEST['month']))?$_REQUEST['month']:date('n');
-    $year = (isset($_REQUEST['year']) && !empty($_REQUEST['year']))?$_REQUEST['year']:date('Y');
+    $month = (isset($_REQUEST['month']) && !empty($_REQUEST['month']))?$_REQUEST['month']:gmdate('n');
+    $year = (isset($_REQUEST['year']) && !empty($_REQUEST['year']))?$_REQUEST['year']:gmdate('Y');
     $product = (isset($_REQUEST['product']) && $_GET['product'] != 'all')?$_REQUEST['product']:'all';
     $q = (isset($_REQUEST['q']) && $_REQUEST['q'] != 'none')?$_REQUEST['q']:array();
 
@@ -166,7 +166,7 @@ class MeprReportsCtrl extends MeprBaseCtrl
 
     foreach($results as $r)
     {
-      $tooltip_date = date('M j, Y', mktime(0, 0, 0, $month, $r->day, $year));
+      $tooltip_date = date_i18n('M j, Y', mktime(0, 0, 0, $month, $r->day, $year), true);
 
       $chart_data['rows'][] =
         array( 'c' =>
@@ -197,7 +197,7 @@ class MeprReportsCtrl extends MeprBaseCtrl
     $mepr_options = MeprOptions::fetch();
     $type = (isset($_REQUEST['type']) && !empty($_REQUEST['type']))?$_REQUEST['type']:'amounts';
     $currency_symbol = ($type == 'amounts')?$mepr_options->currency_symbol:'';
-    $year = (isset($_REQUEST['year']) && !empty($_REQUEST['year']))?$_REQUEST['year']:date('Y');
+    $year = (isset($_REQUEST['year']) && !empty($_REQUEST['year']))?$_REQUEST['year']:gmdate('Y');
     $product = (isset($_REQUEST['product']) && $_GET['product'] != 'all')?$_REQUEST['product']:'all';
     $q = (isset($_REQUEST['q']) && $_GET['q'] != 'none')?$_REQUEST['q']:'';
 
@@ -228,7 +228,7 @@ class MeprReportsCtrl extends MeprBaseCtrl
 
     foreach($results as $r)
     {
-      $tooltip_date = date('M, Y', mktime(0, 0, 0, $r->month, 15, $year));
+      $tooltip_date = date_i18n('M, Y', mktime(0, 0, 0, $r->month, 15, $year), true);
       $chart_data['rows'][] =
         array( 'c' =>
           array(

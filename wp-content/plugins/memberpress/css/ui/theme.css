@@ -240,3 +240,17 @@ label.mepr-form-radios-label, label.mepr-form-checkboxes-label {
 .mepr-hidden {
   display: none;
 }
+
+/* users subscriptions list shortcode css */
+.mp_users_subscriptions_list ul {
+  list-style:none !important;
+}
+
+.mp_users_subscriptions_list ul li {
+  padding:5px !important;
+  margin:0 !important;
+}
+
+li.mp_users_subscriptions_list_alt {
+  background:#eee;
+}

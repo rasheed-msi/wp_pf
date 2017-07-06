@@ -28,7 +28,7 @@ jQuery(document).ready(function() {
     var i = jQuery(this).attr('data-value');
     var v = jQuery('.status_edit_'+i).val();
     var data = {
-             action: 'edit_status',
+             action: 'mepr_edit_status',
              id: i,
              value: v
     };
@@ -44,28 +44,12 @@ jQuery(document).ready(function() {
     return false;
   });
 
-  jQuery('.mepr_suggest_user').suggest(
-    ajaxurl+'?action=mepr_user_search',
-    {
-      delay: 500,
-      minchars: 2
-    }
-  );
-
-  jQuery('.mepr_suggest_subscr_num').suggest(
-    ajaxurl+'?action=mepr_subscr_num_search',
-    {
-      delay: 500,
-      minchars: 5
-    }
-  );
-
   //Delete TXN JS
   jQuery('a.remove-txn-row').click(function() {
     if(confirm(MeprTxn.del_txn)) {
       var i = jQuery(this).attr('data-value');
       var data = {
-        action: 'delete_transaction',
+        action: 'mepr_delete_transaction',
         id: i
       };
 
@@ -90,7 +74,7 @@ jQuery(document).ready(function() {
     jQuery('tr#record_' + i + ' .mepr_loader').show();
 
     var data = {
-      action: 'resend_txn_email',
+      action: 'mepr_resend_txn_email',
       id: i
     };
 
@@ -111,7 +95,7 @@ jQuery(document).ready(function() {
       var i = jQuery(this).attr('data-value');
       jQuery('tr#record_' + i + ' .mepr_loader').show();
       var data = {
-        action: 'refund_transaction',
+        action: 'mepr_refund_transaction',
         id: i
       };
 
@@ -124,6 +108,7 @@ jQuery(document).ready(function() {
           jQuery('div.status_initial_' + i + ' a').text(MeprTxn.refunded_text);
           jQuery('select.status_edit_' + i).val('refunded');
           jQuery('tr#record_' + i + ' .mepr-refund-txn-action').remove();
+          jQuery('tr#record_' + i + ' .mepr-refund-txn-and-cancel-sub-action').remove();
           alert(MeprTxn.refund_txn_success); // Alerts user that the transaction could not be refunded
         } else {
           alert(MeprTxn.refund_txn_error + ": " + response); // Alerts user that the transaction could not be refunded
@@ -134,39 +119,33 @@ jQuery(document).ready(function() {
     return false;
   });
 
-  // Get todays date
-  jQuery('a.mepr-today-button').click( function(e) {
-    var data_id = jQuery(this).attr('data-id');
+  // Refund TXN & Cancel SUB JS
+  jQuery('a.mepr-refund-txn-and-cancel-sub').click(function() {
+    if(confirm(MeprTxn.refund_txn_and_cancel_sub)) {
+      var i = jQuery(this).attr('data-value');
+      jQuery('tr#record_' + i + ' .mepr_loader').show();
+      var data = {
+        action: 'mepr_refund_txn_and_cancel_sub',
+        id: i
+      };
 
-    jQuery.post(ajaxurl, { action: 'mepr_todays_date' },
-                function(res) {
-                  var trimmed_data = res.replace(/^\s+|\s+$/g, ''); //Trim whitespace
-                   jQuery( '#' + data_id ).val(trimmed_data);
-                });
+      jQuery.post(ajaxurl, data, function(response) {
+        jQuery('tr#record_' + i + ' .mepr_loader').hide();
 
-    return false;
-  });
+        var trimmed_data = response.replace(/^\s+|\s+$/g, ''); //Trim whitespace
 
-  // Get default expiration date
-  jQuery('a.mepr-default-expiration-button').click( function(e) {
-    var data = {
-      action: 'mepr_default_expiration',
-      product_id: jQuery('#product_id').val(),
-      created_at: jQuery('#created_at').val()
-    };
+        if(trimmed_data == 'true') {
+          jQuery('div.status_initial_' + i + ' a').text(MeprTxn.refunded_text);
+          jQuery('select.status_edit_' + i).val('refunded');
+          jQuery('tr#record_' + i + ' .mepr-refund-txn-action').remove();
+          jQuery('tr#record_' + i + ' .mepr-refund-txn-and-cancel-sub-action').remove();
+          alert(MeprTxn.refund_txn_and_cancel_sub_success); // Alerts user that the transaction could not be refunded
+        } else {
+          alert(MeprTxn.refund_txn_and_cancel_sub_error + ": " + response); // Alerts user that the transaction could not be refunded
+        }
+      });
+    }
 
-    jQuery.post(ajaxurl, data,
-                function(res) {
-                  var trimmed_data = res.replace(/^\s+|\s+$/g, ''); //Trim whitespace
-                  jQuery( '#expires_at' ).val(trimmed_data);
-                });
-
-    return false;
-  });
-
-  // Get lifetime expiration
-  jQuery('a.mepr-lifetime-expiration-button').click( function(e) {
-    jQuery( '#expires_at' ).val('');
     return false;
   });
 });

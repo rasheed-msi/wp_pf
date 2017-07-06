@@ -77,11 +77,11 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
 
     if($upgrade) {
       $this->upgraded_sub($txn);
-      $this->send_upgraded_txn_notices($txn);
+      MeprUtils::send_upgraded_txn_notices($txn);
     }
     elseif($downgrade) {
       $this->downgraded_sub($txn);
-      $this->send_downgraded_txn_notices($txn);
+      MeprUtils::send_downgraded_txn_notices($txn);
     }
     else {
       $this->new_sub($txn);
@@ -92,13 +92,12 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
 
     if(!$this->settings->manually_complete == 'on' and !$this->settings->manually_complete == true) {
       $txn->status = MeprTransaction::$complete_str;
-      $this->send_transaction_receipt_notices($txn);
+      MeprUtils::send_transaction_receipt_notices($txn);
     }
 
     $txn->store();
 
-    $this->send_product_welcome_notices($txn);
-    $this->send_signup_notices($txn);
+    MeprUtils::send_signup_notices($txn);
 
     return $txn;
   }
@@ -163,14 +162,14 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
     // no automated recurring profiles when paying offline
     $sub->subscr_id = 'ts_' . uniqid();
     $sub->status = MeprSubscription::$active_str;
-    $sub->created_at = date('c');
+    $sub->created_at = gmdate('c');
     $sub->gateway = $this->id;
 
     //If this subscription has a paid trail, we need to change the price of this transaction to the trial price duh
     if($sub->trial) {
       $txn->set_subtotal(MeprUtils::format_float($sub->trial_amount));
       $expires_ts = time() + MeprUtils::days($sub->trial_days);
-      $txn->expires_at = date('c', $expires_ts);
+      $txn->expires_at = gmdate('c', $expires_ts);
     }
 
     // This will only work before maybe_cancel_old_sub is run
@@ -181,31 +180,30 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
 
     if($upgrade) {
       $this->upgraded_sub($sub);
-      $this->send_upgraded_sub_notices($sub);
+      MeprUtils::send_upgraded_sub_notices($sub);
     }
     else if($downgrade) {
       $this->downgraded_sub($sub);
-      $this->send_downgraded_sub_notices($sub);
+      MeprUtils::send_downgraded_sub_notices($sub);
     }
     else {
       $this->new_sub($sub);
-      $this->send_new_sub_notices($sub);
+      MeprUtils::send_new_sub_notices($sub);
     }
 
     $sub->store();
 
     $txn->gateway = $this->id;
     $txn->trans_num = 't_' . uniqid();
+    $txn->store();
 
     if(!$this->settings->manually_complete == 'on' and !$this->settings->manually_complete == true) {
       $txn->status = MeprTransaction::$complete_str;
-      $this->send_transaction_receipt_notices($txn);
+      $txn->store(); //Need to store here so the event will show as "complete" when firing the hooks
+      MeprUtils::send_transaction_receipt_notices($txn);
     }
 
-    $txn->store();
-
-    $this->send_product_welcome_notices($txn);
-    $this->send_signup_notices($txn);
+    MeprUtils::send_signup_notices($txn);
 
     return array('subscription' => $sub, 'transaction' => $txn);
   }
@@ -278,7 +276,7 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
       $sub->limit_reached_actions();
 
     if(!isset($_REQUEST['silent']) || ($_REQUEST['silent'] == false))
-      $this->send_cancelled_sub_notices($sub);
+      MeprUtils::send_cancelled_sub_notices($sub);
 
     return $sub;
   }
@@ -295,7 +293,9 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
 
     // Redirect to thank you page
     //$mepr_options = MeprOptions::fetch();
-    //MeprUtils::wp_redirect($mepr_options->thankyou_page_url("trans_num={$txn->trans_num}"));
+    // $product = new MeprProduct($txn->product_id);
+    // $sanitized_title = sanitize_title($product->post_title);
+    //MeprUtils::wp_redirect($mepr_options->thankyou_page_url("membership={$sanitized_title}&trans_num={$txn->trans_num}"));
   }
 
   public function display_payment_page($txn) {
@@ -324,11 +324,13 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
       $prd->price = $amount;
     }
 
+    ob_start();
+
     $invoice = MeprTransactionsHelper::get_invoice($txn);
     echo $invoice;
 
     ?>
-      <div class="mp_wrapper">
+      <div class="mp_wrapper mp_payment_form_wrapper">
         <form action="" method="post" id="payment-form" class="mepr-form" novalidate>
           <input type="hidden" name="mepr_process_payment_form" value="Y" />
           <input type="hidden" name="mepr_transaction_id" value="<?php echo $txn_id; ?>" />
@@ -343,6 +345,9 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
         </form>
       </div>
     <?php
+
+    $output = MeprHooks::apply_filters('mepr_artificial_gateway_payment_form', ob_get_clean(), $txn);
+    echo $output;
   }
 
   /** Validates the payment form before a payment is processed */
@@ -357,7 +362,15 @@ class MeprArtificialGateway extends MeprBaseRealGateway {
     ?>
     <table>
       <tr>
-        <td colspan="2"><input type="checkbox" name="<?php echo $mepr_options->integrations_str; ?>[<?php echo $this->id;?>][manually_complete]"<?php echo checked($manually_complete); ?> />&nbsp;<?php _e('Admin Must Manually Complete Transactions', 'memberpress'); ?></td>
+        <td colspan="2">
+          <input type="checkbox" name="<?php echo $mepr_options->integrations_str; ?>[<?php echo $this->id;?>][manually_complete]"<?php echo checked($manually_complete); ?> />&nbsp;<?php _e('Admin Must Manually Complete Transactions', 'memberpress'); ?>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <label><?php _e('Description', 'memberpress'); ?></label><br/>
+          <textarea name="<?php echo $mepr_options->integrations_str; ?>[<?php echo $this->id;?>][desc]" rows="3" cols="45"><?php echo stripslashes($this->settings->desc); ?></textarea>
+        </td>
       </tr>
     </table>
     <?php

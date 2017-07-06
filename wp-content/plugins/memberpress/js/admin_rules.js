@@ -44,7 +44,10 @@ function mepr_autocomplete_setup( type ) {
   });
 
   jQuery('.mepr-rule-types-autocomplete').autocomplete({
-    source: ajaxurl+'?action=mepr_rule_content_search&type='+type,
+    //source: ajaxurl+'?action=mepr_rule_content_search&type='+encodeURI(type),
+    source: function(request, response) {
+      jQuery.post(ajaxurl, {action: 'mepr_rule_content_search', type: type, term: request.term}, response, 'json');
+    },
     minLength: 2,
     focus: function( event, ui ) {
       jQuery( "#rule-content-text" ).val( ui.item.label );

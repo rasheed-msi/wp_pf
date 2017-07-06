@@ -11,23 +11,29 @@ class MeprEventsCtrl extends MeprBaseCtrl {
   }
 
   public function user_register($user_id) {
-    MeprEvent::record('member-added', (new MeprUser($user_id)));
+    if(!empty($user_id)) {
+      MeprEvent::record('member-added', (new MeprUser($user_id)));
+    }
   }
 
   public function delete_user($user_id) {
-    // Since the 'delete_user' action fires just before the user is deleted
-    // we should still have access to the full MeprUser object for them
-    MeprEvent::record('member-deleted', (new MeprUser($user_id)));
+    if(!empty($user_id)) {
+      // Since the 'delete_user' action fires just before the user is deleted
+      // we should still have access to the full MeprUser object for them
+      MeprEvent::record('member-deleted', (new MeprUser($user_id)));
+    }
   }
 
   /** Let's figure some stuff out from the txn-expired hook yo ... and send some proper events */
   public function txn_expired($txn, $sub_status) {
     // Assume the txn is expired (otherwise this action wouldn't fire)
     // Then ensure the subscription is expired before sending a sub expired event
-    if( $txn->subscription_id==0 || // A lifetime / one time sub
-       ($sub = $txn->subscription()) && $sub->is_expired()) {
+    if( !empty($txn) &&
+        $txn instanceof MeprTransaction &&
+        (int)$txn->subscription_id > 0 &&
+        ($sub = $txn->subscription()) &&
+        $sub->is_expired() ) {
       MeprEvent::record('subscription-expired', $sub, $txn);
     }
   }
-}
-
+} //End class

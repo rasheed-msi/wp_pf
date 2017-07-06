@@ -55,6 +55,12 @@ div#who_can_purchase_hidden_row {
   display:none;
 }
 
+div#cannot_purchase_message label {
+  display:block;
+  margin-top:10px;
+  margin-bottom:8px;
+}
+
 /* Pricing Page Meta Box */
 div#mepr-price-box-configuration {
   padding:10px;
@@ -168,6 +174,7 @@ div#mepr-product-thank-you-area {
 #mepr-custom-login-redirect-urls,
 #mepr-product-payment-methods-wrap,
 #mepr-product-profile-fields-wrap,
+#mepr-product-disable-address-fields-wrap,
 .mepr-product-adv-item {
   margin-top:20px;
 }
@@ -280,6 +287,10 @@ span.mepr-price-box-price-loading {
 
 /* Clean up rule listing page */
 .view-switch, #post-query-submit {
+  display: none;
+}
+
+#mepr-custom-pricing-display {
   display: none;
 }
 

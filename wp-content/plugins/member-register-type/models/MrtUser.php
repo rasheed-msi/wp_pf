@@ -2,6 +2,11 @@
 
 class MrtUser {
 
+    public $profile;
+    public $contact;
+    public $user_id;
+    public $couple;
+
     public function __construct($user_id = null) {
 
         global $wpdb;
@@ -19,44 +24,30 @@ class MrtUser {
             }
         }
 
-        $this->profile = new MrtProfile;
-        $this->contact = new MrtContact;
-
         $this->user = get_user_by('ID', $this->user_id);
-        $this->profile->id = $this->profile->getId($this->user_id);
-
-
-        if (!is_null($this->profile->id)) {
-            $this->contact->id = $this->contact->getId($this->profile->id);
-            $this->profile->data = $this->profile->get($this->profile->id);
-        }
-        if (!is_null($this->contact->id)) {
-            $this->contact->data = $this->contact->get($this->contact->id);
-        }
-
-        $this->profile->data['marital_status'] = (is_null($this->profile->data['couple_id'])) ? 'single' : 'couple';
-
         $this->user_meta = get_userdata($this->user_id);
         $this->user_role = $this->user_meta->roles[0];
+
+        $this->profile = MrtProfile::find($this->user_id, 'wp_users_id');
+
+        if (isset($this->profile->id)) {
+            $this->contact = MrtContact::find($this->profile->id, 'pf_profile_id');
+        } else {
+            $this->contact = new MrtContact();
+        }
     }
 
     public function set_couple() {
-        if (is_null($this->profile->data['couple_id'])) {
-            $this->profile->data['marital_status'] = false;
+
+        if (!isset($this->profile->data['couple_id'])) {
             return false;
         }
 
-        $this->couple = new MrtProfile();
-        $this->couple->id = $this->profile->data['couple_id'];
-        $this->couple->data = $this->couple->get($this->couple->id);
-
-        if (!empty($this->couple->data)) {
-            $this->profile->data['marital_status'] = true;
-        }
+        $this->couple = MrtProfile::find($this->profile->data['couple_id']);
+        return true;
     }
 
     public function create_couple($data) {
-        echo 'new couple set';
         $this->couple = new MrtProfile();
         $data['couple_id'] = $this->profile->id;
         $this->couple->id = $this->couple->insert($data);
@@ -131,7 +122,7 @@ class MrtUser {
 
     public function create_profile($data) {
 
-        if (is_null($this->user_id)) {
+        if (!isset($this->user_id)) {
             return false;
         }
 
@@ -167,25 +158,24 @@ class MrtUser {
         $data['wp_users_id'] = $this->user_id;
 
         if (isset($data['action']) && $data['action'] == 'edit_profile') {
-            if (is_null($this->profile->id)) {
-                $this->profile->id = $this->profile->insert($data);
-            } else {
+            if (isset($this->profile->id)) {
                 $data['pf_profile_id'] = $this->profile->id;
                 $this->profile->update($data);
                 if (isset($data['pf_agency_id'])) {
                     $this->update_agency($data['pf_agency_id']);
                 }
+            } else {
+                $this->profile->id = $this->profile->insert($data);
             }
         }
 
         if (isset($data['action']) && $data['action'] == 'edit_contact') {
 
-            if (is_null($this->contact->id)) {
-                $data['pf_profile_id'] = $this->profile->id;
-                $this->contact->id = $this->contact->insert($data);
-            } else {
-                $data['pf_profile_id'] = $this->profile->id;
+            $data['pf_profile_id'] = $this->profile->id;
+            if (isset($this->contact->id)) {
                 $this->contact->update($data);
+            } else {                
+                $this->contact->id = $this->contact->insert($data);
             }
         }
 
@@ -202,6 +192,11 @@ class MrtUser {
         $agency_user->delete('pf_profile_id', $this->profile->id);
     }
 
+    public function get_agencies() {
+        $agency_user = new MrtRelationAgencyUser;
+        return $agency_user->get_agencies($this->profile->id);
+    }
+
     public function update_agency($agency_id) {
         // Add agency
         $agency_user = new MrtRelationAgencyUser;
@@ -212,6 +207,24 @@ class MrtUser {
         $insert['pf_profile_id'] = $this->profile->id;
         $insert['pf_agency_id'] = $agency_id;
         $agency_user->insert($insert);
+    }
+
+    public function add_user_multiple_agency($agencies) {
+
+        if (!isset($this->profile->id)) {
+            return false;
+        }
+
+        $agency_user = new MrtRelationAgencyUser;
+        $agency_user->delete('pf_profile_id', $this->profile->id);
+
+        foreach ($agencies as $key => $agency_id) {
+            $insert = [];
+            $insert['wp_users_id'] = $this->user_id;
+            $insert['pf_profile_id'] = $this->profile->id;
+            $insert['pf_agency_id'] = $agency_id;
+            $agency_user->insert($insert);
+        }
     }
 
 }

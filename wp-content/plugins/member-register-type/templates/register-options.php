@@ -5,7 +5,8 @@
     </div>
     
     <div class="join-link">
-        <a href="<?php echo site_url('register?rft=1'); ?>">Adoptive Family</a>
+        <a href="<?php echo site_url('plans/adoptive-memberships'); ?>">Adoptive Family</a>
+<!--        <a href="<?php echo site_url('register?rft=1'); ?>">Adoptive Family</a>-->
     </div>
     
     <div class="join-link">

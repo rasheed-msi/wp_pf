@@ -60,11 +60,12 @@ class MeprProductsHelper {
   }
 
   /** Especially for formatting a membership's price */
-  public static function format_currency($product, $show_symbol = true, $coupon_code = null) {
-    return MeprAppHelper::format_price_string( $product,
-                                               $product->adjusted_price($coupon_code),
-                                               $show_symbol,
-                                               $coupon_code );
+  public static function format_currency($product, $show_symbol = true, $coupon_code = null, $show_prorated = true) {
+    return MeprAppHelper::format_price_string($product,
+                                              $product->adjusted_price($coupon_code),
+                                              $show_symbol,
+                                              $coupon_code,
+                                              $show_prorated);
   }
 
   public static function get_who_can_purchase_items($product) {
@@ -76,7 +77,7 @@ class MeprProductsHelper {
           <li>
             <?php self::get_user_types_dropdown($who->user_type, $id); ?>
             <span id="who_have_purchased-<?php echo $id; ?>" class="<?php echo $class; ?>">
-              <?php _e('who have purchased', 'memberpress'); ?>
+              <?php _e('who currently have', 'memberpress'); ?>
               <?php self::get_products_dropdown($who->product_id, $product->ID); ?>
             </span>
             <span class="remove-span">
@@ -96,7 +97,7 @@ class MeprProductsHelper {
       <li>
         <?php self::get_user_types_dropdown(null, $id); ?>
         <span id="who_have_purchased-<?php echo $id; ?>" class="who_have_purchased">
-          <?php _e('who have purchased', 'memberpress'); ?>
+          <?php _e('who currently have', 'memberpress'); ?>
           <?php self::get_products_dropdown(null, $product->ID); ?>
         </span>
         <span class="remove-span">
@@ -112,6 +113,7 @@ class MeprProductsHelper {
         <option value="everyone" <?php selected('everyone', $chosen); ?>><?php _e('Everyone', 'memberpress'); ?></option>
         <option value="guests" <?php selected('guests', $chosen); ?>><?php _e('Guests', 'memberpress'); ?></option>
         <option value="members" <?php selected('members', $chosen); ?>><?php _e('Members', 'memberpress'); ?></option>
+        <option value="disabled" <?php selected('disabled', $chosen); ?>><?php _e('No One (Disabled)', 'memberpress'); ?></option>
       </select>
     <?php
   }
@@ -121,13 +123,16 @@ class MeprProductsHelper {
 
     ?>
       <select name="<?php echo MeprProduct::$who_can_purchase_str.'-product_id'; ?>[]">
-        <option value="nothing" <?php selected($chosen, 'nothing'); ?>><?php _e('nothing', 'memberpress'); ?></option>
-        <option value="anything" <?php selected($chosen, 'anything'); ?>><?php _e('anything', 'memberpress'); ?></option>
+        <option value="nothing" <?php selected($chosen, 'nothing'); ?>><?php _e('no memberships', 'memberpress'); ?></option>
+        <option value="anything" <?php selected($chosen, 'anything'); ?>><?php _e('any membership', 'memberpress'); ?></option>
+        <option value="subscribed-before" <?php selected($chosen, 'subscribed-before'); ?>><?php _e('subscribed to this membership before', 'memberpress'); ?></option>
+        <option value="not-subscribed-before" <?php selected($chosen, 'not-subscribed-before'); ?>><?php _e('NOT subscribed to this membership before', 'memberpress'); ?></option>
         <?php foreach($products as $p): ?>
           <?php if($p->ID != $my_ID): ?>
             <option value="<?php echo $p->ID; ?>" <?php selected($p->ID, $chosen) ?>><?php echo $p->post_title; ?></option>
           <?php endif; ?>
         <?php endforeach; ?>
+        <?php MeprHooks::do_action('mepr-get-products-dropdown-options', $chosen, $my_ID, $products); ?>
       </select>
     <?php
   }
@@ -145,12 +150,14 @@ class MeprProductsHelper {
   }
 
   public static function display_invoice( $product, $coupon_code=false ) {
-    if( $product->register_price_action == 'custom' ) {
-      echo stripslashes($product->register_price);
-    }
-    else if( $product->is_one_time_payment() ) {
+    if($product->is_one_time_payment()) {
       if(empty($coupon_code)) { //We've already validated the coupon before including signup_form.php
-        echo self::format_currency($product);
+        if($product->register_price_action == 'custom') {
+          echo stripslashes($product->register_price);
+        }
+        else {
+          echo self::format_currency($product);
+        }
       }
       else {
         echo self::format_currency($product, true, $coupon_code);
@@ -159,18 +166,48 @@ class MeprProductsHelper {
       echo self::renewal_str($product); // possibly print out the renewal string
     }
     else {
-      global $current_user;
+      $current_user = MeprUtils::get_currentuserinfo();
       MeprUtils::get_currentuserinfo();
 
       // Setup to possibly do a proration without actually creating a subscription record
       $tmp_sub = new MeprSubscription();
-      $tmp_sub->ID = 0;
-      $tmp_sub->user_id = $current_user->ID;
+      $tmp_sub->id = 0;
+      $tmp_sub->user_id = (isset($current_user->ID))?$current_user->ID:0;
       $tmp_sub->load_product_vars($product, $coupon_code,true);
       $tmp_sub->maybe_prorate();
 
-      echo MeprAppHelper::format_price_string($tmp_sub, $tmp_sub->price, true, $coupon_code);
+      if($product->register_price_action == 'custom' && empty($coupon_code) && !$tmp_sub->prorated_trial) {
+        echo stripslashes($product->register_price);
+      }
+      else {
+        echo MeprAppHelper::format_price_string($tmp_sub, $tmp_sub->price, true, $coupon_code);
+      }
     }
+  }
+
+  public static function product_terms($product, $user, $mepr_coupon_code=null) {
+    $terms = '';
+
+    if($product->is_one_time_payment()) {
+      if(empty($mepr_coupon_code) || !MeprCoupon::is_valid_coupon_code($mepr_coupon_code, $product->ID)) {
+        $terms = MeprProductsHelper::format_currency($product);
+      }
+      else {
+        $terms = MeprProductsHelper::format_currency($product, true, $mepr_coupon_code);
+      }
+    }
+    else {
+      // Setup to possibly do a proration without actually creating a subscription record
+      $tmp_sub = new MeprSubscription();
+      $tmp_sub->id = 0;
+      $tmp_sub->user_id = ($user === false)?0:$user->ID;
+      $tmp_sub->load_product_vars($product, $mepr_coupon_code,true);
+      $tmp_sub->maybe_prorate();
+
+      $terms = MeprAppHelper::format_price_string($tmp_sub, $tmp_sub->price, true, $mepr_coupon_code);
+    }
+
+    return $terms;
   }
 
   public static function renewal_str($product) {
@@ -182,8 +219,8 @@ class MeprProductsHelper {
       $new_created_at = strtotime($last_txn->expires_at);
       $new_expires_at = $product->get_expires_at();
 
-      $new_created_at = date('Y-m-d',$new_created_at);
-      $new_expires_at = date('Y-m-d',$new_expires_at);
+      $new_created_at = date_i18n('Y-m-d', $new_created_at, true);
+      $new_expires_at = date_i18n('Y-m-d', $new_expires_at, true);
 
       $renewal_str .= sprintf(__(' (renewal for %s to %s)', 'memberpress'), $new_created_at, $new_expires_at);
     }

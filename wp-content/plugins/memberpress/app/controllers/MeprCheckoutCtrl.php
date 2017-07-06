@@ -16,8 +16,10 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
         $txn = new MeprTransaction($txn->id);
 
         // We'll use the subscription object instead if this is a subscription checkout
-        if($txn->txn_type == MeprTransaction::$subscription_confirmation_str &&
-           $txn->status == MeprTransaction::$confirmed_str &&
+        if(($txn->txn_type == MeprTransaction::$subscription_confirmation_str ||
+            $txn->txn_type == 'sub_account') &&
+           ($txn->status == MeprTransaction::$confirmed_str ||
+            $txn->status == MeprTransaction::$complete_str) &&
            ($sub = $txn->subscription())) {
           $txn = $sub;
         }
@@ -44,8 +46,11 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
     if(MeprProduct::is_product_page($post)) {
       if(((isset($_REQUEST['action']) &&
            $_REQUEST['action'] === 'checkout' &&
-           isset($_REQUEST['txn']) &&
-           ($txn = new MeprTransaction($_REQUEST['txn'])) &&
+           ( (isset($_REQUEST['mepr_transaction_id']) &&
+             ($txn = new MeprTransaction($_REQUEST['mepr_transaction_id']))) ||
+             (isset($_REQUEST['txn']) &&
+             ($txn = new MeprTransaction($_REQUEST['txn'])))
+           ) &&
            $txn->id > 0 &&
            ($pm = $txn->payment_method())) ||
           (MeprUtils::is_user_logged_in() &&
@@ -53,9 +58,10 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
            $_REQUEST['action'] === 'update' &&
            isset($_REQUEST['sub']) &&
            ($sub = new MeprSubscription($_REQUEST['sub'])) &&
-           $sub->ID > 0 &&
+           $sub->id > 0 &&
            ($pm = $sub->payment_method()))) &&
          ($pm instanceof MeprBaseRealGateway)) {
+        wp_register_script('mepr-checkout-js', MEPR_JS_URL . '/checkout.js', array('jquery', 'jquery.payment'), MEPR_VERSION);
         $pm->enqueue_payment_form_scripts();
       }
     }
@@ -66,7 +72,7 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
     $mepr_blogurl = home_url();
     $mepr_coupon_code = '';
 
-    extract($_POST);
+    extract($_REQUEST);
 
     //See if Coupon was passed via GET
     if(isset($_GET['coupon']) && !empty($_GET['coupon'])) {
@@ -88,7 +94,7 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
     }
 
     $last_name_value = '';
-    if(isset($user_first_name)) {
+    if(isset($user_last_name)) {
       $last_name_value = esc_attr(stripslashes($user_last_name));
     }
     elseif(MeprUtils::is_user_logged_in()) {
@@ -111,7 +117,8 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
     // Validate the form post
     $errors = MeprHooks::apply_filters('mepr-validate-signup', MeprUser::validate_signup($_POST, array()));
     if(!empty($errors)) {
-      $_POST['errors'] = $errors;
+      $_POST['errors'] = $errors; //Deprecated?
+      $_REQUEST['errors'] = $errors;
       return;
     }
 
@@ -126,8 +133,8 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
       $usr->user_login = ($mepr_options->username_is_email)?$_POST['user_email']:$_POST['user_login'];
       $usr->user_email = $_POST['user_email'];
 
-      //Have to use rec here because we unset user_pass on __contruct
-      $usr->rec->user_pass = $_POST['mepr_user_password'];
+      //Have to use rec here because we unset user_pass on __construct
+      $usr->set_password($_POST['mepr_user_password']);
 
       try {
         $usr->store();
@@ -138,11 +145,14 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
             'user_login'    => $usr->user_login,
             'user_password' => $_POST['mepr_user_password']
           ),
-          false
+          MeprUtils::is_ssl() //May help with the users getting logged out when going between http and https
         );
+
+        MeprEvent::record('login', $usr); //Record the first login here
       }
       catch(MeprCreateException $e) {
-        $_POST['errors'] = array(__( 'The user was unable to be saved.', 'memberpress'));
+        $_POST['errors'] = array(__( 'The user was unable to be saved.', 'memberpress'));  //Deprecated?
+        $_REQUEST['errors'] = array(__( 'The user was unable to be saved.', 'memberpress'));
         return;
       }
     }
@@ -209,7 +219,7 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
         $sub->maybe_prorate(); // sub to sub
         $sub->store();
 
-        $txn->subscription_id = $sub->ID;
+        $txn->subscription_id = $sub->id;
       }
     }
     else {
@@ -254,20 +264,15 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
     $txn_id = $_REQUEST['txn'];
     $txn = new MeprTransaction($txn_id);
 
-    if(($txn->gateway === MeprTransaction::$free_gateway_str) ||
-       ($txn->amount <= 0.00)) {
+    if($txn->gateway === MeprTransaction::$free_gateway_str || $txn->amount <= 0.00) {
       MeprTransaction::create_free_transaction($txn);
     }
-    else if(($pm = $mepr_options->payment_method($txn->gateway)) &&
-            ($pm instanceof MeprBaseRealGateway)) {
+    else if(($pm = $mepr_options->payment_method($txn->gateway)) && $pm instanceof MeprBaseRealGateway) {
       $pm->display_payment_page($txn);
     }
 
     // Artificially set the payment method params so we can use them downstream
-    // when display_payment_form is called in the 'the_content' action. Yeah,
-    // I know this isn't the best solution ever but in this case it will save us
-    // so much headache that I think its the best solution here for now.
-    //$_REQUEST['payment_method_params'] = compact('method', 'amount', 'user', 'product_id', 'transaction_id');
+    // when display_payment_form is called in the 'the_content' action.
     $_REQUEST['payment_method_params'] = array(
       'method'         => $txn->gateway,
       'amount'         => $txn->amount,
@@ -297,15 +302,12 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
   }
 
   public function process_payment_form() {
-    if(isset($_POST['mepr_process_payment_form']) &&
-       isset($_POST['mepr_transaction_id']) &&
-       is_numeric($_POST['mepr_transaction_id'])) {
+    if(isset($_POST['mepr_process_payment_form']) && isset($_POST['mepr_transaction_id']) && is_numeric($_POST['mepr_transaction_id'])) {
       $txn = new MeprTransaction($_POST['mepr_transaction_id']);
 
       if($txn->rec != false) {
         $mepr_options = MeprOptions::fetch();
-        if(($pm = $mepr_options->payment_method($txn->gateway)) &&
-           ($pm instanceof MeprBaseRealGateway)) {
+        if(($pm = $mepr_options->payment_method($txn->gateway)) && $pm instanceof MeprBaseRealGateway) {
           $errors = $pm->validate_payment_form(array());
 
           if(empty($errors)) {
@@ -314,22 +316,22 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
             try {
               $pm->process_payment_form($txn);
             }
-            catch( Exception $e ) {
+            catch(Exception $e) {
               MeprHooks::do_action('mepr_payment_failure', $txn);
-              $errors = array( $e->getMessage() );
+              $errors = array($e->getMessage());
             }
           }
 
           if(empty($errors)) {
             //Reload the txn now that it should have a proper trans_num set
             $txn = new MeprTransaction($txn->id);
-            MeprUtils::wp_redirect($mepr_options->thankyou_page_url("trans_num={$txn->trans_num}"));
+            $product = new MeprProduct($txn->product_id);
+            $sanitized_title = sanitize_title($product->post_title);
+            MeprUtils::wp_redirect($mepr_options->thankyou_page_url("membership={$sanitized_title}&trans_num={$txn->trans_num}"));
           }
           else {
             // Artificially set the payment method params so we can use them downstream
-            // when display_payment_form is called in the 'the_content' action. Yeah,
-            // I know this isn't the best solution ever but in this case it will save us
-            // so much headache that I think its the best solution here for now.
+            // when display_payment_form is called in the 'the_content' action.
             $_REQUEST['payment_method_params'] = array(
               'method' => $pm->id,
               'amount' => $txn->amount,
@@ -348,4 +350,3 @@ class MeprCheckoutCtrl extends MeprBaseCtrl {
     $_POST['errors'] = array(__('Sorry, an unknown error occurred.', 'memberpress'));
   }
 }
-

@@ -109,6 +109,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
       'amount' => $amount,
       'currency' => $mepr_options->currency_code,
       'description' => sprintf(__('%s (transaction: %s)', 'memberpress'), $prd->post_title, $txn->id ),
+      'receipt_email' => $usr->user_email,
       'metadata' => array(
         'ip_address' => $_SERVER['REMOTE_ADDR']
       )
@@ -135,8 +136,6 @@ class MeprStripeGateway extends MeprBaseRealGateway {
       $err = ob_get_clean();
       throw new MeprGatewayException( __('There was a problem sending your credit card details to the processor. Please try again later.' , 'memberpress') . ' 1 ' . $err );
     }
-
-    $usr = $txn->user();
 
     $this->email_status('Stripe Charge Happening Now ... ' . MeprUtils::object_to_string($args), $this->settings->debug);
 
@@ -170,6 +169,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         return false;
       }
 
+      $sub->subscr_id = $charge->customer; //Needs to be here to get around some funky GoDaddy caching issue
       $first_txn = $txn = $sub->first_txn();
 
       $this->email_status( "record_subscription_payment:" .
@@ -185,7 +185,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
       $txn->response   = json_encode($charge);
       $txn->trans_num  = $charge->id;
       $txn->gateway    = $this->id;
-      $txn->subscription_id = $sub->ID;
+      $txn->subscription_id = $sub->id;
 
       if(MeprUtils::is_zero_decimal_currency()) {
         $txn->set_gross((float)$charge->amount);
@@ -226,8 +226,8 @@ class MeprStripeGateway extends MeprBaseRealGateway {
                            MeprUtils::object_to_string($txn->rec, true),
                            $this->settings->debug );
 
-      $this->send_transaction_receipt_notices( $txn );
-      $this->send_cc_expiration_notices( $txn );
+      MeprUtils::send_transaction_receipt_notices( $txn );
+      MeprUtils::send_cc_expiration_notices( $txn );
 
       return $txn;
     }
@@ -237,17 +237,16 @@ class MeprStripeGateway extends MeprBaseRealGateway {
 
   /** Used to record a declined payment. */
   public function record_payment_failure() {
-    if(isset($_REQUEST['data']))
-    {
+    if(isset($_REQUEST['data'])) {
       $charge = (object)$_REQUEST['data'];
       $txn_res = MeprTransaction::get_one_by_trans_num($charge->id);
+
       if(is_object($txn_res) and isset($txn_res->id)) {
         $txn = new MeprTransaction($txn_res->id);
         $txn->status = MeprTransaction::$failed_str;
         $txn->store();
       }
-      else if( isset($charge) and isset($charge->customer) and
-               $sub = MeprSubscription::get_one_by_subscr_id($charge->customer) ) {
+      elseif(isset($charge) && isset($charge->customer) && ($sub = MeprSubscription::get_one_by_subscr_id($charge->customer))) {
         $first_txn = $sub->first_txn();
         $latest_txn = $sub->latest_txn();
 
@@ -257,7 +256,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         $txn->coupon_id = $first_txn->coupon_id;
         $txn->txn_type = MeprTransaction::$payment_str;
         $txn->status = MeprTransaction::$failed_str;
-        $txn->subscription_id = $sub->ID;
+        $txn->subscription_id = $sub->id;
         $txn->response = json_encode($_REQUEST);
         $txn->trans_num = $charge->id;
         $txn->gateway = $this->id;
@@ -276,10 +275,11 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         $sub->expire_txns(); //Expire associated transactions for the old subscription
         $sub->store();
       }
-      else
+      else {
         return false; // Nothing we can do here ... so we outta here
+      }
 
-      $this->send_failed_txn_notices($txn);
+      MeprUtils::send_failed_txn_notices($txn);
 
       return $txn;
     }
@@ -325,22 +325,21 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         if( $prd->period_type=='lifetime' ) {
           if( $upgrade ) {
             $this->upgraded_sub($txn);
-            $this->send_upgraded_txn_notices( $txn );
+            MeprUtils::send_upgraded_txn_notices( $txn );
           }
           else if( $downgrade ) {
             $this->downgraded_sub($txn);
-            $this->send_downgraded_txn_notices( $txn );
+            MeprUtils::send_downgraded_txn_notices( $txn );
           }
           else {
             $this->new_sub($txn);
           }
 
-          $this->send_product_welcome_notices($txn);
-          $this->send_signup_notices( $txn );
+          MeprUtils::send_signup_notices( $txn );
         }
 
-        $this->send_transaction_receipt_notices( $txn );
-        $this->send_cc_expiration_notices( $txn );
+        MeprUtils::send_transaction_receipt_notices( $txn );
+        MeprUtils::send_cc_expiration_notices( $txn );
       }
     }
 
@@ -376,7 +375,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         $txn->status = MeprTransaction::$refunded_str;
         $txn->store();
 
-        $this->send_refunded_txn_notices($txn);
+        MeprUtils::send_refunded_txn_notices($txn);
 
         return $txn->id;
       }
@@ -444,6 +443,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
 
     $mepr_options = MeprOptions::fetch();
     $sub = $txn->subscription();
+    //error_log("********** MeprStripeGateway::process_create_subscription Subscription:\n" . MeprUtils::object_to_string($sub));
 
     //Get the customer -- if the $sub had a paid trial, then the customer was already setup
     if($sub->trial && $sub->trial_amount > 0.00) {
@@ -474,14 +474,17 @@ class MeprStripeGateway extends MeprBaseRealGateway {
       'metadata' => array(
         'ip_address' => $_SERVER['REMOTE_ADDR']
       ),
-      'tax_percent' => MeprUtils::format_float($txn->tax_rate)
+      'tax_percent' => MeprUtils::format_float($txn->tax_rate) //Can't do 3 decimal places here for some reason
     ), $txn, $sub);
 
     $this->email_status("process_create_subscription: \n" . MeprUtils::object_to_string($txn, true) . "\n", $this->settings->debug);
 
-    $subscr = $this->send_stripe_request( "customers/{$customer->id}/subscriptions", $args, 'post' );
+    $subscr = $this->send_stripe_request("customers/{$customer->id}/subscriptions", $args);
+
     $sub->subscr_id = $customer->id;
     $sub->store();
+
+    //error_log("********** MeprStripeGateway::process_create_subscription altered Subscription:\n" . MeprUtils::object_to_string($sub));
 
     $_REQUEST['data'] = $customer;
 
@@ -498,7 +501,9 @@ class MeprStripeGateway extends MeprBaseRealGateway {
 
     if(isset($_REQUEST['data'])) {
       $sdata = (object)$_REQUEST['data'];
+      //error_log("********** MeprStripeGateway::record_create_subscription sData: \n" . MeprUtils::object_to_string($sdata));
       $sub = MeprSubscription::get_one_by_subscr_id($sdata->id);
+      //error_log("********** MeprStripeGateway::record_create_subscription Subscription: \n" . MeprUtils::object_to_string($sub));
       $sub->response=$sdata;
       $sub->status=MeprSubscription::$active_str;
 
@@ -508,7 +513,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         $sub->cc_exp_year = $card['exp_year'];
       }
 
-      $sub->created_at = date('c');
+      $sub->created_at = gmdate('c');
       $sub->store();
 
       // This will only work before maybe_cancel_old_sub is run
@@ -529,28 +534,27 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         $txn->status     = MeprTransaction::$confirmed_str;
         $txn->txn_type   = MeprTransaction::$subscription_confirmation_str;
         $txn->response   = (string)$sub;
-        $txn->expires_at = MeprUtils::ts_to_mysql_date(time() + MeprUtils::days($trial_days), 'Y-m-d H:i:s');
+        $txn->expires_at = MeprUtils::ts_to_mysql_date(time() + MeprUtils::days($trial_days), 'Y-m-d 23:59:59');
         $txn->set_subtotal(0.00); // Just a confirmation txn
         $txn->store();
       }
 
-      $txn->set_gross($old_total); // Artificially set the subscription amount
+      // $txn->set_gross($old_total); // Artificially set the subscription amount
 
       if($upgrade) {
         $this->upgraded_sub($sub);
-        $this->send_upgraded_sub_notices($sub);
+        MeprUtils::send_upgraded_sub_notices($sub);
       }
       else if($downgrade) {
         $this->downgraded_sub($sub);
-        $this->send_downgraded_sub_notices($sub);
+        MeprUtils::send_downgraded_sub_notices($sub);
       }
       else {
         $this->new_sub($sub);
-        $this->send_new_sub_notices($sub);
+        MeprUtils::send_new_sub_notices($sub);
       }
 
-      $this->send_product_welcome_notices($txn);
-      $this->send_signup_notices( $txn );
+      MeprUtils::send_signup_notices( $txn );
 
       return array('subscription' => $sub, 'transaction' => $txn);
     }
@@ -562,25 +566,31 @@ class MeprStripeGateway extends MeprBaseRealGateway {
     $mepr_options = MeprOptions::fetch();
     $sub = new MeprSubscription($sub_id);
 
+    //Fix for duplicate token errors when the_content is somehow run more than once despite our best efforts to avoid it
+    static $subscr;
+    if(!is_null($subscr)) { return $subscr; }
+
     if(!isset($_REQUEST['stripe_token'])) {
       ob_start();
       print_r($_REQUEST);
       $err = ob_get_clean();
-      throw new MeprGatewayException( __('There was a problem sending your credit card details to the processor. Please try again later. 1' , 'memberpress') . ' 3 ' . $err );
+      throw new MeprGatewayException(__('There was a problem sending your credit card details to the processor. Please try again later. 1' , 'memberpress') . ' 3 ' . $err);
     }
 
     // get the credit card details submitted by the form
     $token    = $_REQUEST['stripe_token'];
     $customer = $this->stripe_customer($sub_id, $token);
 
+    //TODO check for $customer === false - do better error handling here
+
     $usr = $sub->user();
 
     $args = MeprHooks::apply_filters('mepr_stripe_update_subscription_args', array("card" => $token), $sub);
 
-    $subscr = (object)$this->send_stripe_request( "customers/{$customer->id}", $args, 'post' );
+    $subscr = (object)$this->send_stripe_request("customers/{$customer->id}", $args, 'post');
     $sub->subscr_id = $subscr->id;
 
-    if( $card = $this->get_default_card( $subscr ) ) {
+    if($card = $this->get_default_card($subscr)) {
       $sub->cc_last4 = $card['last4'];
       $sub->cc_exp_month = $card['exp_month'];
       $sub->cc_exp_year = $card['exp_year'];
@@ -632,7 +642,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         $sub->status = MeprSubscription::$suspended_str;
         $sub->store();
 
-        $this->send_suspended_sub_notices($sub);
+        MeprUtils::send_suspended_sub_notices($sub);
       }
     }
 
@@ -717,19 +727,19 @@ class MeprStripeGateway extends MeprBaseRealGateway {
       $prior_txn = $sub->latest_txn();
       if(strtotime($prior_txn->expires_at) < time()) {
         $txn = new MeprTransaction();
-        $txn->subscription_id = $sub->ID;
+        $txn->subscription_id = $sub->id;
         $txn->trans_num  = $sub->subscr_id . '-' . uniqid();
         $txn->status     = MeprTransaction::$confirmed_str;
         $txn->txn_type   = MeprTransaction::$subscription_confirmation_str;
         $txn->response   = (string)$sub;
-        $txn->expires_at = MeprUtils::ts_to_mysql_date(time()+MeprUtils::days(0), 'Y-m-d H:i:s');
+        $txn->expires_at = MeprUtils::ts_to_mysql_date(time()+MeprUtils::days(0), 'Y-m-d 23:59:59');
         $txn->set_subtotal(0.00); // Just a confirmation txn
         $txn->store();
       }
 
-      $this->send_resumed_sub_notices($sub);
+      MeprUtils::send_resumed_sub_notices($sub);
 
-      return array('subscription' => $sub, 'transaction' => $txn);
+      return array('subscription' => $sub, 'transaction' => (isset($txn))?$txn:$prior_txn);
     }
 
     return false;
@@ -776,7 +786,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
           $sub->limit_reached_actions();
 
         if(!isset($_REQUEST['silent']) || ($_REQUEST['silent']==false))
-          $this->send_cancelled_sub_notices($sub);
+          MeprUtils::send_cancelled_sub_notices($sub);
       }
     }
 
@@ -803,7 +813,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
     */
   public function enqueue_payment_form_scripts() {
     wp_enqueue_script('stripe-js', 'https://js.stripe.com/v1/', array(), MEPR_VERSION);
-    wp_enqueue_script('stripe-create-token', MEPR_GATEWAYS_URL . '/stripe/create_token.js', array('stripe-js', 'jquery.payment'), MEPR_VERSION);
+    wp_enqueue_script('stripe-create-token', MEPR_GATEWAYS_URL . '/stripe/create_token.js', array('stripe-js', 'mepr-checkout-js', 'jquery.payment'), MEPR_VERSION);
     wp_localize_script('stripe-create-token', 'MeprStripeGateway', array( 'public_key' => $this->settings->public_key ));
   }
 
@@ -827,8 +837,8 @@ class MeprStripeGateway extends MeprBaseRealGateway {
     echo $invoice;
 
     ?>
-    <div class="mp_wrapper">
-      <form action="<?php echo $prd->url('',true); ?>" method="post" id="payment-form" class="mepr-form" novalidate>
+    <div class="mp_wrapper mp_payment_form_wrapper">
+      <form action="<?php //echo $prd->url('',true); //COMMENTING THIS OUT FOR https://github.com/caseproof/memberpress/issues/790  ?>" method="post" id="payment-form" class="mepr-checkout-form mepr-form mepr-card-form" novalidate>
         <input type="hidden" name="mepr_process_payment_form" value="Y" />
         <input type="hidden" name="mepr_transaction_id" value="<?php echo $txn_id; ?>" />
         <input type="hidden" class="card-name" value="<?php echo $user->get_full_name(); ?>" />
@@ -847,37 +857,37 @@ class MeprStripeGateway extends MeprBaseRealGateway {
 
         <div class="mp-form-row">
           <div class="mp-form-label">
-            <label><?php _e('Credit Card Number', 'memberpress'); ?></label>
-            <span class="cc-error"><?php _e('Invalid Credit Card Number', 'memberpress'); ?></span>
+            <label><?php _ex('Credit Card Number', 'ui', 'memberpress'); ?></label>
+            <span class="cc-error"><?php _ex('Invalid Credit Card Number', 'ui', 'memberpress'); ?></span>
           </div>
-          <input type="text" class="mepr-form-input card-number cc-number validation" pattern="\d*" autocomplete="cc-number" required>
+          <input type="tel" class="mepr-form-input card-number cc-number validation" pattern="\d*" autocomplete="cc-number" required>
         </div>
 
         <input type="hidden" name="mepr-cc-type" class="cc-type" value="" />
 
         <div class="mp-form-row">
           <div class="mp-form-label">
-            <label><?php _e('Expiration', 'memberpress'); ?></label>
-            <span class="cc-error"><?php _e('Invalid Expiration', 'memberpress'); ?></span>
+            <label><?php _ex('Expiration', 'ui', 'memberpress'); ?></label>
+            <span class="cc-error"><?php _ex('Invalid Expiration', 'ui', 'memberpress'); ?></span>
           </div>
-          <input type="text" class="mepr-form-input cc-exp validation" pattern="\d*" autocomplete="cc-exp" placeholder="mm/yy" required>
+          <input type="tel" class="mepr-form-input cc-exp validation" pattern="\d*" autocomplete="cc-exp" placeholder="<?php _ex('mm/yy', 'ui', 'memberpress'); ?>" required>
           <?php //$this->months_dropdown('','card-expiry-month',isset($_REQUEST['card-expiry-month'])?$_REQUEST['card-expiry-month']:'',true); ?>
           <?php //$this->years_dropdown('','card-expiry-year',isset($_REQUEST['card-expiry-year'])?$_REQUEST['card-expiry-year']:''); ?>
         </div>
 
         <div class="mp-form-row">
           <div class="mp-form-label">
-            <label><?php _e('CVC', 'memberpress'); ?></label>
-            <span class="cc-error"><?php _e('Invalid CVC Code', 'memberpress'); ?></span>
+            <label><?php _ex('CVC', 'ui', 'memberpress'); ?></label>
+            <span class="cc-error"><?php _ex('Invalid CVC Code', 'ui', 'memberpress'); ?></span>
           </div>
-          <input type="text" class="mepr-form-input card-cvc cc-cvc validation" pattern="\d*" autocomplete="off" required>
+          <input type="tel" class="mepr-form-input card-cvc cc-cvc validation" pattern="\d*" autocomplete="off" required>
         </div>
 
         <?php MeprHooks::do_action('mepr-stripe-payment-form', $txn); ?>
 
         <div class="mepr_spacer">&nbsp;</div>
 
-        <input type="submit" class="mepr-submit" value="<?php _e('Submit', 'memberpress'); ?>" />
+        <input type="submit" class="mepr-submit" value="<?php _ex('Submit', 'ui', 'memberpress'); ?>" />
         <img src="<?php echo admin_url('images/loading.gif'); ?>" style="display: none;" class="mepr-loading-gif" />
         <?php MeprView::render('/shared/has_errors', get_defined_vars()); ?>
 
@@ -964,9 +974,12 @@ class MeprStripeGateway extends MeprBaseRealGateway {
     * scripts for use on the front end user account page.
     */
   public function enqueue_user_account_scripts() {
-    wp_enqueue_script('stripe-js', 'https://js.stripe.com/v1/', array(), MEPR_VERSION);
-    wp_enqueue_script('stripe-create-token', MEPR_GATEWAYS_URL . '/stripe/create_token.js', array('stripe-js'), MEPR_VERSION);
-    wp_localize_script('stripe-create-token', 'MeprStripeGateway', array( 'public_key' => $this->settings->public_key ));
+    $sub = (isset($_GET['action']) && $_GET['action'] == 'update' && isset($_GET['sub'])) ? new MeprSubscription((int)$_GET['sub']) : false;
+    if($sub !== false && $sub->gateway == $this->id) {
+      wp_enqueue_script('stripe-js', 'https://js.stripe.com/v1/', array(), MEPR_VERSION);
+      wp_enqueue_script('stripe-create-token', MEPR_GATEWAYS_URL . '/stripe/create_token.js', array('stripe-js', 'mepr-checkout-js', 'jquery.payment'), MEPR_VERSION);
+      wp_localize_script('stripe-create-token', 'MeprStripeGateway', array( 'public_key' => $this->settings->public_key ));
+    }
   }
 
   /** Displays the update account form on the subscription account page **/
@@ -990,7 +1003,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
 
     ?>
     <div class="mp_wrapper">
-      <form action="" method="post" id="payment-form" class="mepr-form" novalidate>
+      <form action="" method="post" id="payment-form" class="mepr-checkout-form mepr-form" novalidate>
         <input type="hidden" name="_mepr_nonce" value="<?php echo wp_create_nonce('mepr_process_update_account_form'); ?>" />
         <input type="hidden" class="card-name" value="<?php echo $card_name; ?>" />
 
@@ -1082,7 +1095,8 @@ class MeprStripeGateway extends MeprBaseRealGateway {
       $event = (object)$this->send_stripe_request( "events/{$event_json->id}", array(), 'get' );
     }
     catch( Exception $e ) {
-      return; // Do nothing
+      http_response_code(500); //Throw a 500 here so Stripe will try to resend Webhook again
+      die($e->getMessage()); // Do nothing
     }
     //$event = $event_json;
 
@@ -1159,7 +1173,7 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         'name' => $prd->post_title,
         'currency' => $mepr_options->currency_code,
         'id' => $new_plan_id,
-        'statement_descriptor' => substr(get_option('blogname'), 0, 21)
+        'statement_descriptor' => substr(str_replace(array("'", '"', '<', '>', '$', '®'), '', get_option('blogname')), 0, 21) //Get rid of invalid chars
       ), $sub);
 
       if($sub->trial) {
@@ -1174,35 +1188,43 @@ class MeprStripeGateway extends MeprBaseRealGateway {
   }
 
   public function get_plan_id($sub) {
-    $meta_plan_id = get_post_meta($sub->ID, self::$stripe_plan_id_str, true);
+    $meta_plan_id = get_post_meta($sub->id, self::$stripe_plan_id_str, true);
 
     if($meta_plan_id == '')
-      return $sub->ID;
+      return $sub->id;
     else
       return $meta_plan_id;
   }
 
   public function create_new_plan_id($sub) {
     $parse = parse_url(home_url());
-    $new_plan_id = $sub->ID . '-' . $parse['host'] . '-' . uniqid();
-    update_post_meta($sub->ID, self::$stripe_plan_id_str, $new_plan_id);
+    $new_plan_id = $sub->id . '-' . $parse['host'] . '-' . uniqid();
+    update_post_meta($sub->id, self::$stripe_plan_id_str, $new_plan_id);
     return $new_plan_id;
   }
 
-  public function stripe_customer( $sub_id, $cc_token=null ) {
-    $mepr_options = MeprOptions::fetch();
-    $sub = new MeprSubscription($sub_id);
-    $user = $sub->user();
+  public function stripe_customer($sub_id, $cc_token = null) {
+    $mepr_options     = MeprOptions::fetch();
+    $sub              = new MeprSubscription($sub_id);
+    $user             = $sub->user();
+    $stripe_customer  = (object)$sub->response;
+    $uid              = uniqid();
 
-    $stripe_customer = (object)$sub->response;
-
-    $uid = uniqid();
     $this->email_status("###{$uid} Stripe Customer (should be blank at this point): \n" . MeprUtils::object_to_string($stripe_customer, true) . "\n", $this->settings->debug);
 
-    if( !$stripe_customer or empty($stripe_customer->id) ) {
-      if( empty($cc_token) )
-        return false;
-      else {
+    if(!$stripe_customer || empty($stripe_customer) || !isset($stripe_customer->id) || empty($stripe_customer->id)) {
+      if(strpos($sub->subscr_id, 'cus_') === 0) {
+        $stripe_customer = (object)$this->send_stripe_request( 'customers/' . $sub->subscr_id );
+
+        if(!isset($stripe_customer->error)) {
+          $sub->response = $stripe_customer;
+          $sub->store();
+        }
+        else {
+          return false;
+        }
+      }
+      elseif(!empty($cc_token)) {
         $stripe_args = MeprHooks::apply_filters('mepr_stripe_customer_args', array(
           'card' => $cc_token,
           'email' => $user->user_email,
@@ -1212,6 +1234,9 @@ class MeprStripeGateway extends MeprBaseRealGateway {
         $sub->subscr_id = $stripe_customer->id;
         $sub->response  = $stripe_customer;
         $sub->store();
+      }
+      else {
+        return false;
       }
     }
 
@@ -1224,12 +1249,13 @@ class MeprStripeGateway extends MeprBaseRealGateway {
                                        $args=array(),
                                        $method='post',
                                        $domain='https://api.stripe.com/v1/',
-                                       $blocking=true ) {
+                                       $blocking=true,
+                                       $idempotency_key=false ) {
     $uri = "{$domain}{$endpoint}";
 
     $args = MeprHooks::apply_filters('mepr_stripe_request_args', $args);
 
-    $arg_array = MeprHooks::apply_filters('mepr_stripe_request', array(
+    $arg_array = array(
       'method'    => strtoupper($method),
       'body'      => $args,
       'timeout'   => 15,
@@ -1238,10 +1264,16 @@ class MeprStripeGateway extends MeprBaseRealGateway {
       'headers'   => array(
         'Authorization' => 'Basic ' . base64_encode("{$this->settings->secret_key}:")
       )
-    ));
+    );
+
+    if(false !== $idempotency_key) {
+      $arg_array['headers']['Idempotency-Key'] = $idempotency_key;
+    }
+
+    $arg_array = MeprHooks::apply_filters('mepr_stripe_request', $arg_array);
 
     $uid = uniqid();
-    //$this->email_status("###{$uid} Stripe Call to {$uri} API Key: {$this->settings->secret_key}\n" . MeprUtils::object_to_string($arg_array, true) . "\n", $this->settings->debug);
+    // $this->email_status("###{$uid} Stripe Call to {$uri} API Key: {$this->settings->secret_key}\n" . MeprUtils::object_to_string($arg_array, true) . "\n", $this->settings->debug);
 
     $resp = wp_remote_request( $uri, $arg_array );
 

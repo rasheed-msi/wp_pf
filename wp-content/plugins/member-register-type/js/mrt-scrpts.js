@@ -22,12 +22,40 @@ jQuery(function ($) {
         var url = $(this).attr('href');
         $.get(url, function (response) {
             console.log(response);
-            if (response.status = 200){
+            if (response.status = 200) {
                 $this.attr('href', response.new_url);
                 $this.html(response.new_label);
             }
 
         }, 'json');
+    });
+
+    $(".ch-agency").change(function () {
+        if (this.checked) {
+            $(this).parents("tr").find('[name="default"]').prop("checked", true);
+        } else {
+            // ON UNCHECK
+            $(this).parents("tr").find('[name="default"]').prop("checked", false);
+
+            var defaultChecked = true;
+            $('tbody [name="default"]').each(function () {
+                if ($(this).checked) {
+                    defaultChecked = true;
+                    return false;
+                } else {
+                    defaultChecked = false;
+                }
+            });
+
+            if (!defaultChecked) {
+                
+                $('tbody .ch-agency').each(function () {
+                    if (this.checked) {
+                        $(this).parents("tr").find('[name="default"]').prop("checked", true);
+                    } 
+                });
+            }
+        }
     });
 
 });

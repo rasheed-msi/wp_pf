@@ -26,10 +26,12 @@ if($products != null)
     <div class="mepr-main-pane">
       <a href="#" id="partial_content_codes" class="button"><?php _e('Partial Content Codes', 'memberpress'); ?></a>
       <div id="partial_content_codes_hidden">
-        <?php _e('Shortcode:', 'memberpress'); ?> <strong>[mepr-rule id="<?php echo $rule->ID; ?>" ifallowed="show"] </strong><?php _e('Content to protect goes inbetween.', 'memberpress'); ?><strong> [/mepr-rule]</strong>
+        <?php _e('Shortcode:', 'memberpress'); ?> <strong>[mepr-show if="rule: <?php echo $rule->ID; ?>"] </strong><?php _e('This content is shown only to authorized members. It is hidden from everyone else.', 'memberpress'); ?><strong> [/mepr-show]</strong>
+        <br/><br/>
+        <?php _e('Shortcode:', 'memberpress'); ?> <strong>[mepr-hide if="rule: <?php echo $rule->ID; ?>"] </strong><?php _e('This content is shown to everyone except authorized members.', 'memberpress'); ?><strong> [/mepr-hide]</strong>
         <br/><br/>
         <?php _e('PHP Snippet:', 'memberpress'); ?>
-        <strong><?php echo htmlentities("<?php if(MeprRule::is_allowed_by_rule(".$rule->ID.")): ?>"); ?></strong>
+        <strong><?php echo htmlentities("<?php if(current_user_can('mepr-active','rule: {$rule->ID}')): ?>"); ?></strong>
           <?php _e('Content to protect goes inbetween.', 'memberpress'); ?>
         <strong><?php echo htmlentities("<?php endif; ?>"); ?></strong>
         <?php MeprHooks::do_action('mepr-partial-content-codes', $rule); ?>

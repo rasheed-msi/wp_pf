@@ -17,6 +17,10 @@ class MeprCouponsCtrl extends MeprCptCtrl {
 
     // Cleanup list view
     add_filter('views_edit-'.MeprCoupon::$cpt, 'MeprAppCtrl::cleanup_list_view' );
+
+    //Ajax coupon validation
+    add_action('wp_ajax_mepr_validate_coupon', 'MeprCouponsCtrl::validate_coupon_ajax');
+    add_action('wp_ajax_nopriv_mepr_validate_coupon', 'MeprCouponsCtrl::validate_coupon_ajax');
   }
 
   public function register_post_type() {
@@ -34,7 +38,7 @@ class MeprCouponsCtrl extends MeprCptCtrl {
           'parent_item_colon' => __('Parent Coupon:', 'memberpress')
         ),
         'public' => false,
-        'show_ui' => true,
+        'show_ui' => true, //MeprUpdateCtrl::is_activated(),
         'show_in_menu' => 'memberpress',
         'capability_type' => 'page',
         'hierarchical' => false,
@@ -108,12 +112,16 @@ class MeprCouponsCtrl extends MeprCptCtrl {
   }
 
   public static function add_meta_boxes() {
+    global $post_id;
+    $c = new MeprCoupon($post_id);
+
     add_meta_box("memberpress-coupon-meta", __("Coupon Options", 'memberpress'), "MeprCouponsCtrl::coupon_meta_box", MeprCoupon::$cpt, "normal", "high");
+
+    MeprHooks::do_action('mepr-coupon-meta-boxes', $c);
   }
 
   public static function coupon_meta_box() {
     global $post_id;
-
     $mepr_options = MeprOptions::fetch();
     $c = new MeprCoupon($post_id);
 
@@ -165,12 +173,34 @@ class MeprCouponsCtrl extends MeprCptCtrl {
       $coupon->trial_days = isset($_POST[MeprCoupon::$trial_days_str])?(int)$_POST[MeprCoupon::$trial_days_str]:0;
       $coupon->trial_amount = isset($_POST[MeprCoupon::$trial_amount_str]) ? MeprUtils::format_float( $_POST[MeprCoupon::$trial_amount_str] ) : 0.00;
       $coupon->store_meta();
+
+      MeprHooks::do_action('mepr-coupon-save-meta', $coupon);
     }
   }
 
   public static function sanitize_coupon_title($data, $postarr) {
+    global $wpdb;
+
     if($data['post_type'] == MeprCoupon::$cpt) {
+      //Get rid of invalid chars
       $data['post_title'] = preg_replace(array('/ +/', '/[^A-Za-z0-9_-]/'), array('-', ''), $data['post_title']);
+
+      //Begin duplicate titles handling
+      $q1 = "SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_type = %s AND ID <> %d LIMIT 1";
+      $q2 = $wpdb->prepare($q1, $data['post_title'], MeprCoupon::$cpt, $postarr['ID']);
+      $count = 0;
+
+      if(is_admin()) {
+        while( ($id = $wpdb->get_var($q2)) ) {
+          ++$count; //Want to increment before running the query, so when we exit the loop $data['post_title'] . "-{$count}" is stil valid
+          $q2 = $wpdb->prepare($q1, $data['post_title'] . "-{$count}", MeprCoupon::$cpt, $postarr['ID']);
+        }
+      }
+
+      if($count > 0) {
+        $data['post_title'] .= "-{$count}";
+      }
+      //End duplicate titles handling
     }
 
     return $data;
@@ -204,6 +234,8 @@ class MeprCouponsCtrl extends MeprCptCtrl {
       wp_enqueue_script('mepr-coupons-js', MEPR_JS_URL.'/admin_coupons.js', array('jquery'), MEPR_VERSION);
       wp_enqueue_style('mepr-coupons-css', MEPR_CSS_URL.'/admin-coupons.css', array(), MEPR_VERSION);
       wp_localize_script('mepr-coupons-js', 'MeprCoupon', $l10n);
+
+      do_action('mepr-coupon-admin-enqueue-script', $hook);
     }
   }
 
@@ -218,8 +250,19 @@ class MeprCouponsCtrl extends MeprCptCtrl {
     }
   }
 
-  public static function validate_coupon_ajax($code, $product) {
-    $output = MeprCoupon::is_valid_coupon_code($code, $product);
+  public static function validate_coupon_ajax($code = null, $product_id = null) {
+    if(empty($code) || empty($product_id)) {
+      if(!isset($_POST['code']) || empty($_POST['code']) || !isset($_POST['prd_id']) || empty($_POST['prd_id'])) {
+        echo 'false';
+        die();
+      }
+      else {
+        $code = stripslashes($_POST['code']);
+        $product_id = stripslashes($_POST['prd_id']);
+      }
+    }
+
+    $output = MeprCoupon::is_valid_coupon_code($code, $product_id);
 
     if($output) {
       echo 'true';

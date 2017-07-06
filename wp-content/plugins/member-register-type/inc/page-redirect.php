@@ -11,6 +11,7 @@ function mrt_rewrite_rules() {
     add_rewrite_rule('^update-user-capabilities/?$', 'index.php?pagename=mrt-page-manager&screen=update-user-capabilities', 'top');
     add_rewrite_rule('^create-table-profile/?$', 'index.php?pagename=mrt-page-manager&screen=create-table-profile', 'top');
     add_rewrite_rule('^profile/([a-z0-9_-]+)?$', 'index.php?pagename=mrt-page-manager&user_name=$matches[1]&screen=public-profile', 'top');
+    add_rewrite_rule('^agency-selection/?$', 'index.php?pagename=mrt-page-manager&screen=sc-agency-selection', 'top');
     // add_rewrite_rule('^unsubscribe/?$', 'index.php?pagename=mrt-page-manager&screen=unsubscribe', 'top');
 
     if (get_option('mrt_plugin_rewrite_rules_status') != 'mrt_flush_rewrite_rules') {
@@ -157,6 +158,17 @@ function mrt_page_manager_display() {
             $form = $list->prepare_user_contact_details($form);
             echo $list->create_list($form);
         }
+    } elseif ($screen == 'sc-agency-selection') {
+        
+        if (isset($_POST['action']) && $_POST['action'] == 'agency_selection') {
+            $save_user = new MrtUser();
+            $save_user->add_user_multiple_agency($_POST['agencies']);
+            $save_user->profile->update(['pf_agency_id' => $_POST['default']]);
+        }
+        $user = new MrtUser();
+        $data['default'] = $user->profile->data['pf_agency_id'];
+        $data['agencies'] = $user->get_agencies();
+        include MRT_TEMPLATE_PATH . '/agency-selction.php';
     }
 }
 

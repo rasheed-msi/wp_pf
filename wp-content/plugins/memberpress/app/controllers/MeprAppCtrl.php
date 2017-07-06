@@ -16,41 +16,37 @@ class MeprAppCtrl extends MeprBaseCtrl {
     add_action('menu_order', 'MeprAppCtrl::admin_menu_order');
     add_action('menu_order', 'MeprAppCtrl::admin_submenu_order');
     add_action('widgets_init', 'MeprLoginWidget::register_widget');
-    add_action('add_meta_boxes', 'MeprAppCtrl::add_meta_boxes');
+    add_action('widgets_init', 'MeprSubscriptionsWidget::register_widget');
+    add_action('add_meta_boxes', 'MeprAppCtrl::add_meta_boxes', 10, 2);
     add_action('save_post', 'MeprAppCtrl::save_meta_boxes');
     add_action('admin_notices', 'MeprAppCtrl::protected_notice');
     add_action('wp_ajax_mepr_todays_date', 'MeprAppCtrl::todays_date');
     add_action('wp_ajax_mepr_close_about_notice', 'MeprAppCtrl::close_about_notice');
-    add_action('wp_ajax_mepr_load_css', 'MeprAppCtrl::load_css');
-    add_action('wp_ajax_nopriv_mepr_load_css', 'MeprAppCtrl::load_css');
 
-    // DB upgrades/installs will happen here, as a non-blocking process hopefully
-    add_action('init', 'MeprAppCtrl::install');
+    // add_action('wp_ajax_mepr_load_css', 'MeprAppCtrl::load_css');
+    // add_action('wp_ajax_nopriv_mepr_load_css', 'MeprAppCtrl::load_css');
+    add_action('plugins_loaded', 'MeprAppCtrl::load_css');
 
     add_filter('months_dropdown_results', array($this, 'cleanup_list_table_month_dropdown'), 10, 2);
 
     register_deactivation_hook(__FILE__, 'MeprAppCtrl::deactivate');
   }
 
-  public static function add_meta_boxes()
-  {
-    global $post;
-
+  public static function add_meta_boxes($post_type, $post) {
     $mepr_options = MeprOptions::fetch();
 
-    if($post->ID == $mepr_options->login_page_id) { return; }
+    if(!isset($post->ID) || $post->ID == $mepr_options->login_page_id) { return; }
 
     $screens = array_merge( array_keys(get_post_types(array("public" => true, "_builtin" => false))),
                             array('post', 'page') );
 
     // This meta box shouldn't appear on the new/edit membership screen
-    $pos = array_search(MeprProduct::$cpt,$screens);
+    $pos = array_search(MeprProduct::$cpt, $screens);
     if(isset($screens[$pos])) { unset($screens[$pos]); }
 
     $rules = MeprRule::get_rules($post);
 
-    foreach($screens as $screen)
-    {
+    foreach($screens as $screen) {
       if( MeprGroup::$cpt == $screen ) {
         add_meta_box( 'mepr_unauthorized_message',
                       __('MemberPress Unauthorized Access on the Group Pricing Page', 'memberpress'),
@@ -255,44 +251,25 @@ class MeprAppCtrl extends MeprBaseCtrl {
     add_action('admin_menu', 'MeprAppCtrl::menu');
   }
 
-  /** INSTALL PLUGIN
-    * Handled in the same way wp-cron does it ...
-    * fast, non-blocking post with an ignore_user_abort
-    */
-  public static function install() {
-    $mepr_db = new MeprDb();
-
-    //Doing it this way for now as the admin ajax thing is causing way too many headaches -- probably not ideal though
-    if($mepr_db->do_upgrade()) {
-      @ignore_user_abort(true);
-      @set_time_limit(0);
-      $mepr_db->upgrade();
-    }
-
-    /*
-    if(defined('DOING_AJAX') && isset($_POST['action']) && $_POST['action'] == 'mepr-db-install') {
-
-      ignore_user_abort(true);
-      @set_time_limit(0);
-
-      $mepr_db->upgrade();
-
-      die(__('Database upgrade complete', 'memberpress'));
-    }
-    elseif(!defined('DOING_AJAX') && $mepr_db->do_upgrade()) {
-      $args = array( 'method' => 'POST',
-                     'timeout' => 0.01,
-                     'blocking' => false,
-                     'body' => array('action' => 'mepr-db-install')
-                   );
-
-      wp_remote_post(admin_url('admin-ajax.php'), $args);
-    }
-    */
-  }
-
   public static function help() {
     MeprView::render('/admin/help/ui', get_defined_vars());
+  }
+
+  public static function toplevel_menu_route() {
+    if (MeprUpdateCtrl::is_activated()) {
+      ?>
+      <script>
+        window.location.href="<?php echo admin_url("admin.php?page=memberpress-options"); ?>";
+      </script>
+      <?php
+    }
+    else {
+      ?>
+      <script>
+        window.location.href="<?php echo admin_url("admin.php?page=memberpress-updates"); ?>";
+      </script>
+      <?php
+    }
   }
 
   public static function menu() {
@@ -300,24 +277,29 @@ class MeprAppCtrl extends MeprBaseCtrl {
 
     self::admin_separator();
 
+    $mbr_ctrl = new MeprMembersCtrl();
     $txn_ctrl = new MeprTransactionsCtrl();
     $sub_ctrl = new MeprSubscriptionsCtrl();
 
-    add_menu_page(__('MemberPress', 'memberpress'), __('MemberPress', 'memberpress'), $capability, 'memberpress', 'MeprOptionsCtrl::route', MEPR_IMAGES_URL."/memberpress-16@2x.png", 775677);
-    add_submenu_page('memberpress', __('Subscriptions', 'memberpress'), __('Subscriptions', 'memberpress'), $capability, 'memberpress-subscriptions', array( $sub_ctrl, 'listing' ));
-    // Specifically for subscriptions listing
-    add_submenu_page(null, __('Subscriptions', 'memberpress'), __('Subscriptions', 'memberpress'), $capability, 'memberpress-lifetimes', array( $sub_ctrl, 'listing' ));
-    add_submenu_page('memberpress', __('Transactions', 'memberpress'), __('Transactions', 'memberpress'), $capability, 'memberpress-trans', array( $txn_ctrl, 'listing' ));
-    add_submenu_page('memberpress', __('Reports', 'memberpress'), __('Reports', 'memberpress'), $capability, 'memberpress-reports', 'MeprReportsCtrl::main');
-    add_submenu_page('memberpress', __('Options', 'memberpress'), __('Options', 'memberpress'), $capability, 'memberpress-options', 'MeprOptionsCtrl::route');
-    // Adding submenu page for help
-    add_submenu_page('memberpress', __('Help', 'memberpress'), __('Help', 'memberpress'), $capability, 'memberpress-help', 'MeprAppCtrl::help');
+    add_menu_page(__('MemberPress', 'memberpress'), __('MemberPress', 'memberpress'), $capability, 'memberpress', 'MeprAppCtrl::toplevel_menu_route', MEPR_IMAGES_URL."/memberpress-16@2x.png", 775677);
 
-    if(!defined('MEMBERPRESS_LICENSE_KEY') and class_exists('MeprUpdateCtrl')) {
+    //if (MeprUpdateCtrl::is_activated()) {
+      add_submenu_page('memberpress', __('Members', 'memberpress'), __('Members', 'memberpress'), $capability, 'memberpress-members', array($mbr_ctrl,'listing'));
+      add_submenu_page('memberpress', __('Subscriptions', 'memberpress'), __('Subscriptions', 'memberpress'), $capability, 'memberpress-subscriptions', array( $sub_ctrl, 'listing' ));
+      // Specifically for subscriptions listing
+      add_submenu_page(null, __('Subscriptions', 'memberpress'), __('Subscriptions', 'memberpress'), $capability, 'memberpress-lifetimes', array( $sub_ctrl, 'listing' ));
+      add_submenu_page('memberpress', __('Transactions', 'memberpress'), __('Transactions', 'memberpress'), $capability, 'memberpress-trans', array( $txn_ctrl, 'listing' ));
+      add_submenu_page('memberpress', __('Reports', 'memberpress'), __('Reports', 'memberpress'), $capability, 'memberpress-reports', 'MeprReportsCtrl::main');
+      add_submenu_page('memberpress', __('Options', 'memberpress'), __('Options', 'memberpress'), $capability, 'memberpress-options', 'MeprOptionsCtrl::route');
+      // Adding submenu page for help
+      add_submenu_page('memberpress', __('Help', 'memberpress'), __('Help', 'memberpress'), $capability, 'memberpress-help', 'MeprAppCtrl::help');
+
+      MeprHooks::do_action('mepr_menu');
+    //}
+
+    //if(!defined('MEMBERPRESS_LICENSE_KEY') && class_exists('MeprUpdateCtrl')) {
       add_submenu_page( 'memberpress', __('Activate', 'memberpress'), __('Activate', 'memberpress'), $capability, 'memberpress-updates', 'MeprUpdateCtrl::route');
-    }
-
-    MeprHooks::do_action('mepr_menu');
+    //}
   }
 
   /**
@@ -418,6 +400,10 @@ class MeprAppCtrl extends MeprBaseCtrl {
 
   // Routes for wordpress pages -- we're just replacing content here folks.
   public static function page_route($content) {
+    //Fix for themes using G1 Framework (Stupid)
+    //Prevents multiple emails from being sent out
+    if(strpos($content, '###G1_START') !== false) { return $content; }
+
     $current_post = MeprUtils::get_current_post();
 
     //This isn't a post? Just return the content then
@@ -437,8 +423,7 @@ class MeprAppCtrl extends MeprBaseCtrl {
       $content_length[$current_post->ID] = -1;
     }
 
-    if($already_run[$current_post->ID] &&
-       strlen($content) == $content_length[$current_post->ID]) {
+    if($already_run[$current_post->ID] && strlen($content) == $content_length[$current_post->ID]) {
       return $new_content[$current_post->ID];
     }
 
@@ -489,8 +474,8 @@ class MeprAppCtrl extends MeprBaseCtrl {
 
             if($action and $action == 'mepr_unauthorized') {
               $resource = isset($_REQUEST['redirect_to']) ? $_REQUEST['redirect_to'] : __('the requested resource.','memberpress');
-              $unauth_message = wpautop(MeprHooks::apply_filters('mepr-unauthorized-message', $mepr_options->unauthorized_message, $current_post));
-              $message = __('Unauthorized for', 'memberpress') . ': ' . $resource . '<br/><br/>' . $unauth_message;
+              $unauth_message = wpautop(MeprHooks::apply_filters('mepr-unauthorized-message', do_shortcode($mepr_options->unauthorized_message), $current_post));
+              $message = '<p id="mepr-unauthorized-for-resource">' . __('Unauthorized for', 'memberpress') . ': <span id="mepr-unauthorized-resource-url">' . $resource . '</span></p>' . $unauth_message;
             }
 
             $login_ctrl->display_login_form(false, false, $message);
@@ -562,18 +547,23 @@ class MeprAppCtrl extends MeprBaseCtrl {
       $wp_scripts = new WP_Scripts();
       $ui = $wp_scripts->query('jquery-ui-core');
       $url = "//ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/smoothness/jquery-ui.css";
-      wp_enqueue_style('mp-ui-smoothness', $url);
+      wp_enqueue_style('mepr-jquery-ui-smoothness', $url);
+      wp_enqueue_style('jquery-ui-timepicker-addon', MEPR_CSS_URL.'/jquery-ui-timepicker-addon.css', array('mepr-jquery-ui-smoothness'));
 
       $prereqs = MeprHooks::apply_filters('mepr-signup-styles', array());
       wp_enqueue_style('mp-signup',  MEPR_CSS_URL.'/signup.css', $prereqs);
 
-      wp_register_script('mp-datepicker', MEPR_JS_URL.'/date_picker.js', array('jquery-ui-datepicker'), MEPR_VERSION);
+      wp_register_script('mepr-timepicker-js', MEPR_JS_URL.'/jquery-ui-timepicker-addon.js', array('jquery-ui-datepicker'));
+      wp_register_script('mp-datepicker', MEPR_JS_URL.'/date_picker.js', array('mepr-timepicker-js'), MEPR_VERSION);
+
+      $date_picker_frontend = array('timeFormat' => (is_admin())?'HH:mm:ss':'', 'showTime' => (is_admin())?true:false);
+      wp_localize_script('mp-datepicker', 'MeprDatePicker', $date_picker_frontend);
 
       wp_register_script('jquery.payment', MEPR_JS_URL.'/jquery.payment.js');
       wp_register_script('mp-validate', MEPR_JS_URL.'/validate.js');
       wp_register_script('mp-i18n', MEPR_JS_URL.'/i18n.js');
 
-      $i18n = array('states' => MeprUtils::states());
+      $i18n = array('states' => MeprUtils::states(), 'ajaxurl' => admin_url('admin-ajax.php'));
       wp_localize_script('mp-i18n', 'MeprI18n', $i18n);
 
       $prereqs = MeprHooks::apply_filters(
@@ -596,7 +586,8 @@ class MeprAppCtrl extends MeprBaseCtrl {
   {
     global $wp_version;
 
-    wp_enqueue_style('jquery-magnific-popup', MEPR_CSS_URL.'/vendor/magnific-popup.css');
+    $popup_ctrl = new MeprPopupCtrl();
+    wp_enqueue_style('jquery-magnific-popup', $popup_ctrl->popup_css);
 
     wp_enqueue_style( 'mepr-admin-shared-css',
                       MEPR_CSS_URL.'/admin-shared.css',
@@ -614,7 +605,7 @@ class MeprAppCtrl extends MeprBaseCtrl {
                         array('mepr-fontello-memberpress'), MEPR_VERSION );
     }
 
-    wp_register_script('jquery-magnific-popup', MEPR_JS_URL.'/vendor/jquery.magnific-popup.js', array('jquery'));
+    wp_register_script('jquery-magnific-popup', $popup_ctrl->popup_js, array('jquery'));
     wp_enqueue_script('mepr-tooltip', MEPR_JS_URL.'/tooltip.js', array('jquery','wp-pointer','jquery-magnific-popup'), MEPR_VERSION);
     wp_localize_script('mepr-tooltip', 'MeprTooltip', array( 'show_about_notice' => self::show_about_notice(),
                                                              'about_notice' => self::about_notice() ));
@@ -639,6 +630,13 @@ class MeprAppCtrl extends MeprBaseCtrl {
 
     $request_uri = $_SERVER['REQUEST_URI'];
 
+    // Pretty Mepr Notifier ... prevents POST vars from being mangled
+    if(MeprUtils::match_uri('/mepr/notify/([^/]+)/([^/\?]+)/?',$request_uri,$m)) {
+      $plugin = 'mepr';
+      $_REQUEST['pmt'] = $m[1];
+      $action = $m[2];
+    }
+
     try {
       if(isset($_POST) && isset($_POST['mepr_process_signup_form'])) {
         $checkout_ctrl = MeprCtrlFactory::fetch('checkout');
@@ -650,6 +648,14 @@ class MeprAppCtrl extends MeprBaseCtrl {
       }
       else if($action==='checkout' && isset($_REQUEST['txn'])) {
         $_REQUEST['txn'] = MeprUtils::base36_decode($_REQUEST['txn']);
+
+        //Back button fix
+        $txn = new MeprTransaction((int)$_REQUEST['txn']);
+        if(strpos($txn->trans_num, 'mp-txn-') === false) {
+          $prd = new MeprProduct($txn->product_id);
+          MeprUtils::wp_redirect($prd->url());
+        }
+
         $checkout_ctrl = MeprCtrlFactory::fetch('checkout');
         $checkout_ctrl->display_payment_page();
       }
@@ -774,9 +780,9 @@ class MeprAppCtrl extends MeprBaseCtrl {
     $time = time();
     for($i = 0; $i < 7; $i++) {
       $ts = $time - MeprUtils::days($i);
-      $month = date('n', $ts);
-      $day = date('j', $ts);
-      $year = date('Y', $ts);
+      $month = gmdate('n', $ts);
+      $day = gmdate('j', $ts);
+      $year = gmdate('Y', $ts);
 
       $pending_transactions += MeprReports::get_transactions_count(MeprTransaction::$pending_str, $day, $month, $year);
       $failed_transactions += MeprReports::get_transactions_count(MeprTransaction::$failed_str, $day, $month, $year);
@@ -791,10 +797,12 @@ class MeprAppCtrl extends MeprBaseCtrl {
   }
 
   public static function todays_date() {
-    if(isset($_REQUEST['datetime']))
-      echo date('Y-m-d H:i:s');
-    else
-      echo date('Y-m-d');
+    if(isset($_REQUEST['datetime'])) {
+      echo date_i18n('Y-m-d H:i:s', time(), true);
+    }
+    else {
+      echo date_i18n('Y-m-d', time(), true);
+    }
 
     die;
   }
@@ -836,7 +844,17 @@ class MeprAppCtrl extends MeprBaseCtrl {
 
   // TODO: We want to eliminate this when we get css compilation / compression in place
   public static function load_css() {
-    header('Content-type: text/css');
+    //IF WE MOVE BACK TO admin-ajax.php method, then this conditional needs to go
+    if( !isset($_GET['plugin']) ||
+        $_GET['plugin'] != 'mepr' ||
+        !isset($_GET['action']) ||
+        $_GET['action'] != 'mepr_load_css' ) {
+      return;
+    }
+
+    header('Content-Type: text/css');
+    header('Cache-Control: max-age=2629000, public'); //1 month
+    header('Expires: '.gmdate('D, d M Y H:i:s', (int)(time() + 2629000)).' GMT'); //1 month?
 
     $css = '';
     $prepend_path = false;
@@ -850,6 +868,7 @@ class MeprAppCtrl extends MeprBaseCtrl {
       $csskey = 'mp-css-' . md5(MEPR_VERSION);
       $css_files = get_transient($csskey);
 
+      //$css_files = false;
       if(!$css_files) {
         $css_files = array();
 
@@ -867,6 +886,7 @@ class MeprAppCtrl extends MeprBaseCtrl {
       $csskey = 'mp-load-css-' . md5(MEPR_VERSION) . '-' . md5(implode(',',$css_files));
       $css = get_transient($csskey);
 
+      //$css = false;
       if(!$css) {
         ob_start();
 

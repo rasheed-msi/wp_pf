@@ -43,9 +43,7 @@ jQuery(document).ready(function($) {
                    is_business && vat_number.length > 0 &&
                    !vat_number.match(new RegExp('^'+MpVat.rates[country].fmt+'$'), 'i'));
 
-    $(this).toggleClass('invalid', invalid);
-    $(this).toggleClass('valid', !invalid);
-    $(this).prev('.mp-form-label').find('.cc-error').toggle(invalid);
+    mpToggleFieldValidation($(this), !invalid);
   });
 });
 

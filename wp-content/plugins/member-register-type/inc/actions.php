@@ -2,9 +2,13 @@
 add_shortcode('test-page', 'test_page');
 
 function test_page() {
-    $test = AppForm::adoptive_family_register();
-    echo '<pre>', print_r($test), '</pre>';
-    exit();
+
+    $test = null;
+    if(isset($test)){
+        echo 'set';
+    }else{
+        echo 'not set';
+    }
 }
 
 add_filter('registration_errors', 'mrt_tml_registration_errors');
@@ -27,13 +31,7 @@ add_action('user_register', 'mrt_user_register');
 function mrt_user_register($user_id) {
     if (isset($_POST['user_type'])) {
         $mrtuser = new MrtUser($user_id);
-        $error = $mrtuser->create_profile($_POST);
-        $wp_error = new WP_Error();
-        $wp_error->add('error', $error);
-        if (!empty($error)) {
-            $wp_error->add('error', $error);
-            unset($error);
-        }
+        $mrtuser->create_profile($_POST);
     }
 }
 

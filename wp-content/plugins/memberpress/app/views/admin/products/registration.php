@@ -146,6 +146,18 @@
     </div>
   </div>
 
+  <?php if($mepr_options->show_address_fields && $mepr_options->require_address_fields): ?>
+    <div id="mepr-product-disable-address-fields-wrap">
+      <input type="checkbox" name="<?php echo MeprProduct::$disable_address_fields_str; ?>" id="<?php echo MeprProduct::$disable_address_fields_str; ?>" <?php checked($product->disable_address_fields); ?> />
+      <label for="<?php echo MeprProduct::$disable_address_fields_str; ?>"><?php _e('Disable Address Fields', 'memberpress'); ?></label>
+      <?php
+        MeprAppHelper::info_tooltip('mepr-product-disable-address-fields',
+                                    __('Disable Address Fields', 'memberpress'),
+                                    __('When Addresses are enabled and required, you can disable this option only on free memberships.', 'memberpress'));
+      ?>
+    </div>
+  <?php endif; ?>
+
   <?php MeprHooks::do_action('mepr-product-registration-metabox', $product); ?>
 
   <div id="mepr-product-manually-place-form">

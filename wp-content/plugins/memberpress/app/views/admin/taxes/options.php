@@ -31,7 +31,7 @@
           </th>
           <td>
             <select name="<?php echo $mepr_options->attr_slug('tax_calc_type'); ?>">
-              <option value="exclusive" <?php selected('exclusive', $mepr_options->attr('tax_calc_type')); ?>><?php _e('Prices entered are exlusive of tax', 'memberpress'); ?></option>
+              <option value="exclusive" <?php selected('exclusive', $mepr_options->attr('tax_calc_type')); ?>><?php _e('Prices entered are exclusive of tax', 'memberpress'); ?></option>
               <option value="inclusive" <?php selected('inclusive', $mepr_options->attr('tax_calc_type')); ?>><?php _e('Prices entered are inclusive of tax', 'memberpress'); ?></option>
             </select>
           </td>
@@ -99,7 +99,7 @@
                 <td><?php echo empty($tax_rate->tax_state)?'*':$tax_rate->tax_state; ?></td>
                 <td><?php echo empty($tax_rate->postcodes)?'*':$tax_rate->postcodes; ?></td>
                 <td><?php echo empty($tax_rate->cities)?'*':$tax_rate->cities; ?></td>
-                <td><?php echo MeprUtils::format_float($tax_rate->tax_rate); ?>%</td>
+                <td><?php echo MeprUtils::format_float($tax_rate->tax_rate, 3); ?>%</td>
                 <td><?php echo $tax_rate->tax_desc; ?></td>
                 <td><?php echo $tax_rate->tax_priority; ?></td>
                 <td width="25px"><a href="" class="mepr-tax-rate-remove alignright" data-id="<?php echo $tax_rate->id; ?>"><i class="mp-icon mp-icon-cancel-circled mp-16"></i></a></td>

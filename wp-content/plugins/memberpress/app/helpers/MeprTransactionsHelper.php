@@ -67,10 +67,12 @@ class MeprTransactionsHelper {
         'usermeta:*',
         'membership_type',
         'product_name',
+        'coupon_code',
         'trans_num',
         'trans_date',
         'trans_expires_at',
         'trans_gateway',
+        'trans_status',
         'payment_amount',
         'blog_name',
         'payment_subtotal',
@@ -93,21 +95,50 @@ class MeprTransactionsHelper {
 
   public static function get_email_params($txn) {
     $mepr_options = MeprOptions::fetch();
-    $usr = $txn->user();
-    $prd = $txn->product();
-    $pm = $txn->payment_method();
-
-    $created_at = MeprAppHelper::format_date($txn->created_at, '');
+    $usr          = $txn->user();
+    $prd          = $txn->product();
+    $pm           = $txn->payment_method();
+    $cpn          = $txn->coupon();
+    $created_at   = MeprAppHelper::format_date($txn->created_at, '');
 
     if(!isset($txn->expires_at) || empty($txn->expires_at)) {
       $expires_at = __('Unknown', 'memberpress');
     }
-    else if($txn->expires_at==MeprUtils::mysql_lifetime()) {
+    else if($txn->expires_at==MeprUtils::db_lifetime()) {
       $expires_at = __('Never', 'memberpress');
     }
     else {
-      $expires_at = MeprAppHelper::format_date($txn->expires_at, '');
+      //Confirmation txn? Let's guess what the expires at will be then
+      if($txn->status == MeprTransaction::$confirmed_str) {
+        $sub = $txn->subscription();
+
+        if($sub->trial && $sub->trial_days) {
+          $expires_at_ts  = strtotime($txn->created_at) + MeprUtils::days($sub->trial_days);
+        }
+        else {
+          $expires_at_ts  = $prd->get_expires_at(strtotime($txn->created_at));
+        }
+
+        $expires_at     = MeprAppHelper::format_date(gmdate('c', $expires_at_ts), '');
+      }
+      else {
+        $expires_at = MeprAppHelper::format_date($txn->expires_at, '');
+      }
     }
+
+    if($mepr_options->currency_symbol_after) {
+      $payment_amount   = preg_replace('~\$~', '\\\$', sprintf(MeprUtils::format_currency_float($txn->total).'%s', stripslashes($mepr_options->currency_symbol)));
+      $payment_subtotal = preg_replace('~\$~', '\\\$', sprintf(MeprUtils::format_currency_float($txn->amount).'%s', stripslashes($mepr_options->currency_symbol)));
+      $tax_amount       = preg_replace('~\$~', '\\\$', sprintf(MeprUtils::format_currency_float($txn->tax_amount).'%s', stripslashes($mepr_options->currency_symbol)));
+    }
+    else {
+      $payment_amount   = preg_replace('~\$~', '\\\$', sprintf('%s'.MeprUtils::format_currency_float($txn->total), stripslashes($mepr_options->currency_symbol)));
+      $payment_subtotal = preg_replace('~\$~', '\\\$', sprintf('%s'.MeprUtils::format_currency_float($txn->amount), stripslashes($mepr_options->currency_symbol)));
+      $tax_amount       = preg_replace('~\$~', '\\\$', sprintf('%s'.MeprUtils::format_currency_float($txn->tax_amount), stripslashes($mepr_options->currency_symbol)));
+    }
+
+    //Coupon title
+    $cpn = ($cpn !== false)?$cpn->post_title:'';
 
     $params = array(
       'user_id'          => $usr->ID,
@@ -120,17 +151,19 @@ class MeprTransactionsHelper {
       'user_address'     => $usr->formatted_address(),
       'membership_type'  => preg_replace('~\$~', '\\\$', $prd->post_title),
       'product_name'     => preg_replace('~\$~', '\\\$', $prd->post_title),
+      'coupon_code'      => $cpn,
       'invoice_num'      => $txn->id,
       'trans_num'        => $txn->trans_num,
       'trans_date'       => $created_at,
       'trans_expires_at' => $expires_at,
       'trans_gateway'    => sprintf(__('%1$s (%2$s)', 'memberpress'), $pm->label, $pm->name),
+      'trans_status'     => ucfirst($txn->status),
       'user_remote_addr' => $_SERVER['REMOTE_ADDR'],
-      'payment_amount'   => preg_replace('~\$~', '\\\$', sprintf('%s'.MeprUtils::format_float($txn->total), stripslashes($mepr_options->currency_symbol))),
+      'payment_amount'   => $payment_amount,
       'blog_name'        => get_bloginfo('name'),
-      'payment_subtotal' => preg_replace('~\$~', '\\\$', sprintf('%s'.MeprUtils::format_float($txn->amount), stripslashes($mepr_options->currency_symbol))),
+      'payment_subtotal' => $payment_subtotal,
       'tax_rate'         => $txn->tax_rate,
-      'tax_amount'       => $txn->tax_amount,
+      'tax_amount'       => $tax_amount,
       'tax_desc'         => $txn->tax_desc,
       'business_name'    => $mepr_options->attr('biz_name'),
       'biz_name'         => $mepr_options->attr('biz_name'),
@@ -153,7 +186,7 @@ class MeprTransactionsHelper {
       $cc = (object)array( 'cc_last4' => '', 'cc_exp_month' => '', 'cc_exp_year' => '' );
 
       if( !empty($txn->response) &&
-          $res = json_decode($txn->response) &&
+          ($res = json_decode($txn->response)) &&
           !empty($res->cc_last4) &&
           !empty($res->cc_exp_month) &&
           !empty($res->cc_exp_year) ) {
@@ -161,28 +194,50 @@ class MeprTransactionsHelper {
       }
 
       $sub_params = array(
-        'subscr_num'             => $txn->trans_num,
-        'subscr_date'            => $created_at,
-        'subscr_gateway'         => $params['trans_gateway'],
-        'subscr_next_billing_at' => __('Never', 'memberpress'),
-        'subscr_expires_at'      => $expires_at,
-        'subscr_terms'           => $params['payment_amount'],
-        'subscr_cc_last4'        => $cc->cc_last4,
-        'subscr_cc_month_exp'    => $cc->cc_exp_month,
-        'subscr_cc_year_exp'     => $cc->cc_exp_year,
-        'subscr_renew_url'       => $mepr_options->login_page_url( 'redirect_to=' . urlencode($prd->url()) ),
-        'subscr_update_url'      => $mepr_options->account_page_url(),
-        'subscr_upgrade_url'     => $mepr_options->login_page_url( 'redirect_to=' . urlencode($prd->group_url()) )
+        'subscr_num'                  => $txn->trans_num,
+        'subscr_date'                 => $created_at,
+        'subscr_gateway'              => $params['trans_gateway'],
+        'subscr_next_billing_at'      => __('Never', 'memberpress'),
+        'subscr_expires_at'           => $expires_at,
+        'subscr_terms'                => $params['payment_amount'],
+        'subscr_next_billing_amount'  => $params['payment_amount'],
+        'subscr_cc_last4'             => $cc->cc_last4,
+        'subscr_cc_month_exp'         => $cc->cc_exp_month,
+        'subscr_cc_year_exp'          => $cc->cc_exp_year,
+        'subscr_renew_url'            => $mepr_options->login_page_url( 'redirect_to=' . urlencode($prd->url()) ),
+        'subscr_update_url'           => $mepr_options->account_page_url(),
+        'subscr_upgrade_url'          => $mepr_options->login_page_url( 'redirect_to=' . urlencode($prd->group_url()) )
       );
     }
-
     $params = array_merge( $params, $sub_params );
-
     $ums = get_user_meta( $usr->ID );
+
     if(isset($ums) and is_array($ums)) {
       foreach( $ums as $umkey => $um ) {
         // Only support first val for now and yes some of these will be serialized values
-        $params["usermeta:{$umkey}"] = $um[0];
+        $val = maybe_unserialize($um[0]);
+        $strval = $val;
+
+        //Handle array type custom fields like multi-select, checkboxes etc
+        if(is_array($val)) {
+          if(!empty($val)) {
+            foreach($val as $i => $k) {
+              if(is_int($i)) { //Multiselects (indexed array)
+                $k = MeprUtils::unsanitize_title($k);
+                $strval = (is_array($strval))?"{$k}":$strval.", {$k}";
+              }
+              else { //Checkboxes (associative array)
+                $i = MeprUtils::unsanitize_title($i);
+                $strval = (is_array($strval))?"{$i}":$strval.", {$i}";
+              }
+            }
+          }
+          else { //convert empty array to empty string
+            $strval = '';
+          }
+        }
+
+        $params["usermeta:{$umkey}"] = $strval;
       }
     }
 
@@ -203,7 +258,7 @@ class MeprTransactionsHelper {
 
     if( $sub = $txn->subscription() ) {
       if( $sub->trial && $sub->txn_count < 1 ) {
-        $desc = __('Trial Payment', 'memberpress');
+        $desc = __('Initial Payment', 'memberpress');
 
         $txn = new MeprTransaction();
         $txn->user_id = $sub->user_id;
@@ -211,7 +266,7 @@ class MeprTransactionsHelper {
         $txn->set_subtotal($sub->trial_amount);
 
         // Must do this *after* apply tax so we don't screw up the invoice
-        $txn->subscription_id = $sub->ID;
+        $txn->subscription_id = $sub->id;
       }
       else if( $sub->txn_count >= 1 ) {
         $desc = __('Subscription Payment', 'memberpress');
@@ -268,7 +323,7 @@ class MeprTransactionsHelper {
       $quantities[] = $item['amount'];
     }
 
-    $subtotal = (float)array_sum( $quantities ) - (float)$cpn_amount;
+    $subtotal = (float)array_sum( $quantities ) - (float)$invoice['coupon']['amount'];
     $total = $subtotal + $invoice['tax']['amount'];
 
     ob_start();
@@ -281,5 +336,73 @@ class MeprTransactionsHelper {
 
     $invoice = ob_get_clean();
     return MeprHooks::apply_filters('mepr-invoice-html', $invoice, $txn );
+  }
+
+  public static function statuses_dropdown($field, $value, $id='', $classes='') {
+    if(empty($id)) { $id = $field; }
+
+    ?>
+    <select name="<?php echo $field; ?>" id="<?php echo $id; ?>" class="<?php echo $classes; ?>">
+      <option value="<?php echo MeprTransaction::$complete_str; ?>" <?php echo selected( $value, MeprTransaction::$complete_str ); ?>><?php _e('Complete', 'memberpress'); ?></option>
+      <option value="<?php echo MeprTransaction::$pending_str; ?>" <?php echo selected( $value, MeprTransaction::$pending_str ); ?>><?php _e('Pending', 'memberpress'); ?></option>
+      <option value="<?php echo MeprTransaction::$failed_str; ?>" <?php echo selected( $value, MeprTransaction::$failed_str ); ?>><?php _e('Failed', 'memberpress'); ?></option>
+      <option value="<?php echo MeprTransaction::$refunded_str; ?>" <?php echo selected( $value, MeprTransaction::$refunded_str ); ?>><?php _e('Refunded', 'memberpress'); ?></option>
+    </select>
+    <?php
+  }
+
+  public static function transaction_membership_field( $field, $value='', $expires_at_field_id='', $id='', $classes='' ) {
+    if(empty($id)) { $id = $field; }
+
+    $products = get_posts(array('post_type' => 'memberpressproduct', 'post_status' => 'publish', 'numberposts' => -1));
+
+    ?>
+
+    <select
+      name="<?php echo $field; ?>"
+      id="<?php echo $id; ?>"
+      class="mepr-membership-dropdown <?php echo $classes; ?>"
+      data-expires_at_field_id="<?php echo $expires_at_field_id; ?>"
+      >
+      <?php foreach($products as $product): ?>
+        <option value="<?php echo $product->ID; ?>" <?php selected( $value, $product->ID ); ?>><?php echo $product->post_title; ?></option>
+      <?php endforeach; ?>
+    </select>
+    <?php
+  }
+
+  public static function transaction_created_at_field( $field, $value='', $id='', $classes='' ) {
+    if(empty($id)) { $id = $field; }
+
+    ?>
+      <div id="<?php echo $id; ?>" class="mepr_transaction_created_field">
+        <input
+          type="text"
+          name="<?php echo $field; ?>"
+          value="<?php echo MeprAppHelper::format_date_utc($value, date('Y-m-d H:i:s'), 'Y-m-d H:i:s'); ?>"
+          class="regular-text mepr-date-picker mepr-created-at"
+        />
+        <a href="" class="mepr-today-button button"><?php _e('Now', 'memberpress'); ?></a>
+      </div>
+    <?php
+  }
+
+  public static function transaction_expires_at_field( $field, $membership_field, $created_at_field, $value='', $id='', $classes='' ) {
+    if(empty($id)) { $id = $field; }
+
+    ?>
+      <div
+        id="<?php echo $id; ?>"
+        data-membership_field_id="<?php echo $membership_field; ?>"
+        data-created_at_field_id="<?php echo $created_at_field; ?>"
+        class="mepr_transaction_expires_field">
+        <input type="text" name="<?php echo $field; ?>"
+          value="<?php echo MeprAppHelper::format_date_utc($value, '', 'Y-m-d H:i:s'); ?>"
+          class="regular-text mepr-date-picker mepr-expires-at"
+        />
+        <a href="" class="mepr-default-expiration-button button"><?php _e('Default', 'memberpress'); ?></a>
+        <a href="" class="mepr-lifetime-expiration-button button"><?php _e('Lifetime', 'memberpress'); ?></a>
+      </div>
+    <?php
   }
 }

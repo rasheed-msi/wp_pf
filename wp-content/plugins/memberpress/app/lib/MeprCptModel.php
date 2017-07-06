@@ -16,9 +16,9 @@ abstract class MeprCptModel extends MeprBaseModel
       $this->attrs = array();
 
     $r = array( "ID"            => null,
-                "post_content"  => null,
+                "post_content"  => '',
                 "post_title"    => null,
-                "post_excerpt"  => null,
+                "post_excerpt"  => '',
                 "post_name"     => null,
                 "post_date"     => null,
                 "post_status"   => 'publish', // We'll assume this is published if not coming through the post editor
@@ -124,6 +124,23 @@ abstract class MeprCptModel extends MeprBaseModel
   public function url($args = '') {
     $link = MeprUtils::get_permalink($this->ID);
     return MeprHooks::apply_filters('mepr_cpt_model_url', "{$link}{$args}", $this);
+  }
+
+  public static function all($class) {
+    // Not possible pre PHP 5.3 so we have to pass the class name as an argument gah
+    //$r = new ReflectionClass(get_called_class());
+
+    $r = new ReflectionClass($class);
+    $cpt = $r->getStaticPropertyValue('cpt');
+
+    $posts = get_posts(array('numberposts' => -1, 'post_type' => $cpt, 'post_status' => 'publish'));
+
+    $models = array();
+    foreach($posts as $post) {
+      $models[] = $r->newInstance($post->ID);
+    }
+
+    return $models;
   }
 
   public static function get_all_data( $class, // get_class relies on $this so we have to pass the name in

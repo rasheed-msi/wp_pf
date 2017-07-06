@@ -8,6 +8,7 @@
   <select name="mepr-custom-fields[<?php echo $random_id; ?>][type]" class="mepr-custom-fields-select" data-value="<?php echo $random_id; ?>">
     <option value="text" <?php selected($line->field_type, 'text'); ?>><?php _e('Text', 'memberpress'); ?></option>
     <option value="email" <?php selected($line->field_type, 'email'); ?>><?php _e('Email', 'memberpress'); ?></option>
+    <option value="url" <?php selected($line->field_type, 'url'); ?>><?php _e('URL', 'memberpress'); ?></option>
     <option value="date" <?php selected($line->field_type, 'date'); ?>><?php _e('Date', 'memberpress'); ?></option>
     <option value="textarea" <?php selected($line->field_type, 'textarea'); ?>><?php _e('Textarea', 'memberpress'); ?></option>
     <option value="checkbox" <?php selected($line->field_type, 'checkbox'); ?>><?php _e('Checkbox', 'memberpress'); ?></option>
@@ -74,7 +75,7 @@
   ?>
   </div>
 
-  <input type="hidden" name="mepr-custom-fields[<?php echo $random_id; ?>][slug]" value="<?php echo (!empty($line->field_key))?$line->field_key:__('mepr_none', 'memberpress'); ?>" />
+  <input type="hidden" name="mepr-custom-fields[<?php echo $random_id; ?>][slug]" value="<?php echo (!empty($line->field_key))?$line->field_key:'mepr_none'; ?>" />
   <?php if(!empty($line->field_key)): ?>
     &nbsp;&nbsp;&nbsp;
     <?php MeprAppHelper::info_tooltip( 'mepr-custom-fields-slug',

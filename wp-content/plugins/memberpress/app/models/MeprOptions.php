@@ -10,6 +10,7 @@ class MeprOptions {
     $this->set_from_array($options);
     $this->set_defaults();
     $this->set_dynamic_attrs();
+    $this->wpml_custom_fields(); //Need to store as an array for WPML - this converts back to objects :)
   }
 
   public static function fetch($force = false) {
@@ -32,7 +33,32 @@ class MeprOptions {
     }
 
     $mepr_options->set_strings(); //keep strings fresh (not db cached)
-    return $mepr_options;
+    $mepr_options->wpml_custom_fields();  //Need to store as an array for WPML - this converts back to objects :)
+    return MeprHooks::apply_filters('mepr_fetch_options', $mepr_options);
+  }
+
+  public function wpml_custom_fields() {
+    if(!empty($this->custom_fields)) {
+      $new_fields = array();
+      foreach($this->custom_fields as $row) {
+        $row = (object)$row; //Convert rows back to objects
+
+        $new_options = array();
+        if(!empty($row->options)) {
+          foreach($row->options as $option) {
+            $new_options[] = (object)$option; //Convert options back into objects
+          }
+
+          $row->options = $new_options;
+        }
+
+        $new_fields[] = $row;
+      }
+
+      $this->custom_fields = $new_fields;
+    }
+
+    return $this->custom_fields;
   }
 
   public static function reset() {
@@ -77,7 +103,7 @@ class MeprOptions {
       $this->logout_redirect_url = '';
 
     if(!isset($this->disable_mod_rewrite))
-      $this->disable_mod_rewrite = false;
+      $this->disable_mod_rewrite = true;
 
     if(!isset($this->emails)) {
       $this->emails = array();
@@ -139,6 +165,9 @@ class MeprOptions {
     if(!isset($this->currency_symbol))
       $this->currency_symbol = '$';
 
+    if(!isset($this->currency_symbol_after))
+      $this->currency_symbol_after = false;
+
     if(!isset($this->language_code))
       $this->language_code = 'US';
 
@@ -170,7 +199,7 @@ class MeprOptions {
       $this->tos_url = '';
 
     if(!isset($this->tos_title))
-      $this->tos_title = __('I have read and agree to the Terms Of Service', 'memberpress'); //This string is also below, so if we change this wording, we need to change it below also
+      $this->tos_title = _x('I have read and agree to the Terms Of Service', 'ui', 'memberpress'); //This string is also below, so if we change this wording, we need to change it below also
 
     if(!isset($this->mail_send_from_name))
       $this->mail_send_from_name = get_option('blogname');
@@ -198,7 +227,7 @@ class MeprOptions {
 
     $this->set_address_fields();
 
-    if(!isset($this->custom_fields)) //should be an array of objects
+    if(!isset($this->custom_fields)) //should be an array of objects but we store as just arrays in the DB for WPML compatibility - see $this->wpml_custom_fields()
       $this->custom_fields = array();
 
     if(!isset($this->mothership_license))
@@ -300,8 +329,7 @@ class MeprOptions {
     }
   }
 
-  public function set_strings()
-  {
+  public function set_strings() {
     $this->account_page_id_str                      = 'mepr-account-page-id';
     $this->login_page_id_str                        = 'mepr-login-page-id';
     $this->thankyou_page_id_str                     = 'mepr-thankyou-page-id';
@@ -332,6 +360,7 @@ class MeprOptions {
 
     $this->currency_code_str                        = 'mepr-currency-code';
     $this->currency_symbol_str                      = 'mepr-currency-symbol';
+    $this->currency_symbol_after_str                = 'mepr-currency-symbol-after';
     $this->language_code_str                        = 'mepr-language-symbol';
     $this->integrations_str                         = 'mepr-integrations';
 
@@ -380,13 +409,10 @@ class MeprOptions {
     $this->global_styles_str                        = 'mepr-global-styles';
   }
 
-  public function validate($params, $errors = array())
-  {
+  public function validate($params, $errors = array()) {
     // Validate all of the integrations ...
-    if(!empty($params[$this->integrations_str]) and is_array($params[$this->integrations_str]))
-    {
-      foreach($params[$this->integrations_str] as $pmt)
-      {
+    if(!empty($params[$this->integrations_str]) and is_array($params[$this->integrations_str])) {
+      foreach($params[$this->integrations_str] as $pmt) {
         $obj = MeprGatewayFactory::fetch($pmt['gateway'], $pmt);
         $errors = $obj->validate_options_form($errors);
       }
@@ -408,7 +434,7 @@ class MeprOptions {
       $errors[] = __('The Group Pages Slug must only contain letters, numbers and dashes.', 'memberpress');
     }
 
-    if(!isset($params[$this->admin_email_addresses_str]) or empty($params[$this->admin_email_addresses_str])) {
+    if(!isset($params[$this->admin_email_addresses_str]) || empty($params[$this->admin_email_addresses_str])) {
       $errors[] = __('At least one Admin Email Address must be set', 'memberpress');
     }
 
@@ -426,19 +452,21 @@ class MeprOptions {
       isset($params['mepr_biz_postcode']) && !empty($params['mepr_biz_postcode'])
     );
 
-    if(!$biz_address_is_set) {
-      $errors[] = __('You must enter your full Merchant Business Address (found on the Info tab).', 'memberpress');
-    }
+    //Temporarily killing  this validation - causing too many support reqs
+    // if(!$biz_address_is_set) {
+      // $errors[] = __('You must enter your full Merchant Business Address (found on the Info tab).', 'memberpress');
+    // }
 
     if(isset($params['mepr_biz_state'])) {
       $params['mepr_biz_state'] = strtoupper($params['mepr_biz_state']);
     }
 
-    if(isset($params['mepr_biz_country']) && isset($params['mepr_biz_state']) &&
-       ($states = MeprUtils::states()) && isset($states[$params['mepr_biz_country']]) &&
-       !isset($states[$params['mepr_biz_country']][$params['mepr_biz_state']])) {
-      $errors[] = __('You must enter a valid state code with your Merchant Business Address (found on the Info tab).', 'memberpress');
-    }
+    // TODO: We need to figure this one out ... this is still problemmatic for many users
+    //if(isset($params['mepr_biz_country']) && isset($params['mepr_biz_state']) &&
+    //   ($states = MeprUtils::states()) && isset($states[$params['mepr_biz_country']]) &&
+    //   !isset($states[$params['mepr_biz_country']][$params['mepr_biz_state']])) {
+    //  $errors[] = __('You must enter a valid state code with your Merchant Business Address (found on the Info tab).', 'memberpress');
+    //}
 
     return $errors;
   }
@@ -477,21 +505,22 @@ class MeprOptions {
     // Notification Settings
     $this->emails = array();
 
-    foreach( $params[$this->emails_str] as $email => $vals ) {
-      $this->emails[$email] = array( 'enabled' => isset( $params[$this->emails_str][$email]['enabled'] ),
-                                     'use_template' => isset( $params[$this->emails_str][$email]['use_template'] ),
-                                     'subject' => stripslashes( $params[$this->emails_str][$email]['subject'] ),
-                                     'body' => stripslashes( $params[$this->emails_str][$email]['body'] ) );
+    foreach($params[$this->emails_str] as $email => $vals) {
+      $this->emails[$email] = array('enabled'       => isset($params[$this->emails_str][$email]['enabled']),
+                                    'use_template'  => isset($params[$this->emails_str][$email]['use_template']),
+                                    'subject'       => stripslashes($params[$this->emails_str][$email]['subject']),
+                                    'body'          => MeprUtils::maybe_wpautop(stripslashes($params[$this->emails_str][$email]['body'])));
     }
 
     $this->disable_mod_rewrite           = isset($params[$this->disable_mod_rewrite_str]);
     $this->custom_message                = wp_kses_post(stripslashes($params[$this->custom_message_str]));
     $this->currency_code                 = stripslashes($params[$this->currency_code_str]);
     $this->currency_symbol               = stripslashes($params[$this->currency_symbol_str]);
+    $this->currency_symbol_after         = isset($params[$this->currency_symbol_after_str]);
     $this->language_code                 = stripslashes($params[$this->language_code_str]);
 
-    if( isset($params[$this->integrations_str]) ) {
-      foreach ($params[$this->integrations_str] as $intg_key => $intg) {
+    if(isset($params[$this->integrations_str])) {
+      foreach($params[$this->integrations_str] as $intg_key => $intg) {
         $params[$this->integrations_str][$intg_key]['use_icon'] = isset($params[$this->integrations_str][$intg_key]['use_icon']);
         $params[$this->integrations_str][$intg_key]['use_label'] = isset($params[$this->integrations_str][$intg_key]['use_label']);
         $params[$this->integrations_str][$intg_key]['use_desc'] = isset($params[$this->integrations_str][$intg_key]['use_desc']);
@@ -507,14 +536,12 @@ class MeprOptions {
     $this->coupon_field_enabled          = isset($params[$this->coupon_field_enabled_str]);
     $this->require_tos                   = isset($params[$this->require_tos_str]);
     $this->tos_url                       = (isset($params[$this->tos_url_str]))?stripslashes($params[$this->tos_url_str]):'';
-    $this->tos_title                     = (isset($params[$this->tos_title_str]) && !empty($params[$this->tos_title_str]))?stripslashes($params[$this->tos_title_str]):__('I have read and agree to the Terms of Service', 'memberpress');
+    $this->tos_title                     = (isset($params[$this->tos_title_str]) && !empty($params[$this->tos_title_str]))?stripslashes($params[$this->tos_title_str]):_x('I have read and agree to the Terms of Service', 'ui', 'memberpress');
     $this->mail_send_from_name           = (isset($params[$this->mail_send_from_name_str]))?stripslashes($params[$this->mail_send_from_name_str]):get_option('blogname');
     $this->mail_send_from_email          = (isset($params[$this->mail_send_from_email_str]))?stripslashes($params[$this->mail_send_from_email_str]):get_option('admin_email');
     $this->username_is_email             = isset($params[$this->username_is_email_str]);
     $this->require_fname_lname           = isset($params[$this->require_fname_lname_str]);
     $this->show_fname_lname              = isset($params[$this->show_fname_lname_str]);
-
-    $this->custom_fields                 = $this->update_custom_fields($params);
 
     // This happens on the activate screen't do this here
     //$this->mothership_license                 = stripslashes($params[$this->mothership_license_str]);
@@ -582,16 +609,23 @@ class MeprOptions {
     return $slugs;
   }
 
-  public function update_custom_fields($params)
-  {
+  public function get_custom_field($field_key) {
+    foreach($this->custom_fields as $custom_field) {
+      if($custom_field->field_key==$field_key) {
+        return $custom_field;
+      }
+    }
+
+    return $custom_field;
+  }
+
+  public function update_custom_fields($params) {
     $fields = array();
 
-    if(isset($params[$this->custom_fields_str]) && !empty($params[$this->custom_fields_str]))
-    {
+    if(isset($params[$this->custom_fields_str]) && !empty($params[$this->custom_fields_str])) {
       $indexes = $params['mepr-custom-fields-index'];
 
-      foreach($indexes as $i)
-      {
+      foreach($indexes as $i) {
         $name = isset($params[$this->custom_fields_str][$i]['name'])?$params[$this->custom_fields_str][$i]['name']:'';
         $slug = ($params[$this->custom_fields_str][$i]['slug'] == 'mepr_none')?MeprUtils::sanitize_string('mepr_'.$name):$params[$this->custom_fields_str][$i]['slug']; //Need to check that this key doesn't already exist in usermeta table
         $type = $params[$this->custom_fields_str][$i]['type'];
@@ -604,37 +638,42 @@ class MeprOptions {
           $options = $params[$this->custom_fields_str][$i]['option'];
           $values = $params[$this->custom_fields_str][$i]['value'];
 
-          foreach($options as $key => $value)
-            if(!empty($value))
-              $dropdown_ops[] = (object)array('option_name' => $options[$key],
-                                              'option_value' => sanitize_title($values[$key], sanitize_title($options[$key]))
-                                              );
+          foreach($options as $key => $value) {
+            if(!empty($value)) {
+              //Due to WPML compat - we're no longer storing these as forced (object)'s - see $this->wpml_custom_fields()
+              $dropdown_ops[] = array('option_name' => $options[$key],
+                                      'option_value' => sanitize_title($values[$key], sanitize_title($options[$key])));
+            }
+          }
 
           if(empty($dropdown_ops))
             $name = ''; //if no dropdown options were entered let's not save this line
         }
 
         if($name != '') //If no name was left let's not save this line
-          $fields[] = (object)array('field_key' => $slug,
-                                    'field_name' => $name,
-                                    'field_type' => $type,
-                                    'default_value' => $default,
-                                    'show_on_signup' => $signup,
-                                    'required' => $required,
-                                    'options' => $dropdown_ops);
+          //Due to WPML compat - we're no longer storing these as forced (object)'s - see $this->wpml_custom_fields()
+          $fields[] = array('field_key' => $slug,
+                            'field_name' => $name,
+                            'field_type' => $type,
+                            'default_value' => $default,
+                            'show_on_signup' => $signup,
+                            'required' => $required,
+                            'options' => $dropdown_ops);
       }
     }
 
     return $fields;
   }
 
-  public function set_from_array($options = array(), $post_array = false)
-  {
-    if($post_array)
+  public function set_from_array($options = array(), $post_array = false) {
+    if($post_array) {
       $this->update($post_array);
-    else // Set values from array
-      foreach($options as $key => $value)
+    }
+    else { // Set values from array
+      foreach($options as $key => $value) {
         $this->$key = $value;
+      }
+    }
   }
 
   public function store($validate = true) {
@@ -670,112 +709,107 @@ class MeprOptions {
     return (!empty($country) && !empty($postcode) && !empty($state) && !empty($city) && !empty($one));
   }
 
-  public function payment_method($id = 'default')
-  {
+  public function payment_method($id = 'default') {
     $pmt_methods = $this->payment_methods();
 
-    if($id=='default')
-    {
+    if($id == 'default') {
       $keys = array_keys($pmt_methods);
       if(isset($keys[0])) { $id = $keys[0]; }
     }
 
-    if(isset($pmt_methods[$id]))
+    if(isset($pmt_methods[$id])) {
       return $pmt_methods[$id];
+    }
 
     return false;
   }
 
-  public function payment_methods()
-  {
+  public function payment_methods($include_builtin_gateways=true) {
     static $pmt_methods;
 
-    if(!isset($pmt_methods))
-    {
+    if(!isset($pmt_methods)) {
       $pmt_methods = array();
 
-      if(isset($this->integrations) and is_array($this->integrations))
-      {
-        foreach($this->integrations as $intg_id => $intg_array)
-        {
-          try
-          {
+      if(isset($this->integrations) and is_array($this->integrations)) {
+        foreach($this->integrations as $intg_id => $intg_array) {
+          try {
             $pmt_methods[$intg_id] = MeprGatewayFactory::fetch($intg_array['gateway'], $intg_array);
           }
-          catch(Exception $e)
-          {
+          catch(Exception $e) {
             // Just do nothing for now
           }
         }
       }
 
-      $pmt_methods[MeprTransaction::$free_gateway_str] =
-        new MeprBaseStaticGateway( MeprTransaction::$free_gateway_str,
-                                   __('Free', 'memberpress'),
-                                   __('Free', 'memberpress') );
+      if($include_builtin_gateways) {
+        $pmt_methods[MeprTransaction::$free_gateway_str] =
+          new MeprBaseStaticGateway( MeprTransaction::$free_gateway_str,
+                                     __('Free', 'memberpress'),
+                                     __('Free', 'memberpress') );
 
-      $pmt_methods[MeprTransaction::$manual_gateway_str] =
-        new MeprBaseStaticGateway( MeprTransaction::$manual_gateway_str,
-                                   __('Manual', 'memberpress'),
-                                   __('Manual', 'memberpress') );
+        $pmt_methods[MeprTransaction::$manual_gateway_str] =
+          new MeprBaseStaticGateway( MeprTransaction::$manual_gateway_str,
+                                     __('Manual', 'memberpress'),
+                                     __('Manual', 'memberpress') );
+      }
     }
 
     return $pmt_methods;
   }
 
-  public function pm_count()
-  {
+  public function pm_count() {
     return count($this->integrations);
   }
 
-  public function auto_add_page($page_name)
-  {
+  public function auto_add_page($page_name) {
     return wp_insert_post(array('post_title' => $page_name, 'post_type' => 'page', 'post_status' => 'publish', 'comment_status' => 'closed'));
   }
 
-  public function account_page_url($args = '')
-  {
-    if( isset($this->account_page_id) and
-        is_numeric($this->account_page_id) and
-        (int)$this->account_page_id > 0 ) {
+  public function account_page_url($args = '') {
+    $link = home_url();
+
+    if(isset($this->account_page_id) && (int)$this->account_page_id > 0) {
       $link = MeprUtils::get_permalink($this->account_page_id);
 
-      if(!empty($args))
-        return $link.MeprAppCtrl::get_param_delimiter_char($link).$args;
-      else
-        return $link;
+      $link = MeprHooks::apply_filters('mepr-account-page-permalink', $link);
+
+      if(!empty($args)) {
+        $link .= MeprAppCtrl::get_param_delimiter_char($link).$args;
+      }
     }
 
-    return home_url(); // default to the home url
+    return $link;
   }
 
-  public function login_page_url($args = '')
-  {
+  public function login_page_url($args = '') {
     if( isset($this->login_page_id) and
         is_numeric($this->login_page_id) and
         (int)$this->login_page_id > 0 ) {
       $link = MeprUtils::get_permalink($this->login_page_id);
 
-      if(!empty($args))
+      if(!empty($args)) {
         return $link.MeprAppCtrl::get_param_delimiter_char($link).$args;
-      else
+      }
+      else {
         return $link;
+      }
     }
 
     return home_url(); // default to the home url
   }
 
-  public function thankyou_page_url($args = '')
-  {
+  public function thankyou_page_url($args = '') {
     if( isset($this->thankyou_page_id) and
         is_numeric($this->thankyou_page_id) and
         (int)$this->thankyou_page_id > 0 ) {
       $link = MeprUtils::get_permalink($this->thankyou_page_id);
 
-      if(!empty($args))
+      if(!empty($args)) {
         return $link.MeprAppCtrl::get_param_delimiter_char($link).$args;
-      else
+      }
+      else {
         return $link;
+      }
     }
 
     return home_url(); // default to the home url
@@ -784,38 +818,34 @@ class MeprOptions {
   private function set_address_fields() {
     $country_codes = MeprUtils::countries();
     $state_codes = MeprUtils::states();
-
     $coptions = array();
+
     foreach( $country_codes as $copt => $cname ) {
       $coptions[] = (object)array( 'option_name' => $cname, 'option_value' => $copt );
     }
 
     $this->address_fields = array(
-        (object)array('field_key' => 'mepr-address-one', 'field_name' => __('Address Line 1', 'memberpress'), 'field_type' => 'text', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields),
-        (object)array('field_key' => 'mepr-address-two', 'field_name' => __('Address Line 2', 'memberpress'), 'field_type' => 'text', 'default_value' => '', 'show_on_signup' => true, 'required' => false),
-        (object)array('field_key' => 'mepr-address-city', 'field_name' => __('City', 'memberpress'), 'field_type' => 'text', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields),
-        (object)array('field_key' => 'mepr-address-country', 'field_name' => __('Country', 'memberpress'), 'field_type' => 'countries', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields),
-        (object)array('field_key' => 'mepr-address-state', 'field_name' => __('State/Province', 'memberpress'), 'field_type' => 'states', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields),
-        (object)array('field_key' => 'mepr-address-zip', 'field_name' => __('Zip/Postal Code', 'memberpress'), 'field_type' => 'text', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields)
+        (object)array('field_key' => 'mepr-address-one', 'field_name' => _x('Address Line 1', 'ui', 'memberpress'), 'field_type' => 'text', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields),
+        (object)array('field_key' => 'mepr-address-two', 'field_name' => _x('Address Line 2', 'ui', 'memberpress'), 'field_type' => 'text', 'default_value' => '', 'show_on_signup' => true, 'required' => false),
+        (object)array('field_key' => 'mepr-address-city', 'field_name' => _x('City', 'ui', 'memberpress'), 'field_type' => 'text', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields),
+        (object)array('field_key' => 'mepr-address-country', 'field_name' => _x('Country', 'ui', 'memberpress'), 'field_type' => 'countries', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields),
+        (object)array('field_key' => 'mepr-address-state', 'field_name' => _x('State/Province', 'ui', 'memberpress'), 'field_type' => 'states', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields),
+        (object)array('field_key' => 'mepr-address-zip', 'field_name' => _x('Zip/Postal Code', 'ui', 'memberpress'), 'field_type' => 'text', 'default_value' => '', 'show_on_signup' => true, 'required' => $this->require_address_fields)
     );
   }
 
   /***** Migrations ... should probably find a better place to
          put these but the model makes sense for now I suppose *****/
-  public static function migrate_to_new_unauth_system()
-  {
+  public static function migrate_to_new_unauth_system() {
     $mepr_options = MeprOptions::fetch();
 
-    if( !isset($mepr_options->unauthorized_page_id) ||
-        (int)$mepr_options->unauthorized_page_id <= 0 )
-    {
+    if(!isset($mepr_options->unauthorized_page_id) || (int)$mepr_options->unauthorized_page_id <= 0) {
       return; // Short circuit ... only migrate if we need to
     }
 
     $page = get_post($mepr_options->unauthorized_page_id);
 
-    if(!($page instanceof WP_Post))
-    {
+    if(!($page instanceof WP_Post)) {
       $mepr_options->unauthorized_page_id = 0; //Set the page to 0 so we don't end up here again
       $mepr_options->redirect_on_unauthorized = false;
       $mepr_options->store(false);
@@ -826,15 +856,15 @@ class MeprOptions {
 
     //It's either empty or there's something on this page - and it's not the unauth shortcode
     //so let's put the shortcode on this page, and setup the unauth message
-    if(empty($content) || (!empty($content) && strstr($content, 'mepr-unauthorized-message') === false))
-    {
+    if(empty($content) || (!empty($content) && strstr($content, 'mepr-unauthorized-message') === false)) {
       $page->post_content = '[mepr-unauthorized-message]';
       $mepr_options->redirect_on_unauthorized = true;
       $mepr_options->unauthorized_redirect_url = MeprUtils::get_permalink($page->ID);
       $mepr_options->unauthorized_page_id = 0; //Set the page to 0 so we don't end up here again
 
-      if(!empty($content)) //Only change the unauth message if the user had one on this page already
+      if(!empty($content)) { //Only change the unauth message if the user had one on this page already
         $mepr_options->unauthorized_message = $content;
+      }
 
       $mepr_options->store(false);
       wp_update_post($page);
@@ -861,6 +891,7 @@ class MeprOptions {
     }
     else if(array_key_exists($attr, $this->dynamic_attrs)) {
       $a = $this->attr_config($attr);
+
       if(!empty($a)) {
         if(!isset($a['value'])) {
           $value = get_option($this->attr_slug($attr), $a['default']);
@@ -871,6 +902,8 @@ class MeprOptions {
         }
       }
     }
+
+    $value = stripslashes($value); //single quotes etc causing escape chars to appear when output
 
     return MeprHooks::apply_filters('mepr-options-get-dynamic-attribute-'.$attr, $value, $this);
   }

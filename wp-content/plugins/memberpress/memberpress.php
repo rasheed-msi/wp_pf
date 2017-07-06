@@ -1,13 +1,13 @@
 <?php
 /*
-Plugin Name: MemberPress Business Edition
+Plugin Name: MemberPress Developer Edition
 Plugin URI: http://www.memberpress.com/
 Description: The membership plugin that makes it easy to accept payments for access to your content and digital products.
-Version: 1.2.4
+Version: 1.3.6
 Author: Caseproof, LLC
 Author URI: http://caseproof.com/
 Text Domain: memberpress
-Copyright: 2004-2015, Caseproof, LLC
+Copyright: 2004-2017, Caseproof, LLC
 */
 
 if(!defined('ABSPATH')) {die('You are not allowed to call this page directly.');}
@@ -34,7 +34,7 @@ define('MEPR_WIDGETS_PATH',MEPR_PATH.'/app/widgets');
 define('MEPR_HELPERS_PATH',MEPR_PATH.'/app/helpers');
 
 // Make all of our URLS protocol agnostic
-$mepr_url_protocol = (empty($_SERVER['HTTPS'])?'http':'https');
+$mepr_url_protocol = (is_ssl())?'https':'http'; //Can't use MeprUtils::is_ssl() here
 define('MEPR_URL',preg_replace('/^https?:/', "{$mepr_url_protocol}:", plugins_url('/'.MEPR_PLUGIN_NAME)));
 
 define('MEPR_VIEWS_URL',MEPR_URL.'/app/views');
@@ -45,7 +45,7 @@ define('MEPR_GATEWAYS_URL',MEPR_URL.'/app/gateways');
 define('MEPR_VENDOR_LIB_URL',MEPR_URL.'/vendor/lib');
 define('MEPR_SCRIPT_URL',get_option('home').'/index.php?plugin=mepr');
 define('MEPR_OPTIONS_SLUG', 'mepr_options');
-define('MEPR_EDITION', 'business');
+define('MEPR_EDITION', 'developer');
 
 /**
  * Returns current plugin version.

@@ -502,5 +502,35 @@
       var act = (($(MeprProducts.register_price_action_id).val()=='custom')?'slideDown':'slideUp');
       $(MeprProducts.register_price_id).parent()[act]('fast');
     });
+
+    //Disable Address Fields on free prds
+    if(parseFloat($('#_mepr_product_price').val()) > parseFloat(0.00)) {
+      $('#_mepr_disable_address_fields').attr('checked', false);
+      $('#mepr-product-disable-address-fields-wrap').hide();
+    }
+    $('#_mepr_product_price').blur(function() {
+      if(parseFloat($('#_mepr_product_price').val()) > parseFloat(0.00)) {
+        $('#_mepr_disable_address_fields').attr('checked', false);
+        $('#mepr-product-disable-address-fields-wrap').fadeOut();
+      }
+      else {
+        $('#mepr-product-disable-address-fields-wrap').fadeIn();
+      }
+    });
+
+    // Enable all prices
+    var check_pricing_display = function() {
+      if($('#mepr-pricing-display').val()=='custom') {
+        $('#mepr-custom-pricing-display').slideDown();
+      }
+      else {
+        $('#mepr-custom-pricing-display').slideUp();
+      }
+    };
+
+    check_pricing_display();
+    $('#mepr-pricing-display').on('change', function() {
+      check_pricing_display();
+    });
   });
 })(jQuery);

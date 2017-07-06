@@ -95,8 +95,8 @@ class MeprExportCtrl extends MeprBaseCtrl {
     }
 
     if(isset($_GET['page']) && $_GET['page'] == 'memberpress-options' && isset($_GET['mepr-export-inactive-users-csv'])) {
-      $mysql_now = $wpdb->prepare('%s',MeprUtils::mysql_now());
-      $mysql_lifetime = $wpdb->prepare('%s',MeprUtils::mysql_lifetime());
+      $db_now = $wpdb->prepare('%s',MeprUtils::db_now());
+      $db_lifetime = $wpdb->prepare('%s',MeprUtils::db_lifetime());
       $q = "SELECT u.ID AS user_ID, u.user_login AS username, u.user_email AS email, f.meta_value AS first_name, l.meta_value AS last_name, a1.meta_value AS address1, a2.meta_value AS address2, c.meta_value AS city, s.meta_value AS state, z.meta_value AS zip, u.user_registered AS start_date, t.expires_at AS end_date, p.post_title AS membership, t.gateway, cp.post_title AS coupon
               FROM {$wpdb->users} AS u
                 LEFT JOIN {$wpdb->usermeta} AS f
@@ -117,9 +117,9 @@ class MeprExportCtrl extends MeprBaseCtrl {
                               FROM {$mepr_db->transactions}
                               WHERE user_id NOT IN (SELECT user_id
                                                       FROM {$mepr_db->transactions}
-                                                      WHERE (expires_at >= {$mysql_now}
+                                                      WHERE (expires_at >= {$db_now}
                                                              OR expires_at IS NULL
-                                                             OR expires_at = {$mysql_lifetime})
+                                                             OR expires_at = {$db_lifetime})
                                                         AND status IN ('complete', 'confirmed')
                                                     GROUP BY user_id)
                             GROUP BY user_id) AS t ON u.ID = t.user_id

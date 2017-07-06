@@ -2,7 +2,7 @@
 if(!defined('ABSPATH')) {die('You are not allowed to call this page directly.');}
 
 class MeprAddonUpdates {
-  public $memberpress_active, $slug, $main_file, $options_key, $title, $desc;
+  public $memberpress_active, $slug, $main_file, $options_key, $title, $desc, $path;
 
   public function __construct($slug, $main_file, $options_key='', $title='', $desc='') {
     $this->slug = $slug;
@@ -10,8 +10,11 @@ class MeprAddonUpdates {
     $this->options_key = $options_key;
     $this->title = $title;
     $this->desc = $desc;
+    $this->path = WP_PLUGIN_DIR.'/'.$slug;
 
     $priority = mt_rand(900000,999999);
+
+    $this->load_language();
 
     add_filter('pre_set_site_transient_update_plugins', array( $this, 'queue_update' ));
 
@@ -68,7 +71,10 @@ class MeprAddonUpdates {
       }
     }
 
-    $installed_version = (($first_time_install || !isset($transient->checked) || empty($transient->checked) || !isset($transient->checked[$this->main_file])) ? '0.0.0' : $transient->checked[$this->main_file]);
+    $addons_ctrl        = MeprCtrlFactory::fetch('addons');
+    $plugin_info        = $addons_ctrl->curr_plugin_info($this->main_file);
+    $installed_version  = (!$first_time_install && isset($plugin_info['Version']))?$plugin_info['Version']:'0.0.0';
+    // $installed_version = (($first_time_install || !isset($transient->checked) || empty($transient->checked) || !isset($transient->checked[$this->main_file])) ? '0.0.0' : $transient->checked[$this->main_file]);
 
     if(isset($curr_version) && version_compare($curr_version, $installed_version, '>')) {
       $transient->response[$this->main_file] = (object)array(
@@ -89,10 +95,8 @@ class MeprAddonUpdates {
   public function send_mothership_request( $endpoint,
                                            $args=array(),
                                            $method='get',
-                                           $domain='http://mothership.caseproof.com',
+                                           $domain='https://mothership.caseproof.com',
                                            $blocking=true ) {
-	return false;
-	
     $uri = $domain.$endpoint;
 
     $arg_array = array(
@@ -144,6 +148,30 @@ class MeprAddonUpdates {
     }
 
     return false;
+  }
+
+  public function load_language() {
+    $paths = array();
+    $paths[] = str_replace(WP_PLUGIN_DIR, '', $this->path.'/i18n');
+
+    //Have to use WP_PLUGIN_DIR because load_plugin_textdomain doesn't accept abs paths
+    if(!file_exists(WP_PLUGIN_DIR . '/' . 'mepr-i18n')) {
+      @mkdir(WP_PLUGIN_DIR . '/' . 'mepr-i18n');
+
+      if(file_exists(WP_PLUGIN_DIR . '/' . 'mepr-i18n')) {
+        $paths[] = '/mepr-i18n';
+      }
+    }
+    else {
+      $paths[] = '/mepr-i18n';
+    }
+
+    // MeprHooks isn't going to always be defined here so just use the normal apply_filters
+    $paths = apply_filters("mepr_{$this->slug}_textdomain_paths", $paths);
+
+    foreach($paths as $path) {
+      load_plugin_textdomain($this->slug, false, $path);
+    }
   }
 } //End class
 

@@ -56,7 +56,7 @@ abstract class MeprCptCtrl extends MeprBaseCtrl
       $messages[$slug][8] = sprintf( __('%1$s submitted. <a target="_blank" href="%2$s">Preview %3$s</a>', 'memberpress'), $singular_name,
                                      esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ), $singular_name );
       $messages[$slug][9] = sprintf( __('%1$s scheduled for: <strong>%2$s</strong>. <a target="_blank" href="%3$s">Preview %4$s</a>', 'memberpress'),
-                            $singular_name, date_i18n( __( 'M j, Y @ G:i' , 'memberpress'), strtotime( $post->post_date ) ),
+                            $singular_name, date_i18n('M j, Y @ G:i', strtotime($post->post_date), true),
                             esc_url( get_permalink($post_ID) ), $singular_name );
       $messages[$slug][10] = sprintf( __('%1$s draft updated. <a target="_blank" href="%2$s">Preview %3$s</a>', 'memberpress'),
                              $singular_name, esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ),
@@ -65,7 +65,7 @@ abstract class MeprCptCtrl extends MeprBaseCtrl
     else {
       $messages[$slug][8] = sprintf( __('%s submitted.', 'memberpress'), $singular_name );
       $messages[$slug][9] = sprintf( __('%1$s scheduled for: <strong>%2$s</strong>.', 'memberpress'), $singular_name,
-                            date_i18n( __( 'M j, Y @ G:i' , 'memberpress'), strtotime( $post->post_date ) ) );
+                            date_i18n('M j, Y @ G:i', strtotime($post->post_date), true) );
       $messages[$slug][10] = sprintf( __('%s draft updated.', 'memberpress'), $singular_name );
     }
 

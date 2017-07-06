@@ -13,8 +13,8 @@
   <div class="mepr-login-form-wrap">
   <?php if($show_login): ?>
     <?php echo $form; ?>
-  <?php else: ?>
-    <span class="mepr-login-link"><a href="<?php echo $mepr_options->login_page_url(); ?>"><?php echo MeprHooks::apply_filters('mepr-unauthorized-login-link-text',__('Login', 'memberpress')); ?></a></span>
+  <?php elseif(is_singular()): //Let's not show the annoying login link on non singular pages ?>
+    <span class="mepr-login-link"><a href="<?php echo $mepr_options->login_page_url(); ?>"><?php echo MeprHooks::apply_filters('mepr-unauthorized-login-link-text',_x('Login', 'ui', 'memberpress')); ?></a></span>
   <?php endif; ?>
   </div>
 <?php endif; ?>

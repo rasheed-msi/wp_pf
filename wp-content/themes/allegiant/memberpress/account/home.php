@@ -2,9 +2,9 @@
         die('You are not allowed to call this page directly.');
     } ?>
 <?php do_action('mrt_edit_user_profile', $mepr_current_user->ID); ?>
-<?php if ($_GET['action'] == 'contact'): ?>
+<?php if (isset($_GET['action']) && $_GET['action'] == 'contact'): ?>
     <?php include 'contact.php';; ?>
-<?php elseif ($_GET['action'] == 'couple'): ?>
+<?php elseif (isset($_GET['action']) && $_GET['action'] == 'couple'): ?>
     <?php include 'couple.php';; ?>
 <?php else: ?>
     

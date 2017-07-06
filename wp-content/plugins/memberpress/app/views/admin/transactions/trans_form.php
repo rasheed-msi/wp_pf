@@ -22,7 +22,7 @@
   <th scope="row"><label for="product_id"><?php _e('Membership*:', 'memberpress'); ?></label></th>
   <td>
     <?php $prds = get_posts(array('post_type' => 'memberpressproduct', 'post_status' => 'publish', 'numberposts' => -1)); ?>
-    <select name="product_id" id="product_id">
+    <select name="product_id" id="product_id" class="mepr-membership-dropdown" data-expires_at_field_id="expires_at">
       <?php foreach($prds as $product): ?>
         <option value="<?php echo $product->ID; ?>" <?php selected( $txn->product_id, $product->ID ); ?>><?php echo $product->post_title; ?></option>
       <?php endforeach; ?>
@@ -70,18 +70,18 @@
 </tr>
 
 <tr valign="top">
-  <th scope="row"><label><?php _e('Created:', 'memberpress'); ?></label></th>
+  <th scope="row"><label><?php _e('Created (UTC/GMT):', 'memberpress'); ?></label></th>
   <td>
-    <input type="text" name="created_at" id="created_at" value="<?php echo MeprAppHelper::format_date($txn->created_at, date('Y-m-d'), 'Y-m-d'); ?>" class="regular-text mepr-date-picker"/>&nbsp;<a href="#" class="mepr-today-button button" data-id="created_at"><?php _e('Today', 'memberpress'); ?></a>
-    <p class="description"><?php _e('The date that the transaction was created on.', 'memberpress'); ?></p>
+    <?php MeprTransactionsHelper::transaction_created_at_field( 'created_at', $txn->created_at ); ?>
+    <p class="description"><?php _e('The date that the transaction was created on. This field is displayed in UTC/GMT.', 'memberpress'); ?></p>
   </td>
 </tr>
 
 <tr valign="top">
-  <th scope="row"><label for="expires_at"><?php _e('Expiration Date:', 'memberpress'); ?></label></th>
+  <th scope="row"><label for="expires_at"><?php _e('Expiration Date (UTC/GMT):', 'memberpress'); ?></label></th>
   <td>
-    <input type="text" name="expires_at" id="expires_at" value="<?php echo MeprAppHelper::format_date($txn->expires_at, '', 'Y-m-d'); ?>" class="regular-text mepr-date-picker"/>&nbsp;<a href="#" class="mepr-default-expiration-button button"><?php _e('Default', 'memberpress'); ?></a>&nbsp;<a href="#" class="mepr-lifetime-expiration-button button"><?php _e('Lifetime', 'memberpress'); ?></a>
-    <p class="description"><?php _e('The date that the transaction will expire. This is used to determine how long the user will have access to the membership until another transaction needs to be made.', 'memberpress'); ?></p>
+    <?php MeprTransactionsHelper::transaction_expires_at_field( 'expires_at', 'product_id', 'created_at', $txn->expires_at ); ?>
+    <p class="description"><?php _e('The date that the transaction will expire. This is used to determine how long the user will have access to the membership until another transaction needs to be made. This field is displayed in UTC/GMT', 'memberpress'); ?></p>
     <p class="description"><?php _e('<b>Note:</b> Blank indicates a <b>lifetime</b> expiration.','memberpress'); ?></p>
   </td>
 </tr>

@@ -20,7 +20,7 @@
   <iframe src="//www.youtube.com/embed/2KZAmkiuTVM" width="640" height="360" allowfullscreen="" frameborder="0"></iframe>
 
   <h3><?php _e('Setting Up Stripe', 'memberpress'); ?></h3>
-  <iframe src="//www.youtube.com/embed/qXBWB1eCMPU" width="640" height="360" allowfullscreen="" frameborder="0"></iframe>
+  <iframe src="//www.youtube.com/embed/fYkw9fT7JcE" width="640" height="360" allowfullscreen="" frameborder="0"></iframe>
 
   <h3><?php _e('Setting Up Authorize.net', 'memberpress'); ?></h3>
   <iframe width="640" height="360" src="//www.youtube.com/embed/DqU9PN_i0ro" frameborder="0" allowfullscreen></iframe>
@@ -29,14 +29,14 @@
   <iframe src="//www.youtube.com/embed/Hiu9baayIq0" width="640" height="360" allowfullscreen="" frameborder="0"></iframe>
 
   <h3><?php _e('Memberships', 'memberpress'); ?></h3>
-  <iframe src="//www.youtube.com/embed/cO44Krz2hCQ" width="640" height="360" allowfullscreen="" frameborder="0"></iframe>
+  <iframe src="//www.youtube.com/embed/aceQIWMez00" width="640" height="360" allowfullscreen="" frameborder="0"></iframe>
 
   <h3><?php _e('Rules', 'memberpress'); ?></h3>
-  <iframe src="//www.youtube.com/embed/vvAvJsH97yw" width="640" height="360" allowfullscreen="" frameborder="0"></iframe>
+  <iframe src="//www.youtube.com/embed/HgUjUL5GqeU" width="640" height="360" allowfullscreen="" frameborder="0"></iframe>
 
   <h3><?php _e('Coupons', 'memberpress'); ?></h3>
-  <iframe width="640" height="360" src="//www.youtube.com/embed/GFFTIplO9IM" frameborder="0" allowfullscreen></iframe>
+  <iframe width="640" height="360" src="//www.youtube.com/embed/4h6gkupcAjk" frameborder="0" allowfullscreen></iframe>
 
   <h3><?php _e('Reports', 'memberpress'); ?></h3>
-  <iframe width="640" height="360" src="//www.youtube.com/embed/6XYQnEyo92A" frameborder="0" allowfullscreen></iframe>
+  <iframe width="640" height="360" src="//www.youtube.com/embed/OsjnNLIczsM" frameborder="0" allowfullscreen></iframe>
 </div>
