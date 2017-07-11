@@ -39,6 +39,7 @@ class MrtProfile extends MrtDbbase {
         $obj = parent::find($id, $key, __CLASS__);
         if (isset($obj->data)) {
             $obj->data['marital_status'] = (is_null($obj->data['couple_id'])) ? 'single' : 'couple';
+            $obj->data['display_name'] = $obj->data['first_name'] . ' ' . $obj->data['last_name'];
         }
         return $obj;
     }
@@ -55,6 +56,17 @@ class MrtProfile extends MrtDbbase {
         }
 
         return $error;
+    }
+
+    public function info() {
+        $where_key = (is_null($where_key)) ? $this->pkey : $where_key;
+        $id = (is_null($id)) ? $this->id : $id;
+
+        if (is_null($id)) {
+            return [];
+        }
+
+        return $this->link->get_row("SELECT * FROM {$this->table} WHERE {$where_key} = {$id}", ARRAY_A);
     }
 
 }

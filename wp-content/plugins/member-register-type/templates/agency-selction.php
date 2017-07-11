@@ -1,4 +1,4 @@
-<?php $agencies = State::get_approved_agencies_html_select(); ?>
+<?php $data = apply_filters('mrt_agency_selection', []) ?>
 <div>
     <h2>Agency Selection</h2>
     <form action="" method="post" >
@@ -11,7 +11,7 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($agencies as $key => $value): ?>
+                <?php foreach ($data['approved_agencies'] as $key => $value): ?>
                     <?php $selected = (in_array($key, $data['agencies'])) ? 'checked' : ''; ?>
                     <?php $default_selected = ($data['default'] == $key) ? 'checked' : ''; ?>
                     <tr>

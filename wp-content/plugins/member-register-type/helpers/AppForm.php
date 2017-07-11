@@ -228,15 +228,10 @@ class AppForm {
             'submit' => false,
             'fields' => [
                 'user_type' => ['value' => 'adoptive_family'],
-                'marital_status',
                 'first_name',
                 'last_name',
-                'gender',
                 'user_email',
                 'user_login',
-                'Country',
-                'mobile_num',
-                'pf_agency_id',
             ]
         ];
 
@@ -244,21 +239,17 @@ class AppForm {
         $form['fields'] = self::set_all_required($form['fields']);
         return $form;
     }
-    
+
     public static function adoptive_family_register_memberpress() {
         $form = [
             'form_name' => 'adoptive_family_register',
             'submit' => false,
             'fields' => [
                 'user_type' => ['value' => 'adoptive_family'],
-                'marital_status',
                 'first_name',
                 'last_name',
-                'gender',
                 'user_email',
                 'user_login',
-                'Country',
-                'mobile_num',
                 'pf_agency_id',
             ]
         ];

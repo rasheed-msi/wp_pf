@@ -4,11 +4,18 @@ add_shortcode('test-page', 'test_page');
 function test_page() {
 
     $test = null;
-    if(isset($test)){
+    if (isset($test)) {
         echo 'set';
-    }else{
+    } else {
         echo 'not set';
     }
+}
+
+add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
+
+function mrt_display_user_dashboard() {
+    $mrt_user = new MrtUser();
+    include MRT_TEMPLATE_PATH . '/user/dashboard.php';
 }
 
 add_filter('registration_errors', 'mrt_tml_registration_errors');
@@ -88,4 +95,21 @@ add_action('admin_menu', 'mrt_admin_menu_item');
 
 function mrt_admin_page_agencies() {
     include MRT_PLUGIN_PATH . 'templates/admin/agency.php';
+}
+
+add_filter('mrt_agency_selection', 'mrt_agency_selection_exec');
+
+function mrt_agency_selection_exec($data) {
+
+    if (isset($_POST['action']) && $_POST['action'] == 'agency_selection') {
+        $save_user = new MrtUser();
+        $save_user->add_user_multiple_agency($_POST['agencies']);
+        $save_user->profile->update(['pf_agency_id' => $_POST['default']]);
+    }
+
+    $user = new MrtUser();
+    $data['default'] = $user->profile->data['pf_agency_id'];
+    $data['agencies'] = $user->get_agencies();
+    $data['approved_agencies'] = State::get_approved_agencies_html_select();
+    return $data;
 }

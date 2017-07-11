@@ -144,7 +144,7 @@ LAYOUT
 
 
 /* HOMEPAGE TAGLINE */
-.tagline { padding:70px 0; background:rgba(0,0,0,0.4); font-size:1.5em; text-align:center; }
+.tagline { padding:180px 0; background:rgba(0,0,0,0.4); font-size:1.5em; text-align:center; }
 
 
 /* SECTIONS */
@@ -429,31 +429,31 @@ RESPONSIVE STYLES
 
 /* TABLET PORTRAIT */
 @media screen and (max-width: 800px){
-    
-	.header .logo { float:left; }
-	
-	.slider-slides .slide .slide-caption,
-	.slider-slides .slide .slide-image { float:none; width:auto; }
-	
-	.pagetitle .pagetitle-title { float:none; font-size:2em; }
-	.breadcrumb { float:none; }
+
+    .header .logo { float:left; }
+
+    .slider-slides .slide .slide-caption,
+    .slider-slides .slide .slide-image { float:none; width:auto; }
+
+    .pagetitle .pagetitle-title { float:none; font-size:2em; }
+    .breadcrumb { float:none; }
 }
 
 
 /* SMARTPHONE */
 @media only screen and (max-width: 600px){
-	
-	.topmenu { display:none; }
-	
-	.social { float:left; }
-	
-	.slider-slides .slide .slide-image { display:none; }
-	
-	/* NAVIGATION */
-	.menu-top { text-align:center;  }
-	.menu-top li { display:inline-block; }
-	.menu-top li a { margin:0 auto; }
-	
-	.footermenu { float:none; }
-	.menu-footer li a { margin:0 10px 10px 0; }
+
+    .topmenu { display:none; }
+
+    .social { float:left; }
+
+    .slider-slides .slide .slide-image { display:none; }
+
+    /* NAVIGATION */
+    .menu-top { text-align:center;  }
+    .menu-top li { display:inline-block; }
+    .menu-top li a { margin:0 auto; }
+
+    .footermenu { float:none; }
+    .menu-footer li a { margin:0 10px 10px 0; }
 }

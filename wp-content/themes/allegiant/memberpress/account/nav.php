@@ -3,7 +3,6 @@ if (!defined('ABSPATH')) {
     die('You are not allowed to call this page directly.');
 }
 ?>
-
 <div class="mp_wrapper">
     <div id="mepr-account-nav">
         <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('home'); ?>">
@@ -12,7 +11,7 @@ if (!defined('ABSPATH')) {
         <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('contact'); ?>">
             <a href="<?php echo MeprHooks::apply_filters('mepr_account-nav-payments-link', $account_url . $delim . 'action=contact'); ?>" id="mepr-account-payments"><?php _e('Contact', 'memberpress'); ?></a>
         </span>
-        
+
         <?php if (current_user_can('view_subscriptions_nav')): ?>
             <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('couple'); ?>">
                 <a href="<?php echo MeprHooks::apply_filters('mepr_account-nav-payments-link', $account_url . $delim . 'action=couple'); ?>" id="mepr-account-payments"><?php _e('Couple', 'memberpress'); ?></a>
@@ -25,6 +24,10 @@ if (!defined('ABSPATH')) {
             </span>
         <?php endif; ?>
         
+        <span class="mepr-nav-item <?php MeprAccountHelper::active_nav('agency-selection'); ?>">
+            <a href="<?php echo MeprHooks::apply_filters('mepr_account-nav-payments-link', $account_url . $delim . 'action=agency-selection'); ?>" id="mepr-account-payments">Agency Selection</a>
+        </span>
+
         <?php MeprHooks::do_action('mepr_account_nav', $mepr_current_user); ?>
         <span class="mepr-nav-item"><a href="<?php echo MeprUtils::logout_url(); ?>" id="mepr-account-logout"><?php _e('Logout', 'memberpress'); ?></a></span>
     </div>

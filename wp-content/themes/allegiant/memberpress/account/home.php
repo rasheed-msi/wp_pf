@@ -3,9 +3,11 @@
     } ?>
 <?php do_action('mrt_edit_user_profile', $mepr_current_user->ID); ?>
 <?php if (isset($_GET['action']) && $_GET['action'] == 'contact'): ?>
-    <?php include 'contact.php';; ?>
+    <?php include 'contact.php'; ?>
 <?php elseif (isset($_GET['action']) && $_GET['action'] == 'couple'): ?>
-    <?php include 'couple.php';; ?>
+    <?php include 'couple.php'; ?>
+<?php elseif (isset($_GET['action']) && $_GET['action'] == 'agency-selection'): ?>
+    <?php include MRT_TEMPLATE_PATH . '/agency-selction.php'; ?>
 <?php else: ?>
     
     <div class="mp_wrapper">

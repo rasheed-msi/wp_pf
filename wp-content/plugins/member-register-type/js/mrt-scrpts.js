@@ -48,14 +48,23 @@ jQuery(function ($) {
             });
 
             if (!defaultChecked) {
-                
+
                 $('tbody .ch-agency').each(function () {
                     if (this.checked) {
                         $(this).parents("tr").find('[name="default"]').prop("checked", true);
-                    } 
+                    }
                 });
             }
         }
+    });
+
+    $("[name='user_email']").change(function () {
+        var email = $(this).val();
+        $("[name='user_login']").val(email);
+    });
+    $("[name='agency_email']").change(function () {
+        var email = $(this).val();
+        $("[name='user_email']").val(email);
     });
 
 });
