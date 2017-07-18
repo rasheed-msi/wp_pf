@@ -1,0 +1,209 @@
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-responsive form-group" ng-controller="aboutUsController">
+
+		<table class="table" width=100%>
+			<tr>
+				<td align="right" style="float:right">
+					<input type="button" value="save" ng-click="submitAboutUs()" style="padding:0.8em; background-color:#f5b3d1; width:5em"/>
+				</td>
+			</tr>
+		</table>
+
+		  <table class="table">
+		    <thead>
+		      <tr>
+		        <th>Person 1</th>
+		        <th>Person 2</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		    	<tr><td colspan="2"><label>Name</label></td><tr>
+		    	<tr>
+		    		<td><input type="text" ng-model="account.profiles[0].name" class="form-control"/></td>
+		    		<td><input type="text" ng-model="account.profiles[1].name" class="form-control"/></td>
+		    	</tr>
+		    	<tr>
+		    		<td colspan="2">Date of Birth</td>
+		    	</tr>
+		    	<tr>
+		    		<td>
+		    			<p class="input-group">
+		    			<input type="text" class="form-control" uib-datepicker-popup="yyyy-MM-dd" ng-model="dt" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+		    			<span class="input-group-btn">
+			            	<button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+			          	</span>
+			          </p>
+		    		</td>
+		    		<td>
+		    			<p class="input-group">
+		    			<input type="text" class="form-control" uib-datepicker-popup="yyyy-MM-dd" ng-model="dt2" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+		    			<span class="input-group-btn">
+			            	<button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
+			          	</span>
+			          </p>
+			      </td>
+		    	</tr>
+		    	<tr><td colspan="2">Gender</td></tr>
+		    	<tr>
+		    		<td>
+		    			<select ng-model="ffields.Profiles.Sex" class="form-control">
+		    				<option value="male">Man</option>
+		    				<option value="female">Woman</option>
+		    			</select>
+		    		</td>
+		    		<td>
+		    			<select ng-model="ffields.Couples.Sex" class="form-control">
+		    				<option value="male">Man</option>
+		    				<option value="female">Woman</option>
+		    			</select>
+		    		</td>
+		    	</tr>
+
+		    	<tr><td colspan="2">Ethnicity</td></tr>
+		    	<tr>
+		    		<td>
+		    			<select ng-model="ffields.Profiles.Ethnicity" class="form-control">
+		    					<option ng-repeat="option in ffields.Ethnicity" value="{{option.Value}}">{{option.Value}}</option>
+		    			</select>
+		    			
+		    		</td>
+		    		<td>
+		    			<select ng-model="ffields.Couples.Ethnicity" class="form-control">
+		    					<option ng-repeat="option in ffields.Ethnicity" value="{{option.Value}}">
+		    						{{option.Value}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    	</tr>
+
+		    	<tr><td colspan="2">Education</td></tr>
+		    		<tr>
+		    		<td>
+		    			<select ng-model="ffields.Profiles.Education" class="form-control">
+		    					<option ng-repeat="option in ffields.Education" value="{{option.Value}}">
+		    						{{option.Value}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    		<td>
+		    			<select ng-model="ffields.Couples.Education" class="form-control">
+		    					<option ng-repeat="option in ffields.Education" value="{{option.Value}}">
+		    						{{option.Value}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    	</tr>
+
+		    	<tr><td colspan="2">Religion</td></tr>
+		    		<tr>
+		    		<td>
+		    			<select ng-model="ffields.Profiles.Religion"  class="form-control">
+		    					<option ng-repeat="option in ffields.Religion" value="{{option.Value}}">
+		    						{{option.Value}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    		<td>
+		    			<select ng-model="ffields.Couples.Religion" class="form-control">
+		    					<option ng-repeat="option in ffields.Religion" value="{{option.Value}}">
+		    						{{option.Value}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    	</tr>
+		    	<tr><td colspan="2">Occupation</td></tr>
+		    	<tr>
+					<td><input type="text" ng-model="ffields.Profiles.Occupation"  class="form-control"/></td>
+					<td><input type="text" ng-model="ffields.Couples.Occupation" class="form-control" /></td>
+				</tr>
+		    	<tr>
+					<td>HOW LONG YOU HAVE BEEN WAITING</td>
+					<td>HOW MANY CHILDREN DO YOU HAVE?</td>
+				</tr>
+		    	<tr>
+					<td>
+		    		<select ng-model="ffields.Profiles.waiting" class="form-control">
+		    			<option ng-repeat="option in ffields.waiting" value="{{option.waiting_text}}">
+		    				{{option.waiting_text}}
+		    			</option>
+		    		</select>	
+
+		    	</td>
+				<td>
+		    		<select ng-model="ffields.Profiles.noofchildren" class="form-control">
+		    			<option ng-repeat="option in ffields.noofchildren" value="{{option.value}}">
+		    				{{option.text}}
+		    			</option>
+		    		</select>	
+
+		    	</td></tr>
+		    	<tr>
+					<td>TYPE OF CHILDREN</td>
+					<td>WHAT FAITH(S) ARE YOU?</td>
+				</tr>
+		    	<tr><td>
+		    		<select ng-model="ffields.Profiles.childrenType" class="form-control">
+		    			<option ng-repeat="option in childrentype" value="{{option.value}}">{{option.text}}</option>
+		    		</select>	
+
+		    	</td>
+				<td >
+		    		
+
+		    	</td>
+				</tr>
+				<tr><td >PROFILE NUMBER</td></tr>
+				<tr>
+					<td>
+			    		<input type="text" ng-model="ffields.profile_number" class="form-control" />
+			    	</td>
+				</tr>
+		    	<tr>
+				<td>RELATIONSHIP STATUS</td>
+				<td>FAMILY STRUCTURE</td>
+			</tr>
+			<tr>
+				<td>
+					<select class="form-control" ng-model="ffields.Profiles.RelationshipStatus">
+						<option ng-repeat="option in ffields.relationships" value="{{option.relationship_status}}">
+							{{option.relationship_status}}
+						</option>
+					</select>
+
+				</td>
+				<td>
+					<select class="form-control" ng-model="ffields.Profiles.FamilyStructure">
+						<option ng-repeat="option in ffields.family_structure" value="{{option.family_structure}}">
+							{{option.family_structure}}
+						</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+
+		    </tbody>
+		  </table>
+		  <table class="table" width=100%>
+			<tr>
+				<td align="right" style="float:right">
+					<input type="button" value="save"  style="padding:0.8em; background-color:#f5b3d1; width:5em"/>
+				</td>
+			</tr>
+		</table>
+</div>		  

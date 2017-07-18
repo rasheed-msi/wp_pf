@@ -1,0 +1,17 @@
+.join-link a {
+    display: block;
+    
+    height: 100px;
+    width: 100px;
+    float: left;
+    padding: 40px 30px;
+    background-color: #00b9eb;
+    color: #FFF;
+    margin: 2px;
+    text-align: center;
+    
+}
+
+.join-link a:hover {
+    opacity: 0.8;
+}
