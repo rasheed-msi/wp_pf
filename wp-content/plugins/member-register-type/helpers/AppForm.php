@@ -230,8 +230,6 @@ class AppForm {
                 'user_type' => ['value' => 'adoptive_family'],
                 'first_name',
                 'last_name',
-                'user_email',
-                'user_login',
             ]
         ];
 

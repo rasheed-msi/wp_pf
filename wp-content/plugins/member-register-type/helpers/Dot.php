@@ -127,7 +127,7 @@ class Dot {
             if (in_array($key, $banned_roles)) {
                 continue;
             }
-            
+
             if (!in_array($key, $required_roles)) {
                 remove_role($key);
             }
@@ -187,6 +187,26 @@ class Dot {
     public static function get_states($country_id) {
         global $wpdb;
         return $wpdb->get_results("SELECT state_id, State FROM pf_states WHERE country_id = {$country_id}", ARRAY_A);
+    }
+
+    public static function log($string) {
+        
+        if (is_array($string)) {
+            ob_start();
+            print_r($string);
+            $string = ob_get_clean();
+        }
+
+        $handle = fopen(MRT_PLUGIN_PATH . '/logs/logs.html', 'a+');
+        fwrite($handle, $string . "\n");
+        fclose($handle);
+    }
+
+    public static function clear_log() {
+        $handle = fopen(MRT_PLUGIN_PATH . '/logs/logs.html', 'w');
+        fwrite($handle, '');
+        fclose($handle);
+        
     }
 
 }

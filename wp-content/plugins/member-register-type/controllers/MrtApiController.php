@@ -12,11 +12,28 @@ class MrtApiController extends WP_REST_Controller {
             'base' => '/states/(?P<id>\d+)',
             'format' => '/states/{{id}}',
         ],
+        'user_login' => [
+            'base' => '/login',
+            'format' => '/login',
+        ],
+        'user_logout' => [
+            'base' => '/logout',
+            'format' => '/logout',
+        ],
+        'get_current_user' => [
+            'base' => '/current-user',
+            'format' => '/current-user',
+        ],
+        'get_user_token' => [
+            'base' => '/token-user/(?P<user_id>\d+)',
+            'format' => '/token-user',
+        ],
     ];
+    private $auth;
 
     public function __construct() {
-        global $wpdb;
-        $this->link = $wpdb;
+
+        $this->auth = new MrtAuth();
         add_action('rest_api_init', [$this, 'register_routes']);
         //$this->state = new MrtMidController();
     }
@@ -45,7 +62,7 @@ class MrtApiController extends WP_REST_Controller {
      */
     public function register_routes() {
         $version = '1';
-        $namespace = 'mrt-vendor/v' . $version;
+        $namespace = 'mrt/v' . $version;
         $base = 'route';
 
         register_rest_route('mrt/v1', self::base('get_states'), array(
@@ -54,12 +71,79 @@ class MrtApiController extends WP_REST_Controller {
             'args' => array(
             ),
         ));
+
         register_rest_route('mrt/v1', self::base('set_agency_status_approve'), array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => array($this, 'set_agency_status_approve'),
             'args' => array(
             ),
         ));
+
+        register_rest_route($namespace, self::base('user_login'), array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => array($this, 'user_login'),
+            'args' => array(
+            ),
+        ));
+        register_rest_route($namespace, self::base('user_logout'), array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => array($this, 'user_logout'),
+            'args' => array(
+            ),
+        ));
+
+        register_rest_route($namespace, self::base('get_current_user'), [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => [$this, 'get_current_user'],
+        ]);
+        register_rest_route($namespace, self::base('get_user_token'), [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => [$this, 'get_user_token'],
+        ]);
+    }
+
+    public function get_user_token($request) {
+        $user_id = $request['user_id'];
+        $data['user_id'] = $user_id;
+        $data['_token'] = $this->auth->create_token($user_id);
+        return new WP_REST_Response($data, 200);
+    }
+
+    function get_current_user($request) {
+        // $params = $request->get_params();
+
+        $data['token_m'] = $this->auth->validate_token();
+
+        $data['user_id'] = get_current_user_id();
+        return new WP_REST_Response($data, 200);
+    }
+
+    function user_login($request) {
+
+        $creds['user_login'] = $request['username'];
+        $creds['user_password'] = $request['password'];
+
+        $user = wp_signon($creds);
+
+        if (!is_wp_error($user)) {
+            $auth = new MrtAuth();
+            $token = $auth->set_token($user->ID);
+            return new WP_REST_Response(['user' => $user->user_login, 'token' => $token], 200);
+        }
+
+        return new WP_REST_Response([], 401);
+    }
+
+    function user_logout($request) {
+
+        $user = $this->auth->validate_token();
+
+        if ($user) {
+            $this->auth->clear_token($user->ID);
+            return new WP_REST_Response(null, 200);
+        }
+
+        return new WP_REST_Response(null, 401);
     }
 
     function get_states($request) {

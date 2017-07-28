@@ -15,22 +15,25 @@ define('MRT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MRT_TEMPLATE_PATH', MRT_PLUGIN_PATH . '/templates');
 define('MRT_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
-include_once MRT_PLUGIN_PATH . 'controllers/Gform.php';
-include_once MRT_PLUGIN_PATH . 'controllers/FormHtmlJq.php';
-include_once MRT_PLUGIN_PATH . 'controllers/ListHtml.php';
-include_once MRT_PLUGIN_PATH . 'controllers/MrtMidController.php';
-include_once MRT_PLUGIN_PATH . 'controllers/MrtApiController.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Stock.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Dot.php';
 include_once MRT_PLUGIN_PATH . 'helpers/AppForm.php';
 include_once MRT_PLUGIN_PATH . 'helpers/State.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Temp.php';
 include_once MRT_PLUGIN_PATH . 'models/MrtDbbase.php';
-include_once MRT_PLUGIN_PATH . 'models/MrtProfile.php';
-include_once MRT_PLUGIN_PATH . 'models/MrtContact.php';
-include_once MRT_PLUGIN_PATH . 'models/MrtRelationAgencyUser.php';
-include_once MRT_PLUGIN_PATH . 'models/MrtAgencies.php';
-include_once MRT_PLUGIN_PATH . 'models/MrtUser.php';
+
+// include models
+foreach (glob(MRT_PLUGIN_PATH . 'models/*.php') as $file) {
+    include_once $file;
+}
+
+// include controllers
+foreach (glob(MRT_PLUGIN_PATH . 'controllers/*.php') as $file) {
+    include_once $file;
+}
+
+
+
 include_once MRT_PLUGIN_PATH . 'dbconversion/TableDef.php';
 include_once MRT_PLUGIN_PATH . 'dbconversion/DataTransfer.php';
 include_once MRT_PLUGIN_PATH . 'inc/functions.php';
@@ -43,8 +46,16 @@ function mrt_add_user_scripts() {
     wp_enqueue_style('mrt-styles', MRT_PLUGIN_URL . 'css/styles.css');
     wp_enqueue_style('mrt-data-table-style', 'https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css');
     wp_enqueue_script('mrt-data-table-scripts', 'https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js', array('jquery'), '1.0.0', true);
-    wp_enqueue_script('mrt-scripts', MRT_PLUGIN_URL . 'js/mrt-scrpts.js', array('jquery'), '1.0.0', true);
     wp_enqueue_script('mrt-app-const-scripts', MRT_PLUGIN_URL . 'js/appConst.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-filestack-scripts', 'https://static.filestackapi.com/v3/filestack.js', array('jquery'), '1.0.0', true);
+
+    wp_register_script('mrt-scripts', MRT_PLUGIN_URL . 'js/mrt-scrpts.js', array('jquery'), null, true);
+    wp_localize_script('mrt-scripts', 'myLocalized', array(
+        'partials' => 'test',
+        'nonce' => wp_create_nonce('wp_rest')
+            )
+    );
+    wp_enqueue_script('mrt-scripts');
 }
 
 function mrt_admin_scripts() {

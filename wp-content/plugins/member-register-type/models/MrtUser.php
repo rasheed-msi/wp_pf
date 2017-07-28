@@ -121,7 +121,7 @@ class MrtUser {
     }
 
     public function create_profile($data) {
-
+     
         if (!isset($this->user_id)) {
             return false;
         }

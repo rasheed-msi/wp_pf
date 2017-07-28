@@ -58,15 +58,20 @@ class MrtProfile extends MrtDbbase {
         return $error;
     }
 
-    public function info() {
-        $where_key = (is_null($where_key)) ? $this->pkey : $where_key;
-        $id = (is_null($id)) ? $this->id : $id;
-
-        if (is_null($id)) {
-            return [];
-        }
-
-        return $this->link->get_row("SELECT * FROM {$this->table} WHERE {$where_key} = {$id}", ARRAY_A);
+    public function set_info() {
+        
+        $this->info = $this->link->get_row(
+                "SELECT "
+                . "e.ethnicity ethnicity_id, "
+                . "ed.education_text education_id, "
+                . "rel.Religion religion_id "
+                . "FROM {$this->table} p "
+                . "LEFT JOIN pf_ethnicity e ON e.ethnicity_id = p.ethnicity_id "
+                . "LEFT JOIN pf_education ed ON ed.education_id = p.education_id "
+                . "LEFT JOIN pf_religions rel ON rel.ReligionId = p.religion_id "
+                . "WHERE p.pf_profile_id = {$this->id} ", ARRAY_A
+        );
+        
     }
 
 }

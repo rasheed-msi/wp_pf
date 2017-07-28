@@ -34,4 +34,17 @@ class MrtContact extends MrtDbbase {
         return parent::find($id, $key, __CLASS__);
     }
 
+    public function set_info() {
+
+        $this->info = $this->link->get_row(
+                "SELECT "
+                . "st.State State, "
+                . "co.country Country "
+                . "FROM {$this->table} p "
+                . "LEFT JOIN pf_states st ON st.state_id = c.State "
+                . "LEFT JOIN pf_countries co ON co.country_id = c.Country "
+                . "WHERE c.{$this->pkey} = {$this->id} ", ARRAY_A
+        );
+    }
+
 }
