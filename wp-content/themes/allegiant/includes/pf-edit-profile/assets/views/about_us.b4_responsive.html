@@ -1,0 +1,195 @@
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-responsive form-group" ng-controller="aboutUsController">
+
+		<table class="table" width=100%>
+			<tr>
+				<td align="right" style="float:right">
+					<input type="button" value="save" ng-click="submitAboutUs()" style="padding:0.8em; background-color:#f5b3d1; width:5em"/>
+				</td>
+			</tr>
+		</table>
+
+		  <table class="table">
+		    <thead>
+		      <tr>
+		        <th>Person 1</th>
+		        <th>Person 2</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		    	<tr><td colspan="2"><label>Name</label></td><tr>
+		    	<tr>
+		    		<td><input type="text" ng-model="account.profiles[0].name" class="form-control"/></td>
+		    		<td><input type="text" ng-model="account.profiles[1].name" class="form-control"/></td>
+		    	</tr>
+		    	<tr>
+		    		<td colspan="2">Date of Birth</td>
+		    	</tr>
+		    	<tr>
+		    		<td>
+		    			<p class="input-group">
+		    			<input type="text" class="form-control" uib-datepicker-popup="yyyy-MM-dd" ng-model="dt" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+		    			<span class="input-group-btn">
+			            	<button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+			          	</span>
+			          </p>
+		    		</td>
+		    		<td>
+		    			<p class="input-group">
+		    			<input type="text" class="form-control" uib-datepicker-popup="yyyy-MM-dd" ng-model="dt2" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+		    			<span class="input-group-btn">
+			            	<button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
+			          	</span>
+			          </p>
+			      </td>
+		    	</tr>
+		    	<tr><td colspan="2">Gender</td></tr>
+		    	<tr>
+		    		<td>
+		    			<select ng-model="account.profiles[0].gender" class="form-control">
+		    				<option value="male">Man</option>
+		    				<option value="female">Woman</option>
+		    			</select>
+		    		</td>
+		    		<td>
+		    			<select ng-model="account.profiles[1].gender" class="form-control">
+		    				<option value="male">Man</option>
+		    				<option value="female">Woman</option>
+		    			</select>
+		    		</td>
+		    	</tr>
+
+		    	<tr><td colspan="2">Ethnicity</td></tr>
+		    	<tr>
+		    		<td>
+		    			<select ng-model="account.profiles[0].ethnicity" class="form-control">
+		    					<option ng-repeat="option in data_options.ethnicity" value="{{option.selectVal}}">
+		    						{{option.selectText}}
+		    					</option>
+		    			</select>
+		    			
+		    			
+		    		</td>
+		    		<td>
+		    			<select ng-model="account.profiles[1].ethnicity" class="form-control">
+		    					<option ng-repeat="option in data_options.ethnicity" value="{{option.selectVal}}">
+		    						{{option.selectText}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    	</tr>
+
+		    	<tr><td colspan="2">Education</td></tr>
+		    		<tr>
+		    		<td>
+		    			<select ng-model="account.profiles[0].education" class="form-control">
+		    					<option ng-repeat="option in data_options.education" value="{{option.selectVal}}">
+		    						{{option.selectText}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    		<td>
+		    			<select ng-model="account.profiles[1].education" class="form-control">
+		    					<option ng-repeat="option in data_options.education" value="{{option.selectVal}}">
+		    						{{option.selectText}}
+		    					</option>
+		    			</select>
+
+		    			
+		    		</td>
+		    	</tr>
+
+		    	<tr><td colspan="2">Religion</td></tr>
+		    		<tr>
+		    		<td>
+		    			<select ng-model="account.profiles[0].religion"  class="form-control">
+		    					<option ng-repeat="option in data_options.religion" value="{{option.selectVal}}">
+		    						{{option.selectText}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    		<td>
+		    			<select ng-model="account.profiles[1].religion" class="form-control">
+		    					<option ng-repeat="option in data_options.religion" value="{{option.selectVal}}">
+		    						{{option.selectText}}
+		    					</option>
+		    			</select>
+		    			
+		    		</td>
+		    	</tr>
+		    	<tr><td colspan="2">Occupation</td></tr>
+		    	<tr>
+					<td><input type="text" ng-model="ffields.Profiles.Occupation"  class="form-control"/></td>
+					<td><input type="text" ng-model="ffields.Couples.Occupation" class="form-control" /></td>
+				</tr>
+		    	<tr>
+					<td>HOW LONG YOU HAVE BEEN WAITING</td>
+					<td>HOW MANY CHILDREN DO YOU HAVE?</td>
+				</tr>
+		    	<tr>
+					<td>
+		    		<select ng-model="account.waiting" class="form-control">
+		    			<option ng-repeat="option in data_options.waiting" value="{{option.selectVal}}">
+		    				{{option.selectText}}
+		    			</option>
+		    		</select>	
+
+		    	</td>
+				<td>
+		    		<select ng-model="account.children" class="form-control">
+		    			<option ng-repeat="option in data_options.children" value="{{option.selectVal}}">
+		    				{{option.selectText}}
+		    			</option>
+		    		</select>	
+
+		    	</td></tr>
+		    	
+						    	<tr>
+				
+				<td>FAMILY STRUCTURE</td>
+				<td>WHAT STYLE OF HOUSE DO YOU OWN?</td>
+			</tr>
+			<tr>
+				
+				<td>
+					<select class="form-control" ng-model="account.family_structure">
+						<option ng-repeat="option in data_options.family_structure" value="{{option.selectVal}}">
+							{{option.selectText}}
+						</option>
+					</select>
+				</td>
+				<td>
+					<select class="form-control" ng-model= "account.house_style">
+						<option ng-repeat="option in data_options.residency" value="{{option.selectVal}}">
+							{{option.selectText}}
+						</option>
+					</select>
+				
+				</td>
+			</tr>
+			<tr>
+				<td>
+
+		    </tbody>
+		  </table>
+		  <table class="table" width=100%>
+			<tr>
+				<td align="right" style="float:right">
+					<input type="button" value="save"  style="padding:0.8em; background-color:#f5b3d1; width:5em"/>
+				</td>
+			</tr>
+		</table>
+</div>		  

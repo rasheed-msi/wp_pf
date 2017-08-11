@@ -1,4 +1,6 @@
 nbproject/*
+parentfinder_back/*
+wp_pf/*
 *.log
 wp-config.php
 wp-content/advanced-cache.php

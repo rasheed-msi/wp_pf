@@ -27,3 +27,15 @@ require_once($include_path.'setup.php');
 //Include Welcome Screen
 require get_template_directory() . '/core/welcome-screen/welcome-page-setup.php';
 
+//Rasheed changes
+require get_template_directory() . '/includes/gen-inc.php';
+require get_template_directory() . '/includes/pf-post-types.php';
+require get_template_directory() . '/includes/pf-letters.php';
+require get_template_directory() . '/includes/pf-journals.php';
+require get_template_directory() . '/includes/pf-manage-families.php';
+require get_template_directory() . '/includes/pf-edit-profile-functions.php';
+require get_template_directory() . '/includes/pf-edit-profile-api-functions.php';
+
+
+
+
