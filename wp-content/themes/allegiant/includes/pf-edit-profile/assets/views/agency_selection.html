@@ -33,21 +33,36 @@
     }
 
     button.close{margin-top: -25px;width: 30px;position: relative;font-size: 30px;color: red;font-weight: 900;}
+
+    .add-on .input-group-btn > .btn {
+      border-left-width:0;left:-2px;
+      -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    }
+
+    .input-group.add-on{ padding: 0 0 25px 25px;}
+
 </style>
 <div class="container-fluid" ng-controller="agencySelectionCntrl"  ng-click="$parent.newFn(agencyselection.$dirty, 1)">
     <form class="form"  name="agencyselection" ng-submit="submit()">
         <div class ="row" style="margin-top: 10px; margin-bottom:25px">
             <div class="col-sm-12">
                 <div style="float: right">
-                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" ng-disabled="disabled" id="cancel1"/>&nbsp;&nbsp;
-                    <input ng-if="show" type="submit" value="SAVE"  class="save_btn" ng-disabled="disabled" id="save1"/></div>
+                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" ng-disabled="disabled" id="cancel3"/>&nbsp;&nbsp;
+                    <input ng-if="show" type="submit" value="SAVE"  class="save_btn" ng-disabled="disabled" id="save3"/></div>
             </div>
         </div>
         <div class="row margins" ng-show="showAgencyBlock">
             <div class="col-xs-5">
-                <div style="max-height: 500px;overflow: auto;">
+                <div class="input-group add-on">
+                    <input class="form-control" placeholder="Search Agency ..." ng-model="searchAgency" type="text">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="filter = searchAgency.length > 0 ? searchAgency: '';resultsHidden = searchAgency.length > 0 ? true :false;"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+                <div style="max-height: 500px;overflow: auto;" ng-show="resultsHidden">
                     <ul class="list-group checked-list-box">
-                        <li class="checkbox list-group-item" ng-repeat="agency in agencyList">
+                        <li class="checkbox list-group-item" ng-repeat="agency in agencyList | filter:{agencyName:filter}" ng-cloak>
                             <label for="adopt_{{agency.agencyId}}">
                                 <input type="checkbox" id="adopt_{{agency.agencyId}}"  ng-model="agency.selected" ng-change="agencyCheck();">{{agency.agencyName}}
                                 <!--<input type="checkbox" id="UNIQUELABEL{{::$id}}"  ng-checked="agency.selected === 1" data-checklist-model="selectedAgencies" data-checklist-value="agency" ng-change="agencyCheck();">{{agency.agencyName}}-->
@@ -79,8 +94,8 @@
         <div class ="row" style="margin-top: 25px; margin-bottom:15px">
             <div class="col-sm-12">
                 <div style="float: right">
-                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" id="cancel_bottom1" ng-disabled="disabled"/>&nbsp;&nbsp;
-                    <input type="submit" ng-if="show" value="SAVE"  class="save_btn" id="save_bottom1" ng-disabled="disabled"/>
+                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" id="cancel_bottom3" ng-disabled="disabled"/>&nbsp;&nbsp;
+                    <input type="submit" ng-if="show" value="SAVE"  class="save_btn" id="save_bottom3" ng-disabled="disabled"/>
                 </div>
             </div>
         </div>

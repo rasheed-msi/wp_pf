@@ -550,6 +550,7 @@ if (typeof edit_obj != 'undefined') {
             $scope.agencyList = [];
             $scope.selectedAgencies = [];
             $scope.showAgencyBlock = false;
+            $scope.resultsHidden = false;
             $scope.userId = 0;
             $http.get(agencySelectionGetUrl).then(function(response) {
                 $scope.agencyList = response.data.agencyList;
@@ -578,6 +579,12 @@ if (typeof edit_obj != 'undefined') {
 
 
                 var AgencyName = selectedAgency.agencyName;
+
+                if($scope.searchAgency.length <= 0){
+                    $scope.resultsHidden = false;
+                    $scope.filter = $scope.searchAgency;                    
+                }
+                
 
 
                 var modalInstance = $uibModal.open({
@@ -610,9 +617,6 @@ if (typeof edit_obj != 'undefined') {
                         var index = $scope.selectedAgencies.indexOf(selectedAgency);
                         $scope.selectedAgencies.splice(index, 1);
                     }
-
-
-
                 });
 
             };

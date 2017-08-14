@@ -719,7 +719,7 @@ class PFEditApi {
         $agencies = $this->wpdb->get_results($this->wpdb->prepare("SELECT a.pf_agency_id as agencyId, a.title as agencyName, "
                         . "au.pf_agency_user_id, au.user_status, au.created_date, au.approved_date, au.deleted_date, au.is_contact as isContact "
                         . "FROM $this->tbl_agencies a LEFT JOIN $this->tbl_agency_users au "
-                        . "ON a.pf_agency_id = au.pf_agency_id AND au.wp_user_id=%d ORDER BY a.pf_agency_id", array($this->user_ID)), ARRAY_A);
+                        . "ON a.pf_agency_id = au.pf_agency_id AND au.wp_user_id=%d ORDER BY agencyName", array($this->user_ID)), ARRAY_A);
         $agencyList = array();
         $selectedAgencyList = array();
         if (!empty($agencies)) {

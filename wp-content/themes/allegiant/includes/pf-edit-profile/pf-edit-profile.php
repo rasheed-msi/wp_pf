@@ -1,6 +1,7 @@
 <?php 
 //echo $_SESSION['logged_user_access_token'];exit;
 ?>
+<div class="grayIcons icoBuilder">FAMILY PROFILE BUILDER</div>
 <div id="profilebuilder" ng-app="ui.bootstrap.demo">
     <div>
         <div ng-controller="TabsCtrl">
