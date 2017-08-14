@@ -30,7 +30,7 @@ function pf_edit_profile_scripts() {
                 'childpref_posturl' => rest_url('/pf/api/v1/schildpreference'), 'getstates_url' => rest_url('/pf/api/v1/states'), 'template_root_path' => get_template_directory_uri() . '/includes/pf-edit-profile/',
                 'agencyselection_geturl' => rest_url('/pf/api/v1/agencylist'), 'agencyselection_posturl' => rest_url('/pf/api/v1/sagencylist'), 'agencydel_posturl' => rest_url('/pf/api/v1/dagencylist'),
                     ) );
-            wp_enqueue_script('pf-edit-script', null, null, 1.46789);
+            wp_enqueue_script('pf-edit-script', null, null, 1.46797);
     }
 }
 
