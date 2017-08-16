@@ -9,30 +9,30 @@ and open the template in the editor.
 */
 
 form.tab-form-demo .tab-pane {
-    margin: 20px 20px;
-}
-.uib-daypicker .btn, .input-group-btn .btn{
-    color:#000000 !important;
-}
-.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
-    border-top:0px !important;
-}
-.table>thead>tr>th{
-    border-bottom:0px !important;
-}
+        margin: 20px 20px;
+    }
+    .uib-daypicker .btn, .input-group-btn .btn{
+        color:#000000 !important;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+        border-top:0px !important;
+    }
+    .table>thead>tr>th{
+        border-bottom:0px !important;
+    }
 
-.input-disabled{
-    background-color:#FFF !important;
-} 
+    .input-disabled{
+        background-color:#FFF !important;
+    } 
 .unsaved{
-    color: red;
-    font-size: 11.5px;
-    /* float: left; */
-    margin-top: -40px;
-    float: right;
-    /* display: none;*/
-}
-
+        color: red;
+        font-size: 11.5px;
+        /* float: left; */
+        margin-top: -40px;
+        float: right;
+       /* display: none;*/
+  }
+  
 li.uib-tab.nav-item.ng-scope.ng-isolate-scope {margin: 0px;}
 /*input#save1 {background-color: #f5b3d1;color: #fff;border: none;display: inline;border-radius: 0px;margin: 0.5em 0;}*/
 
@@ -64,3 +64,17 @@ li.uib-tab.nav-item.ng-scope.ng-isolate-scope {margin: 0px;}
     line-height: 36px;
     padding: 3px 0px 0px 32px;
 }
+
+
+@media only screen and (min-width:992px){
+    #profilebuilder .unsaved{margin-right: 560px;}
+        
+}
+
+ @media only screen and (min-device-width: 768px) and (max-device-width: 991px){
+    #profilebuilder .unsaved{margin-right: 140px;}
+ }
+
+@media only screen and (max-device-width: 767px) {
+    #profilebuilder .unsaved{margin: 0px;}
+ }

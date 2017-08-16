@@ -170,11 +170,13 @@ if (typeof edit_obj != 'undefined') {
                 $scope.ethnicity = $scope.account.profiles[0].ethnicity;
                 var person1_dob = $scope.account.profiles[0].dob;
 
-                if (typeof (person1_dob) !== "undefined" && person1_dob != '0000-00-00') {
+                if (typeof (person1_dob) !== "undefined" && person1_dob != '0000-00-00' && person1_dob != null) {
+                    
                     $scope.pDoBext = person1_dob.split("-");
                     if ($scope.pDoBext.length == 3) {
                         $scope.dt = new Date($scope.pDoBext[0], $scope.pDoBext[1] - 1, $scope.pDoBext[2]);
                     }
+
                 } else {
                     $scope.dt = '';
                 }
@@ -274,7 +276,7 @@ if (typeof edit_obj != 'undefined') {
     app.controller('contactusCntrl', ['$scope', '$http', function($scope, $http, $window) {
             $http.get(contactUsGetUrl).then(function(response) {
                 var respData = response.data.data;
-                if (respData.StreetAddress !== '') {
+                if (respData.StreetAddress) {
                     var num = respData.StreetAddress.search(",");
                     if (num > 0) {
                         var add = respData.StreetAddress.split(',');
@@ -284,8 +286,10 @@ if (typeof edit_obj != 'undefined') {
                         respData.address1 = respData.StreetAddress;
                     }
                 }
+                
                 $scope.data_options = response.data.data_options;
                 $scope.account = respData; //submitContactInfo
+                console.log($scope.account);
                 if ($scope.account.DefaultContact == 1)
                     $scope.account.DefaultContacts_form = true;
                 else
@@ -579,13 +583,10 @@ if (typeof edit_obj != 'undefined') {
 
 
                 var AgencyName = selectedAgency.agencyName;
-
                 if($scope.searchAgency.length <= 0){
                     $scope.resultsHidden = false;
                     $scope.filter = $scope.searchAgency;                    
                 }
-                
-
 
                 var modalInstance = $uibModal.open({
                     template: '<div class="modal-header"><h3>Remove ' + AgencyName + '?</h3></div>\n\
@@ -617,6 +618,9 @@ if (typeof edit_obj != 'undefined') {
                         var index = $scope.selectedAgencies.indexOf(selectedAgency);
                         $scope.selectedAgencies.splice(index, 1);
                     }
+
+
+
                 });
 
             };

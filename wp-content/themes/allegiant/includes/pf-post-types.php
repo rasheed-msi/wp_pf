@@ -4,7 +4,7 @@ class PF_Post_Types {
 
     function __construct() {
         add_action('init', array($this, 'pf_post_types'));
-        add_filter('wp_dropdown_users', array($this, 'author_override'));
+        add_filter('wp_dropdown_users', array($this, 'author_override'), 11);
     }
 
     function pf_post_types() {

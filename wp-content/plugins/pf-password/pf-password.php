@@ -43,6 +43,19 @@ if (!function_exists('wp_check_password')) {
 
 add_action('profile_update', 'pf_user_register');
 add_action('user_register', 'pf_user_register');
+add_action('after_password_reset', 'pf_after_password_reset');
+
+function pf_after_password_reset($user, $pwd) {
+    $userData = array('ID' => $user->ID, 'salt' => $_SESSION['PF_Encrypt_P']['salt']);
+    if (isset($_SESSION['PF_Encrypt_P']) && $user->data->user_pass === $_SESSION['PF_Encrypt_P']['encrypt']) {
+        global $wpdb;
+        //update salt
+        $wpdb->update(
+                $wpdb->users, array('Salt' => $_SESSION['PF_Encrypt_P']['salt']), array('ID' => $user_id), array('%s'), array('%d')
+        );
+    }
+    unset($_SESSION['PF_Encrypt_P']);
+}
 
 function pf_user_register($user_id) {
     $data = get_userdata($user_id);

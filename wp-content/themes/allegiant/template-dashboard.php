@@ -4,9 +4,9 @@
  * Template Name: Dashboard
  */
 get_header('custom');
-?><body ng-controller="dashboardController">
+?>
 
-    <section class="container">
+    <section class="container" ng-controller="dashboardController">
 
         <!--Profile Start-->
         <div class="profile" style="margin-top:25px;">
@@ -15,14 +15,12 @@ get_header('custom');
                 <div class="row profileRow">
                     <div class="col-lg-4 col-md-4 profileColumn clearfix">
                         <div class="pull-left profileImage">
-                            <a href="#" class="editButtton buttons">Edit</a>
                             <img src="{{profile.avatar}}">
                         </div>
                     </div>
                     <div class="col-lg-8 col-md-8 profileColumn clearfix">
                         <h3 class="profileHeadding">{{profile.display_name}}</h3>
-                        <p>I, {{profile.first_name}} and {{profile.spouse_first_name}} have known each other for XX years. I am writing this letter to attest to the validity of the Marriage between {{profile.first_name}} and {{profile.spouse_first_name}}. I have been a witness to their relationship since they (Dated, were engaged, Got Married, While they were married) and they are truly in love and have no deviant reasons for their marriage other than them wanting to spend their lives together.</p>
-                        <p>Not only have they joined in celebrating (Religious holidays, birthdays, weddings, anniversary’s, family activities, etc.), I attended their (engagement, Marriage, Baby Shower, Etc.) They are a happy and loving couple and I was over joyed to hear the announcement that they are currently expecting their first child on August 7th 2012.</p>
+                        <p ng-bind-html="intro"></p>
                     </div>
                 </div>
             </div>
@@ -57,15 +55,17 @@ get_header('custom');
                                         <div class="articleItemContents">
                                             <div class="articleItemWidget">
                                                 <h6 class="text-capitalize">Ethnicity:</h6>
-                                                <p>Caucasian, Asian, African American, Hispanic, Native American, Caucasian / African American, Caucasian / Hispanic, Caucasian / Asian, Caucasian / Native American, African American / Hispanic, African American / Asian, African American / Native American, Hispanic / Asian, Hispanic / Native American, Asian / Native American</p>
+                                                <p>
+                                                    <span ng-repeat="pre_ethinicity in preferences.ethnicity">{{pre_ethinicity.ethnicity}}<span ng-if="!$last">,&nbsp;</span></span>
+                                                </p>
                                             </div>
                                             <div class="articleItemWidget">
                                                 <h6 class="text-capitalize">Age:</h6>
-                                                <p>Newborn to 3 months, Newborn to 6 months, Newborn to 9 months, 8+ years old, Newborn, 1 year old, 2 years old, 3 years old, 4 years old, 5 years old, 6 years old, 7 years old</p>
+                                                <p><span ng-repeat="pre_age in preferences.age">{{pre_age.Age_group}}<span ng-if="!$last">,&nbsp;</span></span></p>
                                             </div>
                                             <div class="articleItemWidget">
                                                 <h6 class="text-capitalize">Adoption type:</h6>
-                                                <p>Open, Closed, Semi-Open</p>
+                                                <p><span ng-repeat="pre_type in preferences.type">{{pre_type.adoption_type}}<span ng-if="!$last">,&nbsp;</span></span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -227,4 +227,4 @@ get_header('custom');
         <!--Profile end-->
 
     </section>
-<?php get_footer('custom'); ?>
+    <?php get_footer('custom'); ?>

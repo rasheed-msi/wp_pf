@@ -44,6 +44,8 @@ jQuery(function($) {
     });
 
     $(document).on('click','.edit-journal-btn', function() {
+        var currentBtnElem = $(this);
+        currentBtnElem.attr('disabled', 'disabled');
         var journalID = parseInt($('#journal-id').val(), 10), journalTitle = $('#journal-title').val(), jornalContent = tinymce.get('journal-editor').getContent(), journalAction = $('#journal-action').val();
         if(journalTitle.trim() == ''){
             $('<div id="journal-valid-msg"><div class="alert alert-danger">\n\
@@ -51,6 +53,7 @@ jQuery(function($) {
                         </div></div>').prependTo('#journal-form').delay(1000).fadeOut(function(){
                             $(this).remove();
                         });
+                currentBtnElem.removeAttr('disabled');
                 return false;
         }
 
@@ -60,6 +63,7 @@ jQuery(function($) {
                         </div></div>').prependTo('#journal-form').delay(1000).fadeOut(function(){
                             $(this).remove();
                         });
+            currentBtnElem.removeAttr('disabled');
             return false; 
         }
 
@@ -69,6 +73,7 @@ jQuery(function($) {
                         </div></div>').prependTo('#journal-form').delay(1000).fadeOut(function(){
                             $(this).remove();
                         });
+            currentBtnElem.removeAttr('disabled');
             return false;
         }
 
@@ -94,7 +99,7 @@ jQuery(function($) {
                                     <div class="articleItem">\n\
                                         <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-'+data.data.ID+'">'+ data.data.post_title +'</span><span class="pull-right postDate">'+ data.data.post_date+'</span></div>\n\
                                         <div class="articleItemContents noPad" id="post-content-'+data.data.ID+'">\n\
-                                            +data.journalContent\n\
+                                            '+data.data.post_content+'\n\
                                         </div>\n\
                                     </div>\n\
                                 </div>';
@@ -107,6 +112,7 @@ jQuery(function($) {
                             $('#journal-action').val('');
                             $('#journal-title').val('');
                             tinymce.get('journal-editor').setContent('');
+                            currentBtnElem.removeAttr('disabled');
                         });
                     }else{
                         $('<div class="alert alert-danger">\n\
@@ -118,6 +124,7 @@ jQuery(function($) {
                         $('#journal-action').val('');
                         $('#journal-title').val('');
                         tinymce.get('journal-editor').setContent('');
+                        currentBtnElem.removeAttr('disabled');
                        });
                     }
                 }
@@ -128,10 +135,13 @@ jQuery(function($) {
 
     $(document).on('click','.delete-journal', function() {
         var jornalID = $(this).attr('id').replace('delete-post-', '');
-        $('#delete-journal-modal').modal({
-          backdrop: 'static',
-          keyboard: false
-        }).one('click', '.delete-btn', function(e) {
+        $('#del-journal-id').val(jornalID);
+        $('#delete-journal-modal').modal('show');
+    });
+
+    $(document).on('click', '.delete-btn', function(e) {
+            var currentBtnElem = $(this), jornalID = parseInt( $('#del-journal-id').val(),10);
+            currentBtnElem.attr('disabled', 'disabled');
           $.ajax({
             method: 'POST',
             url: journal_obj.ajax_url,
@@ -145,27 +155,38 @@ jQuery(function($) {
                             $('.journal-'+jornalID).fadeOut(500);
                             $(this).remove();
                             $('#delete-journal-modal').modal('hide');
+                            currentBtnElem.removeAttr('disabled');
                         });
-                        //$(this).("Journal removed successfully");
                     }else{
                         $('<div class="alert alert-danger">\n\
                             <strong>Failed!</strong> Something went wrong. Please try later.\n\
                         </div>').prependTo('#delete-journal-modal .modal-body').delay(1000).fadeOut(function(){
                        $('#delete-journal-modal').modal('hide');
+                       currentBtnElem.removeAttr('disabled');
                        });
                     }
                 }
             });
         });
-        });
 
 
     $('#add-journal').on('click', function(){
+        var currentBtnElem = $(this);
+        currentBtnElem.attr('disabled', 'disabled');
         $('#edit-journal-modal').find('.modal-title').text('Add Journal');
         $('#journal-action').val('add');
         $('#journal-id').val(0);
         $('#edit-journal-modal').modal('show');
+        currentBtnElem.removeAttr('disabled');
     });
+
+    $(document).on('click', '.cancel', function(){
+        $('#journal-id').val('');
+        $('#journal-action').val('');
+        $('#journal-title').val('');
+        tinymce.get('journal-editor').setContent('');
+        $('#del-journal-id').val('');//del journal id
+    })
 
     
 });

@@ -1,0 +1,107 @@
+
+<style>
+    .margins{
+        margin-bottom: 10px;
+    }
+</style>
+<form class="form" ng-controller="contactusCntrl" name="contactinfo" ng-submit="contactinfo.$valid && submit()">
+    <div class="container-fluid" style="margin-left: 10px;">
+<div class ="row" style="margin-top: 10px;">
+	<div class="col-sm-9">
+            <label>The contact information provided on this page is PRIVATE and not shared with anyone.<br>This information is <b>ONLY</b> used by ParentFinder staff to contact you.</label><br><br>
+        </div>
+
+        <div class="col-sm-2">
+            <div style="float: right"><input value="SAVE" type="submit" class="save_btn"/></div>
+        </div>
+    </div>
+       <!-- <div class="container-fluid">-->
+
+    	   <div class="row margins">
+                <div class="col"><div class="col-sm-6">
+                <label>PHONE NUMBER</label>&nbsp;<span class="mandatory">*</span><br>
+                <input type="text" class="form-control" ng-model="account.mobile_num" name="phone" ui-mask="(999) 999-9999" required >
+                <span class="error" ng-show="contactinfo.phone.$error.required" style="color:red">Phone number is required</span>
+            </div></div>
+                
+            </div>
+            <div class="row margins">
+                <div class="col"><div class="col-sm-6">
+                <label>EMAIL ADDRESS</label>&nbsp;<span class="mandatory">*</span><br>
+                <input type="text" placeholder="Email" name ="email" required class="form-control" ng-model="account.emailid">
+                <span data-ng-if="contactinfo.email.$error.pattern" class="error" style="color:red">This email is invalid</span>
+            </div></div>
+    </div>
+            <div style="border:none" >
+                <div>
+                <div class ="row margins"><div class="col"> <div class="col-sm-6" style="margin-top: 10px;"><label>ADDRESS</label>&nbsp;<span class="mandatory">*</span></div></div></div>
+    <div class ="row margins">
+        <div class="col"> <div class="col-sm-6">
+                <input type="text" name="address1" class="form-control" ng-model="account.address1"  required >
+                            <label class="labelAddress">Street Address </label><br>
+                <!--<span data-ng-if="contactinfo.address1.$error.pattern" class="error" style="color:red">Please avoid Special Characters</span>-->
+		<span class="error" ng-show="contactinfo.address1.$error.required" style="color:red">Please enter street address</span>
+            </div></div>
+                </div>
+                <div class ="row margins">
+        <div class="col"><div class="col-sm-6">
+                <input type="text" name="address2" class="form-control" ng-model="account.address2"  >
+                            <label class="labelAddress">Street Address Line 2</label><br>
+                <!--<span data-ng-if="contactinfo.address2.$error.pattern" class="error" style="color:red">Please avoid Special Characters</span>-->
+            </div></div>
+    </div>
+    <div class ="row margins">
+                    
+                    
+                        <div class="col"><div class="col-sm-3">
+                 <input type="text" name="city" class="form-control" ng-model="account.City" required >
+                            <label class="labelAddress">City</label><br>
+                 <!--<div data-ng-if="contactinfo.city.$error.pattern" class="error" style="color:red">Please enter valid City</div>-->
+		 <span class="error" ng-show="contactinfo.city.$error.required" style="color:red">Please enter city</span>
+             </div></div>
+                    <div class="col"><div class="col-sm-3">
+                 <select class="form-control" ng-model="account.State" required name="state">
+                                <option ng-repeat="option in data_options.states" value="{{option.selectVal}}">{{option.selectText}}</option>
+                            </select>
+                            <label class="labelAddress"> State / Province </label><br>
+			    <span class="error" ng-show="contactinfo.state.$error.required" style="color:red">Please select state</span>
+             </div></div>
+                </div>
+    <div class ="row margins">
+                    <div class="col"> <div class="col-sm-3">
+                <input type="text" class="form-control" ng-model="account.Zip" name="zipcode" required>
+                            <label class="labelAddress">Postal / Zip Code</label><br>
+                <!--<span class="error" ng-show="contactinfo.zipcode.$error.pattern" style="color:red">This Zipcode is Invalid</span>-->
+		<span class="error" ng-show="contactinfo.zipcode.$error.required" style="color:red">Please enter Zip</span>
+            </div></div>
+                    <div class="col"><div class="col-sm-3">
+                            <select class="form-control" ng-model="account.Country" ng-change="getStates(account.Country)" required>
+                                <option ng-repeat="option in data_options.countries" value="{{option.selectVal}}">{{option.selectText}}</option>
+                            </select>
+                            <label class="labelAddress">Country</label>
+                        </div></div>
+                </div>
+                <div class ="row margins">
+                    
+        <div class="col"><div class="col-sm-3">
+                            <label>SET AS DEFAULT CONTACT</label>&nbsp;  
+                <input type="checkbox" ng-model="account.DefaultContacts_form">
+            </div></div>
+	   <div class="col"><div class="col-sm-3">
+                            <label>By checking this box your email address and phone number listed above will be displayed for contact on public pages. Validate this with your agency or attorney prior to selecting.</label>&nbsp;  
+                          </div></div>
+
+    </div>
+                <div class ="row margins">
+</div>
+               
+            </div>
+        </div>
+       <!-- </div>-->
+<div class ="row" style="margin: 20px;">
+        <div class="col-sm-12">
+            <div style="float: right"><input value="SAVE" type="submit" class="save_btn"/></div>
+        </div>
+    </div>
+</div>
+</form>
