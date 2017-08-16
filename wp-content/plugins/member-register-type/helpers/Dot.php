@@ -183,12 +183,7 @@ class Dot {
         }
         return $results;
     }
-
-    public static function get_states($country_id) {
-        global $wpdb;
-        return $wpdb->get_results("SELECT state_id, State FROM pf_states WHERE country_id = {$country_id}", ARRAY_A);
-    }
-
+    
     public static function log($string) {
         
         if (is_array($string)) {
@@ -207,6 +202,27 @@ class Dot {
         fwrite($handle, '');
         fclose($handle);
         
+    }
+    
+    public static function get_columns($table) {
+        global  $wpdb;
+        $sql = "SHOW COLUMNS FROM {$table}";
+        $records = $wpdb->get_results($sql, ARRAY_A);
+        
+        $columns = [];
+        foreach ($records as $key => $value) {
+            $columns[] = $value['Field'];
+        }
+        return $columns;
+    }
+    
+    public static function get_slug($title) {
+        $title = trim($title);
+        $title = preg_replace('/[^a-zA-Z0-9- ]/', '', $title);
+        $title = str_replace("'", '', $title);
+        $title = str_replace(' ', '-', $title);
+        $title = strtolower($title);
+        return $title;
     }
 
 }

@@ -8,7 +8,7 @@ class MrtRelationAgencyUser extends MrtDbbase {
     public $id;
     public $fields = [
         'pf_agency_id',
-        'wp_users_id',
+        'wp_user_id',
         'pf_profile_id',
         'is_admin',
     ];

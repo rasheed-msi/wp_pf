@@ -186,13 +186,7 @@ class AppForm {
                 'name' => 'membership',
                 'options' => Dot::get_posts_select_option('memberpressproduct'),
             ],
-            [
-                'type' => 'select',
-                'label' => 'Locations',
-                'name' => 'location',
-                'required' => true,
-                'options' => Dot::get_groups_select_option('Location'),
-            ],
+            
             [
                 'type' => 'select',
                 'label' => 'Religion',
@@ -342,17 +336,18 @@ class AppForm {
                 'street_1',
                 'street_2' => ['required' => false],
                 'City',
-                'Country',
                 'State',
+                'Country',
                 'Zip',
                 'uri',
                 'agency_phone',
-                'user_login' => [
-                    'label' => 'Admin Username',
-                    'required' => true
-                ],
+                
                 'user_email' => [
                     'label' => 'Admin Email',
+                    'required' => true
+                ],
+                'user_login' => [
+                    'label' => 'Admin Username',
                     'required' => true
                 ],
             ]

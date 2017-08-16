@@ -16,14 +16,14 @@
         <?php endforeach; ?>
     <?php endif; ?>
 
-
+    
     <form name="registerform" id="registerform<?php $template->the_instance(); ?>" action="<?php $template->the_action_url('register', 'login_post'); ?>" method="post">
 
         <?php if ('email' != $theme_my_login->get_option('login_type')) : ?>
-    <!--            <p class="tml-user-login-wrap">
-            <label for="user_login<?php $template->the_instance(); ?>"><?php _e('Username', 'theme-my-login'); ?></label>
-            <input type="text" name="user_login" id="user_login<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_login'); ?>" size="20" />
-        </p>-->
+        <!--            <p class="tml-user-login-wrap">
+                <label for="user_login<?php $template->the_instance(); ?>"><?php _e('Username', 'theme-my-login'); ?></label>
+                <input type="text" name="user_login" id="user_login<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_login'); ?>" size="20" />
+            </p>-->
         <?php endif; ?>
 
         <?php echo $form['form_html']; ?>
@@ -34,7 +34,7 @@
             <input type="text" name="user_email" id="user_email<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_email'); ?>" size="20" />
         </p>-->
 
-        <?php do_action('register_form'); ?>
+        <?php  do_action('register_form'); ?>
 
         <p class="tml-registration-confirmation" id="reg_passmail<?php $template->the_instance(); ?>"><?php echo apply_filters('tml_register_passmail_template_message', __('Registration confirmation will be e-mailed to you.', 'theme-my-login')); ?></p>
 

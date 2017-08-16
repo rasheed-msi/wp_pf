@@ -5,7 +5,6 @@ class MrtUser {
     public $profile;
     public $contact;
     public $user_id;
-    public $couple;
 
     public function __construct($user_id = null) {
 
@@ -28,39 +27,12 @@ class MrtUser {
         $this->user_meta = get_userdata($this->user_id);
         $this->user_role = $this->user_meta->roles[0];
 
-        $this->profile = MrtProfile::find($this->user_id, 'wp_users_id');
+        $this->profile = MrtProfile::find($this->user_id, 'wp_user_id');
 
         if (isset($this->profile->id)) {
             $this->contact = MrtContact::find($this->profile->id, 'pf_profile_id');
         } else {
             $this->contact = new MrtContact();
-        }
-    }
-
-    public function set_couple() {
-
-        if (!isset($this->profile->data['couple_id'])) {
-            return false;
-        }
-
-        $this->couple = MrtProfile::find($this->profile->data['couple_id']);
-        return true;
-    }
-
-    public function create_couple($data) {
-        $this->couple = new MrtProfile();
-        $data['couple_id'] = $this->profile->id;
-        $this->couple->id = $this->couple->insert($data);
-        $this->couple->data = $this->couple->get($this->couple->id);
-        $this->profile->update(['couple_id' => $this->couple->id]);
-    }
-
-    public function update_couple($data) {
-        if (isset($this->couple->id)) {
-            $this->couple->update($data);
-            $this->couple->data = $this->couple->get($this->couple->id);
-        } else {
-            $this->create_couple($data);
         }
     }
 
@@ -121,7 +93,7 @@ class MrtUser {
     }
 
     public function create_profile($data) {
-     
+
         if (!isset($this->user_id)) {
             return false;
         }
@@ -140,7 +112,7 @@ class MrtUser {
             $agency_id = $agency->insert($data);
         }
 
-        $data['wp_users_id'] = $this->user_id;
+        $data['wp_user_id'] = $this->user_id;
         $data['pf_agency_id'] = $agency_id;
         $this->profile->id = $this->profile->insert($data);
         $this->profile->data = $this->profile->get($this->profile->id);
@@ -155,7 +127,7 @@ class MrtUser {
 
     public function update_profile($data) {
 
-        $data['wp_users_id'] = $this->user_id;
+        $data['wp_user_id'] = $this->user_id;
 
         if (isset($data['action']) && $data['action'] == 'edit_profile') {
             if (isset($this->profile->id)) {
@@ -174,14 +146,9 @@ class MrtUser {
             $data['pf_profile_id'] = $this->profile->id;
             if (isset($this->contact->id)) {
                 $this->contact->update($data);
-            } else {                
+            } else {
                 $this->contact->id = $this->contact->insert($data);
             }
-        }
-
-        if (isset($data['action']) && $data['action'] == 'adoptive_family_couple') {
-            $this->set_couple();
-            $this->update_couple($data);
         }
     }
 
@@ -203,7 +170,7 @@ class MrtUser {
         $agency_user->delete('pf_profile_id', $this->profile->id);
 
         $insert = [];
-        $insert['wp_users_id'] = $this->user_id;
+        $insert['wp_user_id'] = $this->user_id;
         $insert['pf_profile_id'] = $this->profile->id;
         $insert['pf_agency_id'] = $agency_id;
         $agency_user->insert($insert);
@@ -220,11 +187,35 @@ class MrtUser {
 
         foreach ($agencies as $key => $agency_id) {
             $insert = [];
-            $insert['wp_users_id'] = $this->user_id;
+            $insert['wp_user_id'] = $this->user_id;
             $insert['pf_profile_id'] = $this->profile->id;
             $insert['pf_agency_id'] = $agency_id;
             $agency_user->insert($insert);
         }
+    }
+
+    public function set_preferences() {
+        $this->preferences['type'] = $this->link->get_results("SELECT "
+                . "ats.adoption_type_id, ats.adoption_type "
+                . "FROM `pf_adoption_type_preference` atp "
+                . "LEFT JOIN pf_adoption_type ats ON ats.adoption_type_id = atp.adoption_type_id "
+                . "WHERE user_id = {$this->user_id} GROUP BY ats.adoption_type_id", ARRAY_A);
+
+        $this->preferences['age'] = $this->link->get_results("SELECT "
+                . "ag.Age_group_id, ag.Age_group "
+                . "FROM `pf_age_group_preference` agp "
+                . "LEFT JOIN pf_age_group ag ON ag.Age_group_id = agp.age_group_id "
+                . "WHERE user_id = {$this->user_id} GROUP BY ag.Age_group_id", ARRAY_A);
+
+        $this->preferences['ethnicity'] = $this->link->get_results("SELECT "
+                . "e.ethnicity_id, e.ethnicity "
+                . "FROM `pf_ethnicity_pref` ep "
+                . "LEFT JOIN pf_ethnicity e ON e.ethnicity_id = ep.ethnicity_id "
+                . "WHERE user_id = {$this->user_id} GROUP BY e.ethnicity_id ", ARRAY_A);
+
+        $this->preferences['intro'] = $this->link->get_var("SELECT post_content "
+                . "FROM `wp_posts` p INNER JOIN wp_postmeta pm ON pm.post_id = p.ID "
+                . "WHERE p.post_author = {$this->user_id} AND pm.meta_key = 'letter_intro' AND pm.meta_value = 1 ");
     }
 
 }

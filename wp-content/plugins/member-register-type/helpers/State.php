@@ -16,7 +16,15 @@ class State {
         $results = Dot::set_array_key_value($records, 'pf_agency_id', 'title');
         return $results;
     }
-
     
+    public static function get_states($country_id) {
+        global $wpdb;
+        return $wpdb->get_results("SELECT state_id, State FROM pf_states WHERE country_id = {$country_id}", ARRAY_A);
+    }
+    
+    public static function get_statesByLetter($term) {
+        global $wpdb;
+        return $wpdb->get_results("SELECT state_id, State FROM pf_states WHERE State LIKE '%{$term}%'", ARRAY_A);
+    }
 
 }
