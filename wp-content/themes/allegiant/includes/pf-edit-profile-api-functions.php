@@ -170,41 +170,41 @@ class PFEditApi {
     /* pref start */
 
     function getGender() {
-        return $this->wpdb->get_results("SELECT `gender_id` AS selectVal, `gender_text` AS selectText FROM " . $this->tbl_gender . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `gender_id` AS selectVal, `gender_text` AS selectText FROM " . $this->tbl_gender . " ORDER BY selectText", ARRAY_A);
     }
 
     function getChildDesired() {
-        $childDesired = $this->wpdb->get_results("SELECT `ChildDesired_id` AS selectVal, `ChildDesired_text` AS selectText FROM " . $this->tbl_childdesired . " ORDER BY selectVal", ARRAY_A);
+        $childDesired = $this->wpdb->get_results("SELECT `ChildDesired_id` AS selectVal, `ChildDesired_text` AS selectText FROM " . $this->tbl_childdesired . " ORDER BY selectText", ARRAY_A);
         array_unshift($childDesired, array('selectVal' => '-1001', 'selectText' => 'All'));
         return $childDesired;
     }
 
     function getAgeGroup() {
-        $ageGroup = $this->wpdb->get_results("SELECT `Age_group_id` AS selectVal, `Age_group` AS selectText FROM " . $this->tbl_age_group . " ORDER BY selectVal", ARRAY_A);
+        $ageGroup = $this->wpdb->get_results("SELECT `Age_group_id` AS selectVal, `Age_group` AS selectText FROM " . $this->tbl_age_group . " ORDER BY selectText", ARRAY_A);
         array_unshift($ageGroup, array('selectVal' => '-1001', 'selectText' => 'All'));
         return $ageGroup;
     }
 
     function getAdoptionType() {
-        $adoptionType = $this->wpdb->get_results("SELECT `adoption_type_id` AS selectVal, `adoption_type` AS selectText FROM " . $this->tbl_adoption_type . " ORDER BY selectVal", ARRAY_A);
+        $adoptionType = $this->wpdb->get_results("SELECT `adoption_type_id` AS selectVal, `adoption_type` AS selectText FROM " . $this->tbl_adoption_type . " ORDER BY selectText", ARRAY_A);
         array_unshift($adoptionType, array('selectVal' => '-1001', 'selectText' => 'All'));
         return $adoptionType;
     }
 
     function getEthnicityPref() {
-        $ethnicityPref = $this->wpdb->get_results("SELECT `ethnicity_id` AS selectVal, `ethnicity` AS selectText FROM " . $this->tbl_ethnicity . " ORDER BY selectVal", ARRAY_A);
+        $ethnicityPref = $this->wpdb->get_results("SELECT `ethnicity_id` AS selectVal, `ethnicity` AS selectText FROM " . $this->tbl_ethnicity . " ORDER BY selectText", ARRAY_A);
         array_unshift($ethnicityPref, array('selectVal' => '-1001', 'selectText' => 'All'));
         return $ethnicityPref;
     }
 
     function getBirthFatherStatus() {
-        $birthFatherStatus = $this->wpdb->get_results("SELECT `Birthfather_status_id` AS selectVal, `Birthfather_status` AS selectText FROM " . $this->tbl_birthfather_status . " ORDER BY selectVal", ARRAY_A);
+        $birthFatherStatus = $this->wpdb->get_results("SELECT `Birthfather_status_id` AS selectVal, `Birthfather_status` AS selectText FROM " . $this->tbl_birthfather_status . " ORDER BY selectText", ARRAY_A);
         array_unshift($birthFatherStatus, array('selectVal' => '-1001', 'selectText' => 'All'));
         return $birthFatherStatus;
     }
 
     function getSpecialNeed() {
-        return $this->wpdb->get_results("SELECT `special_need_id` AS selectVal, `special_need` AS selectText FROM " . $this->tbl_special_need . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `special_need_id` AS selectVal, `special_need` AS selectText FROM " . $this->tbl_special_need . " ORDER BY selectText", ARRAY_A);
     }
 
     function getChildDesiredById() {
@@ -223,10 +223,7 @@ class PFEditApi {
         return $this->wpdb->get_var("SELECT `gender` FROM " . $this->tbl_gender_preference . " WHERE `user_id`=" . $this->user_ID);
     }
 
-    function getSpecialNeedById() {
         
-    }
-
     function getSpecialNeedsById() {
         return wp_list_pluck($this->wpdb->get_results("SELECT `special_need_id` FROM " . $this->tbl_special_need_pref . " WHERE `user_id`=" . $this->user_ID, ARRAY_A), 'special_need_id');
     }
@@ -245,19 +242,19 @@ class PFEditApi {
     /* for about API start */
 
     function getEthinicity() {
-        return $this->wpdb->get_results("SELECT `ethnicity_id` AS selectVal, `ethnicity` AS selectText FROM " . $this->tbl_ethnicity . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `ethnicity_id` AS selectVal, `ethnicity` AS selectText FROM " . $this->tbl_ethnicity . " ORDER BY selectText", ARRAY_A);
     }
 
     function getEducation() {
-        return $this->wpdb->get_results("SELECT `education_id` AS selectVal, `education_text` AS selectText FROM " . $this->tbl_education . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `education_id` AS selectVal, `education_text` AS selectText FROM " . $this->tbl_education . " ORDER BY selectText", ARRAY_A);
     }
 
     function getReligion() {
-        return $this->wpdb->get_results("SELECT `ReligionId` AS selectVal, `Religion` AS selectText FROM " . $this->tbl_religion . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `ReligionId` AS selectVal, `Religion` AS selectText FROM " . $this->tbl_religion . " ORDER BY selectText", ARRAY_A);
     }
 
     function getFaith() {
-        return $this->wpdb->get_results("SELECT `faith_id` AS selectVal, `faith` AS selectText FROM " . $this->tbl_faith . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `faith_id` AS selectVal, `faith` AS selectText FROM " . $this->tbl_faith . " ORDER BY selectText", ARRAY_A);
     }
 
     function getWaiting() {
@@ -269,26 +266,27 @@ class PFEditApi {
     }
 
     function getPets() {
-        return $this->wpdb->get_results("SELECT `Pet_id` AS selectVal, `Pet_text` AS selectText FROM " . $this->tbl_pet . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `Pet_id` AS selectVal, `Pet_text` AS selectText FROM " . $this->tbl_pet . " ORDER BY selectText", ARRAY_A);
     }
 
     function getFamilyStructure() {
-        return $this->wpdb->get_results("SELECT `family_structure_id` AS selectVal, `family_structure` AS selectText FROM " . $this->tbl_family_structure . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `family_structure_id` AS selectVal, `family_structure` AS selectText FROM " . $this->tbl_family_structure . " ORDER BY selectText", ARRAY_A);
     }
 
     function getResidency() {
-        return $this->wpdb->get_results("SELECT `Residency_id` AS selectVal, `Residency_text` AS selectText FROM " . $this->tbl_residence . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `Residency_id` AS selectVal, `Residency_text` AS selectText FROM " . $this->tbl_residence . " ORDER BY selectText", ARRAY_A);
     }
 
     function getNeighborhood() {
-        return $this->wpdb->get_results("SELECT `Neighborhood_id` AS selectVal, `Neighborhood_text` AS selectText FROM " . $this->tbl_neighborhood . " ORDER BY selectVal", ARRAY_A);
+        return $this->wpdb->get_results("SELECT `Neighborhood_id` AS selectVal, `Neighborhood_text` AS selectText FROM " . $this->tbl_neighborhood . " ORDER BY selectText", ARRAY_A);
     }
 
     /* for about API end */
 
     /** Contact Start * */
     function getContactInfo() {
-        $contactInfo = $this->wpdb->get_row("SELECT c.*,u.user_email FROM " . $this->tbl_contact_details . " c INNER JOIN " . $this->wpdb->users . " u ON c.user_id = u.ID WHERE c.user_id=" . $this->user_ID);
+        $contactInfo = $this->wpdb->get_row("SELECT u.user_email ,c.* FROM " . $this->wpdb->users . " u LEFT JOIN  " . $this->tbl_contact_details . " c ON c.user_id = u.ID WHERE u.ID=" . $this->user_ID);
+//echo $this->wpdb->last_query;exit;
         $data = array();
         $data['user_id'] = $this->user_ID;
         $data['City'] = $contactInfo->City;
@@ -307,12 +305,12 @@ class PFEditApi {
     }
 
     function getCountries() {
-        $countries = $this->wpdb->get_results("SELECT `country_id` AS selectVal, `country` AS selectText FROM " . $this->tbl_countries . " ORDER BY selectVal", ARRAY_A);
+        $countries = $this->wpdb->get_results("SELECT `country_id` AS selectVal, `country` AS selectText FROM " . $this->tbl_countries . " ORDER BY selectText", ARRAY_A);
         return $countries;
     }
 
     function getRegions() {
-        $regions = $this->wpdb->get_results("SELECT `RegionId` AS selectVal, `Region` AS selectText FROM " . $this->tbl_regions . " ORDER BY selectVal", ARRAY_A);
+        $regions = $this->wpdb->get_results("SELECT `RegionId` AS selectVal, `Region` AS selectText FROM " . $this->tbl_regions . " ORDER BY selectText", ARRAY_A);
         return $regions;
     }
 
@@ -321,7 +319,7 @@ class PFEditApi {
             $countryId = $this->wpdb->get_var("SELECT Country FROM " . $this->tbl_contact_details . " WHERE user_id=" . $this->user_ID);
             $countryId = !empty($countryId) ? $countryId : '183';
         }
-        $states = $this->wpdb->get_results("SELECT `state_id` AS selectVal, `State` AS selectText FROM " . $this->tbl_states . " WHERE country_id = '" . $countryId . "' ORDER BY selectVal", ARRAY_A);
+        $states = $this->wpdb->get_results("SELECT `state_id` AS selectVal, `State` AS selectText FROM " . $this->tbl_states . " WHERE country_id = '" . $countryId . "' ORDER BY selectText", ARRAY_A);
         return $states;
     }
 
@@ -455,8 +453,8 @@ class PFEditApi {
         $data['genderPref'] = $this->getGenderPrefById();
         $data['ethnicityprefs'] = $this->getEthnicityPrefById();
         $data['birthfatherPrefs'] = $this->getBirthfatherPrefById();
-        $data['special_need'] = $this->getSpecialNeedById();
         $data['special_needs'] = $this->getSpecialNeedsById(); //nickname
+        $data['special_need'] = (!empty($data['special_needs']) && count($data['special_needs']) > 0) ? 'yes': 'no';
 
         if (isset($data['child_desired'][0]) && $data['child_desired'][0] == "-1001") {
             array_unshift($dataOpt['child_desired'], array('selectVal' => '-1002', 'selectText' => 'None'));
@@ -566,16 +564,17 @@ class PFEditApi {
             }
 
 
-            if ($chExist > 0) {
                 $dataChild = array(
                     'Number_of_childern' => $postData['children'],
                     'Type' => $postData['children_type'],
                 );
+            $dataFormat = array('%d', '%s');
+            if ($chExist > 0) {
                 $whereCond = array('user_id' => $postData['user_id']);
-                $dataFormat = array('%d', '%s');
                 $this->wpdb->update($this->tbl_child, $dataChild, $whereCond, $dataFormat, array('%d'));
             } else {
                 $dataChild['user_id'] = $postData['user_id'];
+                array_push($dataFormat, '%d');
                 $this->wpdb->insert($this->tbl_child, $dataChild, $dataFormat);
             }
 
@@ -597,24 +596,30 @@ class PFEditApi {
 
             $cExist = $this->wpdb->get_var("SELECT count(*) as count FROM " . $this->tbl_contact_details . " WHERE user_id=" . $this->user_ID);
 
-
             $dataCon = array(
-                'City' => $postData['City'],
-                'State' => (int) $postData['State'],
-                'Country' => (int) $postData['Country'],
-                'Region' => (int) $postData['Region'],
-                'Zip' => $postData['Zip'],
-                'mobile_num' => $postData['mobile_num'],
-                'DefaultContact' => $postData['DefaultContact']
+            //  'user_id'               => $postData['user_id'],
+                'StreetAddress'         => $postData['address1'] . ',' . $postData['address2'],
+                'City'                  => $postData['City'],
+                'State'                 => (int)$postData['State'],
+                'Country'               => (int)$postData['Country'],
+                'Region'                => (int)$postData['Region'],
+                'Zip'                   => $postData['Zip'],
+                'mobile_num'            => $postData['mobile_num'],
+                'home_num'              => $postData['home_num'],
+                'office_num'            => $postData['office_num'],
+                'fax_num'               => $postData['fax_num'],
+                'DefaultContact'        => $postData['DefaultContact'],
+            //  'AllowDefaultContact'   => $postData['DefaultContacts_form'],
             );
 
+            $dataFormat = array('%s', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%d');
 
             if ($cExist > 0) {
                 $whereCond = array('user_id' => $this->user_ID);
-                $this->wpdb->insert($this->tbl_contact_details, $whereCond, $dataFormat, array('%d'));
+                $this->wpdb->update($this->tbl_contact_details, $dataCon, $whereCond, $dataFormat, array('%d'));
             } else {
                 $dataCon['user_id'] = $this->user_ID;
-                $dataFormat = array();
+                array_push($dataFormat, '%d');
                 $this->wpdb->insert($this->tbl_contact_details, $dataCon, $dataFormat);
             }
 
@@ -640,7 +645,8 @@ class PFEditApi {
             $ethnicityPrefs = $postData['ethnicityprefs'];
             $adoptionTypePref = $postData['adoption_type_pref'];
             $birthfatherPrefs = $postData['birthfatherPrefs'];
-            $special_need = $postData['special_needs'];
+            $special_needs = $postData['special_needs'];
+            $special_need = $postData['special_need'];
 
             if (!empty($childDesired) && is_array($childDesired)) {
                 $this->wpdb->delete($this->tbl_desired_child_pref, array('user_id' => $this->user_ID));
@@ -700,15 +706,18 @@ class PFEditApi {
                 }
             }
 
-            if (!empty($postData['special_need']) && $postData['special_need'] == 'yes') {
+            if (!empty($special_need) && $special_need == 'yes') {
                 $this->wpdb->delete($this->tbl_special_need_pref, array('user_id' => $this->user_ID));
-                foreach ($special_need as $sn) {
+                foreach ($special_needs as $sn) {
                     if ($sn == '-1002')
                         $sn = -1001;
 
                     $this->wpdb->insert($this->tbl_special_need_pref, array('special_need_id' => $sn, 'user_id' => $this->user_ID), array('%d', '%d'));
                 }
+            }elseif($special_need == 'no'){
+                $this->wpdb->delete($this->tbl_special_need_pref, array('user_id' => $this->user_ID));
             }
+
             return new WP_REST_Response(array('code' => 200, 'message' => 'Profile Saved'), 200);
         } catch (Exception $exc) {
             return new WP_REST_Response(array('code' => $exc->getCode(), 'message' => $exc->getTraceAsString()), $exc->getCode());

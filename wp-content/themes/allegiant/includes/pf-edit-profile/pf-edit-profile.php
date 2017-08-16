@@ -1,11 +1,8 @@
-<?php 
-//echo $_SESSION['logged_user_access_token'];exit;
-?>
 <div class="grayIcons icoBuilder">FAMILY PROFILE BUILDER</div>
 <div id="profilebuilder" ng-app="ui.bootstrap.demo">
     <div>
         <div ng-controller="TabsCtrl">
-            <div class="unsaved" id="unsavedData" ng-if="show" style="margin-right: 430px;">
+            <div class="unsaved" id="unsavedData" ng-if="show">
                 <div  style="width:35px;margin-left: -20px;"><img src="<?php echo get_template_directory_uri() . '/includes/pf-edit-profile/assets/images/exclamation_mark_circle_danger.png';?>" alt="exclamation" height="25" width="25"></div>
                 <div style="margin-top: -29px;">&nbsp;&nbsp;&nbsp;&nbsp;<b>YOU HAVE UNSAVED DATA. PLEASE CLICK ON</b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>SAVE OR CANCEL BUTTON TO MOVE FORWARD.</b></div>
                 <div class="clear_both"></div>

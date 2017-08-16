@@ -1,0 +1,79 @@
+
+<style>
+    .margins{
+        margin-bottom: 10px;
+    }
+</style>
+<form class="form" ng-controller="contactusCntrl" name="contactinfo">
+<div class="container-fluid">
+<div class ="row" style="margin: 10px;">
+        <div class="col-sm-12">
+            <div style="float: right"><input type="button" value="save" ng-click="submitContactInfo()" class="save_btn"/></div>
+        </div>
+    </div>
+<div class="container-fluid">
+    <div class="row margins">
+        <div class="col"><div class="col-sm-6">
+                <label>PHONE NUMBER</label><br>
+                <input type="text" class="form-control" ng-model="account.mobile_num" name="phone" ui-mask="(999) 999-9999">
+            </div></div>
+        <div class="col"><div class="col-sm-6">
+                <label>EMAIL ADDRESS</label><br>
+                <input type="email" placeholder="Email" name ="email" required class="form-control" ng-model="account.emailid">
+                <span class="error" ng-show="contactinfo.email.$touched && contactinfo.email.$invalid" style="color:red">This Email is Invalid</span>
+            </div></div>
+    </div>
+    <div class ="row margins">
+        <div class="col"> <div class="col-sm-6">
+                <label>ADDRESS 1</label><br>
+                <input type="text" class="form-control" ng-model="account.address1">
+            </div></div>
+        <div class="col"><div class="col-sm-6">
+                <label>ADDRESS 2</label>
+                <input type="text" class="form-control" ng-model="account.address2">
+            </div></div>
+    </div>
+    <div class ="row margins">
+         <div class="col"><div class="col-sm-6">
+                 <label>CITY</label><br>
+                 <input type="text" class="form-control" ng-model="account.City">
+             </div></div>
+        <div class="col"><div class="col-sm-6">
+                <label>COUNTRY</label><br>
+                <select class="form-control" ng-model="account.Country">
+                                <option ng-repeat="option in data_options.countries" value="{{option.selectVal}}">{{option.selectText}}</option>
+                            </select>
+            </div></div>
+    </div>
+    <div class ="row margins">
+         <div class="col"><div class="col-sm-6">
+                 <label>STATE/PROVINCE</label><br>
+                 <select class="form-control" ng-model="account.State">
+                                <option ng-repeat="option in data_options.states" value="{{option.selectVal}}">{{option.selectText}}</option>
+                            </select>
+             </div></div>
+        <div class="col"><div class="col-sm-6">
+                <label>REGION</label><br>
+                <select  class="form-control" ng-model="account.Region">
+                                <option ng-repeat="option in data_options.Regions" value="{{option.selectVal}}">{{option.selectText}}</option>
+                            </select>
+            </div></div></div>
+
+    <div class ="row margins">
+        <div class="col"> <div class="col-sm-6">
+                <label>ZIPCODE</label><br>
+                <input type="text" class="form-control" ng-model="account.Zip">
+            </div></div>
+        <div class="col"><div class="col-sm-6">
+                <label>SET AS DEFAULT CONTACT</label><br>
+                <input type="checkbox"  value="1" ng-checked="account.DefaultContact == 1">
+            </div></div>
+    </div>
+</div>
+<div class ="row" style="margin: 20px;">
+        <div class="col-sm-12">
+            <div style="float: right"><input type="button" value="save" ng-click="submitContactInfo()" class="save_btn"/></div>
+        </div>
+    </div>
+</div>
+</form>

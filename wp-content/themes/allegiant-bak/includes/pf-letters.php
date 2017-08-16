@@ -1,6 +1,0 @@
-<?php
-
-/**
- * Post Type : Letters
- */
-
