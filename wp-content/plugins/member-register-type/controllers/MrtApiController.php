@@ -12,6 +12,10 @@ class MrtApiController extends WP_REST_Controller {
             'base' => '/states/(?P<id>\d+)',
             'format' => '/states/{{id}}',
         ],
+        'get_lstates' => [
+            'base' => '/lstates',
+            'format' => '/lstates/{{term}}',
+        ],
         'user_login' => [
             'base' => '/login',
             'format' => '/login',
@@ -71,6 +75,12 @@ class MrtApiController extends WP_REST_Controller {
             'args' => array(
             ),
         ));
+        register_rest_route('mrt/v1', self::base('get_lstates'), array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => array($this, 'get_lstates'),
+            'args' => array(
+            ),
+        ));
 
         register_rest_route('mrt/v1', self::base('set_agency_status_approve'), array(
             'methods' => WP_REST_Server::READABLE,
@@ -79,23 +89,7 @@ class MrtApiController extends WP_REST_Controller {
             ),
         ));
 
-        register_rest_route($namespace, self::base('user_login'), array(
-            'methods' => WP_REST_Server::CREATABLE,
-            'callback' => array($this, 'user_login'),
-            'args' => array(
-            ),
-        ));
-        register_rest_route($namespace, self::base('user_logout'), array(
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => array($this, 'user_logout'),
-            'args' => array(
-            ),
-        ));
-
-        register_rest_route($namespace, self::base('get_current_user'), [
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => [$this, 'get_current_user'],
-        ]);
+       
         register_rest_route($namespace, self::base('get_user_token'), [
             'methods' => WP_REST_Server::READABLE,
             'callback' => [$this, 'get_user_token'],
@@ -109,46 +103,16 @@ class MrtApiController extends WP_REST_Controller {
         return new WP_REST_Response($data, 200);
     }
 
-    function get_current_user($request) {
-        // $params = $request->get_params();
-
-        $data['token_m'] = $this->auth->validate_token();
-
-        $data['user_id'] = get_current_user_id();
-        return new WP_REST_Response($data, 200);
-    }
-
-    function user_login($request) {
-
-        $creds['user_login'] = $request['username'];
-        $creds['user_password'] = $request['password'];
-
-        $user = wp_signon($creds);
-
-        if (!is_wp_error($user)) {
-            $auth = new MrtAuth();
-            $token = $auth->set_token($user->ID);
-            return new WP_REST_Response(['user' => $user->user_login, 'token' => $token], 200);
-        }
-
-        return new WP_REST_Response([], 401);
-    }
-
-    function user_logout($request) {
-
-        $user = $this->auth->validate_token();
-
-        if ($user) {
-            $this->auth->clear_token($user->ID);
-            return new WP_REST_Response(null, 200);
-        }
-
-        return new WP_REST_Response(null, 401);
-    }
+    
 
     function get_states($request) {
         $params = $request->get_params();
-        $states = Dot::get_states($params['id']);
+        $states = State::get_states($params['id']);
+        return new WP_REST_Response($states, 200);
+    }
+    function get_lstates($request) {
+        $params = $request->get_params();
+        $states = State::get_statesByLetter($params['term']);
         return new WP_REST_Response($states, 200);
     }
 

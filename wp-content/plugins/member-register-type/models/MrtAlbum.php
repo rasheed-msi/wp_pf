@@ -10,6 +10,15 @@ class MrtAlbum extends MrtDbbase {
         'caption',
         'uri',
         'location',
+        'description',
+        'album_type_id',
+        'user_id',
+        'album_Status',
+        'album_Date',
+        'ObjCount',
+        'LastObjId',
+        'AllowAlbumView',
+        'old_album_id',
     ];
     public $field_default = [];
     public $data;
@@ -18,22 +27,27 @@ class MrtAlbum extends MrtDbbase {
         global $wpdb;
         $this->link = $wpdb;
     }
-
-    function all($user_id) {
-        return $this->link->get_results(
-                "SELECT * FROM {$this->table} WHERE user_id = {$user_id}", ARRAY_A
-        );
-        
+    
+    public static function get_object($class = null) {
+        return parent::get_object(__CLASS__);
     }
 
-    function get_photos($album_id) {
-        $this->link->get_result(
-                "SELECT * "
-                . "FROM sys_albums_objects rel "
-                . "LEFT JOIN sys_albums al ON al.ID = rel.id_album "
-                . "LEFT JOIN bx_photos_main pm ON pm.ID = rel.id_object "
-                . "WHERE rel.id_album = {$album_id} "
+    public static function find($id, $key = null, $class = null) {
+        return parent::find($id, $key, __CLASS__);
+    }
+
+    function all($user_id) {
+        $albums = $this->link->get_results(
+                        "SELECT * FROM {$this->table} WHERE user_id = {$user_id}", ARRAY_A
         );
+                        
+        $mrt_photo = new MrtPhoto;
+
+        foreach ($albums as $key => $value) {
+            $albums[$key]['album_thumb'] = $mrt_photo->get_album_thumbnail($value[$this->pkey]);
+        }
+        
+        return $albums;
     }
     
     public function is_user_album($user_id, $album_id) {
@@ -41,5 +55,11 @@ class MrtAlbum extends MrtDbbase {
                         "SELECT COUNT(*) FROM {$this->table} WHERE user_id = {$user_id} AND pf_album_id = {$album_id}"
         );
     }
+
+
+      
+    
+    
+    
 
 }

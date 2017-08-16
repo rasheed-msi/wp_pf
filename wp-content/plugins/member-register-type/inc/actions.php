@@ -2,30 +2,40 @@
 add_shortcode('test-page', 'test_page');
 
 function test_page() {
-     echo 'test';
+
+    $test = new MrtApiTest;
+
     if (isset($_GET['action']) && $_GET['action'] == 'clear') {
         Dot::clear_log();
     }
 
     if (isset($_GET['action']) && $_GET['action'] == 'setpass') {
-        global $wpdb;
- echo 'test';
-        $user_id = 26228;
-        $admin_pass = '0c5bc2f502b73a9d4a0dc621c14c80872215c682';
-        $admin_salt = 'pxGYYuJ5';
-        
-        $user_pass = '8b889d81b70c2053a1380fedccc638778ab8a403';
-        $user_salt = 'sZ!qAtau';
-        $admin123 = '$P$B7XDAm8J4pjSZ20sButJPrAJkG1n3b0';
-
-        if (isset($_GET['type']) && $_GET['type'] == 'admin') {
-
-            $wpdb->update($wpdb->users, ['user_pass' => $admin_pass, 'Salt' => $admin_salt], ['ID' => $user_id]);
-        } else {
-            $wpdb->update($wpdb->users, ['user_pass' => $user_pass, 'Salt' => $user_salt], ['ID' => $user_id]);
-                
-        }
+        $test->setpass();
     }
+
+    if (isset($_GET['action']) && $_GET['action'] == 'print_table_column') {
+        $col = Dot::get_columns('pf_videofiles');
+        MrtPrint::array_list($col);
+    }
+
+    if (isset($_GET['action']) && $_GET['action'] == 'upload_file') {
+        $test->upload_file();
+    }
+
+    if (isset($_GET['action']) && $_GET['action'] == 'find_images') {
+        $test->find_images();
+    }
+
+    if (isset($_GET['action']) && $_GET['action'] == 'update_youtube_id') {
+        $test->update_youtube_id();
+    }
+
+    if (isset($_GET['action']) && $_GET['action'] == 'setYoutubeLinkOne') {
+        $test->setYoutubeLinkOne();
+    }
+
+    // $test->list_states();
+    $test->get_letter();
     
 }
 
@@ -99,11 +109,11 @@ function page_filter_user() {
     <?php foreach ($form['fields'] as $key => $value): ?>
         <h3><?php echo $value['label']; ?></h3>
         <ul>
-            <?php foreach ($value['options'] as $key => $value): ?>
+        <?php foreach ($value['options'] as $key => $value): ?>
                 <li><?php echo $value; ?></li>
             <?php endforeach; ?>
         </ul>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
     <?php
 }
 
@@ -132,4 +142,61 @@ function mrt_agency_selection_exec($data) {
     $data['agencies'] = $user->get_agencies();
     $data['approved_agencies'] = State::get_approved_agencies_html_select();
     return $data;
+}
+
+add_action('wp_authenticate', 'mrt_custom_authentication');
+
+function mrt_custom_authentication($username) {
+    
+    global $wpdb;
+
+    if (!username_exists($username)) {
+        return;
+    }
+
+    $userinfo = get_user_by('login', $username);
+    $auth = new MrtAuth;
+    $token = $auth->set_token($userinfo->ID);
+    setcookie('MrtToken', $token, time() + (3600 * 24), '/');
+}
+
+function your_function() {
+    setcookie('MrtToken', $token, time() - (3600 * 24), '/');
+}
+
+add_action('wp_logout', 'your_function');
+
+function mrt_auth_page() {
+
+    $title = trim(get_the_title());
+    
+    $pages = [
+        'Albums',
+        'Dashboard',
+    ];
+
+    if (in_array($title, $pages)) {
+        if (!is_user_logged_in()) {
+            wp_redirect(site_url() . '/login');
+        }
+    }
+}
+
+add_action('wp', 'mrt_auth_page');
+
+add_filter( 'tml_action_links',  'mrt_tml_action_links', 10, 2);
+function mrt_tml_action_links($action_links, $args) {
+    
+    
+    
+    
+    foreach ($action_links as $key => $value) {
+        if($value['title'] == 'Register'){
+            $value['url'] = site_url() . '/register-options';
+        }
+        $action_links[$key] = $value;
+    }
+    
+    return $action_links;
+    
 }

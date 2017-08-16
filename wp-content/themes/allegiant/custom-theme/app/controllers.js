@@ -93,6 +93,9 @@ app.controller('dashboardController', function ($scope, UserService, $sce) {
         $scope.profile = response.profile;
         $scope.info = response.info;
 
+        $scope.preferences = response.preferences;
+
+
         if ($scope.info.YoutubeLink == 1) {
             var videoHtml = ' <iframe width="100%" height="100%" src="' + $scope.info.video_url + '"></iframe>';
         } else {
@@ -102,6 +105,8 @@ app.controller('dashboardController', function ($scope, UserService, $sce) {
         }
 
         $scope.videoDashboard = $sce.trustAsHtml(videoHtml);
+        $scope.intro = $sce.trustAsHtml($scope.preferences.intro);
+
     });
 
 });

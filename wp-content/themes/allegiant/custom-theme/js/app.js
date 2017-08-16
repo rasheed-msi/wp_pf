@@ -10,15 +10,19 @@ jQuery(function ($) {
 
     //Accordian
     $('.accordianItemActive').find('.accordianItemContents').show();
-    $('.accordianItem, .accordianItemActive').each(function () {
-        $(this).find('.accordianItemHeader').click(function () {
+
+
+    $('.accordianItemHeader').click(function () {
+        if ($(this).parent().hasClass('accordianItemActive')) {
             $(this).parent().toggleClass('accordianItemActive');
             $(this).next().slideToggle();
+        } else {
+            $(".accordianItemActive").find(".accordianItemContents").slideToggle();
+            $(".accordianItemActive").toggleClass('accordianItemActive');
+            $(this).parent().toggleClass('accordianItemActive');
+            $(this).next().slideToggle();
+        }
 
-            $('.articlePosts').isotope({
-                itemSelector: '.articlePost'
-            });
-        });
     });
 
     //Isotop

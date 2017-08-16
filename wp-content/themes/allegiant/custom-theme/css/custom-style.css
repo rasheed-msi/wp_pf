@@ -1,3 +1,12 @@
 .albumItemImage a img {
     height: 150px;
 }
+
+.dashboardTabMenu ul li {
+    list-style: none;
+    margin: 0px;
+}
+
+.albumItemImage {
+    text-align:center
+}

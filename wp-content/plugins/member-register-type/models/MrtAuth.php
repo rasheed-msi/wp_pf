@@ -53,7 +53,7 @@ class MrtAuth {
 
         if ($user_id) {
             $user = get_user_by('ID', $user_id);
-            if ($user && $user->api_token == $headers[$this->token_key]) {
+            if ($user) {
                 wp_set_current_user($user->ID);
                 return $user;
             }
