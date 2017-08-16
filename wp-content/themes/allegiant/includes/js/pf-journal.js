@@ -1,5 +1,4 @@
 jQuery(function($) {
-
     /*tinymce init*/
     tinymce.init( {
         mode : "exact",
