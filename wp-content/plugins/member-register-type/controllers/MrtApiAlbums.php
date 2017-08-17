@@ -74,17 +74,13 @@ class MrtApiAlbums extends WP_REST_Controller {
 
         $records = $this->mrt_album->all($this->user->ID);
 
-        if ($records) {
-            return new WP_REST_Response($records, 200);
-        } else {
-            return new WP_REST_Response([], 404);
-        }
+        return new WP_REST_Response($records, 200);
     }
 
     public function create_item($request) {
         $this->input = $request->get_params();
         $validate = $this->validate();
-        
+
         if ($validate['status']) {
             $id = $this->mrt_album->insert($validate['input']);
             return new WP_REST_Response(['id' => $id], 200);
@@ -98,11 +94,7 @@ class MrtApiAlbums extends WP_REST_Controller {
     public function get_item($request) {
         $records = $this->mrt_album->get($request['id']);
 
-        if ($records) {
-            return new WP_REST_Response($records, 200);
-        } else {
-            return new WP_REST_Response([], 404);
-        }
+        return new WP_REST_Response($records, 200);
     }
 
     public function update_item($request) {
@@ -159,17 +151,17 @@ class MrtApiAlbums extends WP_REST_Controller {
 
         return $this->validate_response();
     }
-    
+
     public function validate_update() {
-        
+
         if (isset($this->input['caption'])) {
             $this->input['uri'] = Dot::get_slug($this->input['caption']);
         }
-        
+
         if (empty($this->input['album_Date'])) {
             $this->input['album_Date'] = time();
         }
-        
+
         return $this->validate_response();
     }
 

@@ -115,3 +115,17 @@ function mrt_get_customposts($post_type, $display_count = -1) {
     $the_query = new WP_Query($args);
     return $the_query;
 }
+
+
+function mrt_body_style() {
+    $title = trim(get_the_title());
+
+    $pages = [
+        'Albums',
+    ];
+
+    if (in_array($title, $pages)) {
+        return 'background-color: #CCC';
+    }
+    return '';
+}

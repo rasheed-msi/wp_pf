@@ -24,7 +24,7 @@
         <![endif]-->
 
     </head>
-    <body >
+    <body style="<?php echo mrt_body_style(); ?>">
 
         <header id="header" class="header">
             <div class="container">

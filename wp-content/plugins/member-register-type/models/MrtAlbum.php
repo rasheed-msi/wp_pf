@@ -27,7 +27,7 @@ class MrtAlbum extends MrtDbbase {
         global $wpdb;
         $this->link = $wpdb;
     }
-    
+
     public static function get_object($class = null) {
         return parent::get_object(__CLASS__);
     }
@@ -38,28 +38,26 @@ class MrtAlbum extends MrtDbbase {
 
     function all($user_id) {
         $albums = $this->link->get_results(
-                        "SELECT * FROM {$this->table} WHERE user_id = {$user_id}", ARRAY_A
+                "SELECT * FROM {$this->table} WHERE user_id = {$user_id}", ARRAY_A
         );
-                        
+
+        if (count($albums) == 0) {
+            return [];
+        }
+
         $mrt_photo = new MrtPhoto;
 
         foreach ($albums as $key => $value) {
             $albums[$key]['album_thumb'] = $mrt_photo->get_album_thumbnail($value[$this->pkey]);
         }
-        
+
         return $albums;
     }
-    
+
     public function is_user_album($user_id, $album_id) {
         return $this->link->get_var(
                         "SELECT COUNT(*) FROM {$this->table} WHERE user_id = {$user_id} AND pf_album_id = {$album_id}"
         );
     }
-
-
-      
-    
-    
-    
 
 }

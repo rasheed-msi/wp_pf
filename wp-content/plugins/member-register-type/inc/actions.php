@@ -36,7 +36,6 @@ function test_page() {
 
     // $test->list_states();
     $test->get_letter();
-    
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
@@ -109,11 +108,11 @@ function page_filter_user() {
     <?php foreach ($form['fields'] as $key => $value): ?>
         <h3><?php echo $value['label']; ?></h3>
         <ul>
-        <?php foreach ($value['options'] as $key => $value): ?>
+            <?php foreach ($value['options'] as $key => $value): ?>
                 <li><?php echo $value; ?></li>
             <?php endforeach; ?>
         </ul>
-        <?php endforeach; ?>
+    <?php endforeach; ?>
     <?php
 }
 
@@ -145,9 +144,10 @@ function mrt_agency_selection_exec($data) {
 }
 
 add_action('wp_authenticate', 'mrt_custom_authentication');
+add_action('wp_login', 'mrt_custom_authentication');
 
 function mrt_custom_authentication($username) {
-    
+
     global $wpdb;
 
     if (!username_exists($username)) {
@@ -169,7 +169,7 @@ add_action('wp_logout', 'your_function');
 function mrt_auth_page() {
 
     $title = trim(get_the_title());
-    
+
     $pages = [
         'Albums',
         'Dashboard',
@@ -184,19 +184,70 @@ function mrt_auth_page() {
 
 add_action('wp', 'mrt_auth_page');
 
-add_filter( 'tml_action_links',  'mrt_tml_action_links', 10, 2);
+add_filter('tml_action_links', 'mrt_tml_action_links', 10, 2);
+
 function mrt_tml_action_links($action_links, $args) {
-    
-    
-    
-    
+
+
+
+
     foreach ($action_links as $key => $value) {
-        if($value['title'] == 'Register'){
+        if ($value['title'] == 'Register') {
             $value['url'] = site_url() . '/register-options';
         }
         $action_links[$key] = $value;
     }
-    
+
     return $action_links;
-    
 }
+
+function mrt_wsl_render_auth_widget_alter_authenticate_url($authenticate_url) {
+    if (isset($_GET['rft'])) {
+        // $authenticate_url = $authenticate_url . '&rft=' . $_GET['rft'];
+    }
+
+    return $authenticate_url;
+}
+
+add_filter('wsl_render_auth_widget_alter_authenticate_url', 'mrt_wsl_render_auth_widget_alter_authenticate_url', 10, 2);
+
+function mrt_wsl_alter_insert_user_data($userdata) {
+
+    if (!isset($_REQUEST['redirect_to'])) {
+        return $userdata;
+    }
+
+    $redirect_to = $_REQUEST['redirect_to'];
+    $parts = parse_url($redirect_to);
+    parse_str($parts['query'], $query);
+
+    if (!isset($query['rft'])) {
+        return $userdata;
+    }
+
+
+    if ($query['rft'] == 1) {
+        $userdata['role'] = 'adoptive_family';
+    } elseif ($query['rft'] == 2) {
+        $userdata['role'] = 'adoption_agency';
+    } elseif ($query['rft'] == 3) {
+        $userdata['role'] = 'birth_mother';
+    }
+
+    return $userdata;
+}
+
+add_filter('wsl_hook_process_login_alter_wp_insert_user_data', 'mrt_wsl_alter_insert_user_data', 10, 2);
+
+function mrt_after_wp_insert_user($user_id) {
+    
+    $mrtuser = new MrtUser($user_id);
+    $data = [
+        'first_name' =>  get_user_meta($user_id, 'first_name', true),
+        'last_name' =>  get_user_meta($user_id, 'last_name', true),
+        'user_type' =>  $mrtuser->user_role,
+    ];
+    $mrtuser->create_profile($data);
+}
+
+add_filter('wsl_hook_process_login_after_wp_insert_user', 'mrt_after_wp_insert_user', 10, 2);
