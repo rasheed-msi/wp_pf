@@ -197,9 +197,11 @@ class MrtApiTest {
         </div>
         <?php
     }
-    
+
     public function get_letter() {
-        
+        $mrtuser = get_user_meta(32857, 'last_name', true);
+        echo '<pre>', print_r($mrtuser), '</pre>';
+        exit();
     }
 
 }

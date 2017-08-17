@@ -52,7 +52,8 @@ class MrtProfile extends MrtDbbase {
         $obj = parent::find($id, $key, __CLASS__);
         if (isset($obj->data)) {
             $obj->data['marital_status'] = (is_null($obj->data['spouse_first_name'])) ? 'single' : 'couple';
-            $obj->data['display_name'] = $obj->data['first_name'] . ' & ' . $obj->data['spouse_first_name'];
+            $display_name_append = (isset($obj->data['spouse_first_name']) && $obj->data['spouse_first_name'] != '') ? ' & ' . $obj->data['spouse_first_name'] : '';
+            $obj->data['display_name'] = $obj->data['first_name'] . $display_name_append;
             $obj->data['avatar'] = MRT_URL_AVATHAR . '/' . $obj->data['avatar'] . '.jpg';
         }
         return $obj;
@@ -94,8 +95,6 @@ class MrtProfile extends MrtDbbase {
 
         $this->info['gender'] = ucfirst($this->data['gender']);
         $this->info['spouse_gender'] = ucfirst($this->data['spouse_gender']);
-        
-        
     }
 
 }
