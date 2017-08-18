@@ -88,9 +88,9 @@ if(!function_exists('cpotheme_add_styles')){
 		if(defined('CPOTHEME_CORELITE_URL')) $stylesheets_path = CPOTHEME_CORELITE_URL.'/css/';
 		
 		//Common styles
-		wp_enqueue_style('cpotheme-base', $stylesheets_path.'base.css');
+		wp_enqueue_style('cpotheme-base', $stylesheets_path.'base.css',array(),'5.0.1');
 		wp_register_style('cpotheme-magnific', $stylesheets_path.'magnific.css');
-		wp_enqueue_style('cpotheme-main', get_stylesheet_uri());
+		wp_enqueue_style('cpotheme-main', get_stylesheet_uri(), array(),'5.0.2');
 		
 		//Font Libraries
 		wp_register_style('cpotheme-fontawesome', $stylesheets_path.'icon-fontawesome.css');

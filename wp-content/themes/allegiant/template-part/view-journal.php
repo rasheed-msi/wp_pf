@@ -63,8 +63,8 @@ global $user_ID;
             </div>
       </div>
       <div class="modal-footer">
-            <button class="btn cancel" data-dismiss="modal" aria-hidden="true">Cancel</button>
-            <button class="btn btn-primary edit-journal-btn" >Save changes</button>
+            <button class="btn btn-default cancel" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button class="btn btn-primary edit-journal-btn" >Save</button>
       </div>
     </div>
 
@@ -77,11 +77,11 @@ global $user_ID;
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"><?php _e('Are you sure ?',''); ?></h4>
+        <h4 class="modal-title"><?php _e('Confirm',''); ?></h4>
       </div>
       <div class="modal-body">
         <input type="hidden" id="del-journal-id" name="del-journal-id" />
-        <p><?php _e('Are you sure you want to delete this journal ?',''); ?></p>
+        <p><?php _e('Do you really want to delete this journal ?',''); ?></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default cancel" data-dismiss="modal"><?php _e('Cancel',''); ?></button>

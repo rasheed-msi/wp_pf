@@ -68,13 +68,16 @@ li.uib-tab.nav-item.ng-scope.ng-isolate-scope {margin: 0px;}
 
 @media only screen and (min-width:992px){
     #profilebuilder .unsaved{margin-right: 560px;}
-        
+    #profilebuilder #savedData{margin-right: 844px;}    
 }
 
  @media only screen and (min-device-width: 768px) and (max-device-width: 991px){
     #profilebuilder .unsaved{margin-right: 140px;}
+    #profilebuilder #savedData{margin-right: 420px;}
  }
 
 @media only screen and (max-device-width: 767px) {
     #profilebuilder .unsaved{margin: 0px;}
+    #profilebuilder #savedData{}
  }
+

@@ -171,12 +171,10 @@ if (typeof edit_obj != 'undefined') {
                 var person1_dob = $scope.account.profiles[0].dob;
 
                 if (typeof (person1_dob) !== "undefined" && person1_dob != '0000-00-00' && person1_dob != null) {
-                    
                     $scope.pDoBext = person1_dob.split("-");
                     if ($scope.pDoBext.length == 3) {
                         $scope.dt = new Date($scope.pDoBext[0], $scope.pDoBext[1] - 1, $scope.pDoBext[2]);
                     }
-
                 } else {
                     $scope.dt = '';
                 }
@@ -581,9 +579,8 @@ if (typeof edit_obj != 'undefined') {
 
             $scope.deleteAgency = function(selectedAgency) {
 
-
                 var AgencyName = selectedAgency.agencyName;
-                if($scope.searchAgency.length <= 0){
+                if(typeof $scope.searchAgency !== 'undefined' && $scope.searchAgency.length <= 0){
                     $scope.resultsHidden = false;
                     $scope.filter = $scope.searchAgency;                    
                 }

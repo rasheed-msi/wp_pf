@@ -7,7 +7,7 @@
                 <div style="margin-top: -29px;">&nbsp;&nbsp;&nbsp;&nbsp;<b>YOU HAVE UNSAVED DATA. PLEASE CLICK ON</b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>SAVE OR CANCEL BUTTON TO MOVE FORWARD.</b></div>
                 <div class="clear_both"></div>
             </div>
-            <div class="unsaved" ng-if="saved" style="margin-right: 720px;"><img src="<?php echo get_template_directory_uri() . '/includes/pf-edit-profile/assets/images/thumbs-up-clipart.png';?>" alt="exclamation" height="25" width="25"></div>
+            <div  id="savedData"  class="unsaved" ng-if="saved"><img src="<?php echo get_template_directory_uri() . '/includes/pf-edit-profile/assets/images/thumbs-up-clipart.png';?>" alt="exclamation" height="25" width="25"></div>
             <input type="hidden" value="<?php echo $_SESSION['logged_user_access_token']; ?>" id="access_token" ng-model="access_token" ng-init="access_token = '<?php echo $_SESSION['logged_user_access_token']; ?>'" />
             <input type="hidden" value="<?php home_url(); ?>" id="site_url" ng-model="site_url" ng-init="site_url = '<?php home_url(); ?>'" />
             <input type="hidden" value="<?php echo get_stylesheet_directory_uri(); ?>/includes/pf-edit-profile/" id="template_root_path" ng-model="template_root_path" ng-init="template_root_path = '<?php echo get_stylesheet_directory_uri(); ?>/includes/pf-edit-profile/'" />

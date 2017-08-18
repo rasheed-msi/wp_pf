@@ -38,4 +38,14 @@ require get_template_directory() . '/includes/pf-edit-profile-api-functions.php'
 
 
 
+add_action('wp_enqueue_scripts', 'wp_pf_scripts_common');
+/**
+ * pf family enqueue script
+ */
+function wp_pf_scripts_common() {
+    wp_enqueue_style('pf-common-css', get_template_directory_uri() . '/core/css/pf-common-style.css', array(), '5.8.1');
+}
+
+
+
 

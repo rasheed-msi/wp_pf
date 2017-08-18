@@ -17,7 +17,7 @@ GENERAL ELEMENTS
 -------------------------------------------------------------- */
 
 /* BODY */
-::selection  { color:#fff; background-color:#89ce40; }
+
 ::-moz-selection { color:#fff; background-color:#89ce40; }		
 body { font-family:'Source Sans Pro', Arial, Helvetica, sans-serif; background:#fff; color:#99a; font-size:1em; line-height:1.6; }
 
@@ -44,7 +44,7 @@ input[type=tel], input[type=url], input[type=email],
 input[type=number], input[type=range], input[type=search], input[type=color], 
 input[type=time], input[type=week], input[type=month], input[type=date], input[type=datetime], 
 textarea, select { border:1px solid #ddd; padding:8px 6px; background:#f5f5f5; }
-input[type=submit] { width:auto; -webkit-appearance:none; }
+
 
 /* MAIN THEME COLORS */
 body .primary-color { color:#89ce40; }
@@ -56,9 +56,9 @@ body .secondary-color-bg { background-color:#444449; }
 html body .button, 
 html body .button:link, 
 html body .button:visited, 
-input[type=submit] { border-radius:2px; border:2px solid #89ce40; text-shadow:none; background:none; color:#89ce40; -moz-transition:0.4s all; -webkit-transition:0.4s all; transition:0.4s all; }
+
 html body .button:hover, 
-input[type=submit]:hover { color:#fff; background:#89ce40; }
+
 
 
 /* --------------------------------------------------------------

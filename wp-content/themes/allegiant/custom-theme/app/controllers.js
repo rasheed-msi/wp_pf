@@ -15,7 +15,8 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
 
         AlbumService.getItems().then(function (response) {
             $scope.albums = response;
-            $scope.albums_count = $scope.albums.length;
+            var albumCount = $scope.albums.length;
+            $scope.albums_count = (albumCount)? albumCount: 'no';
         });
     }
 
@@ -92,7 +93,9 @@ app.controller('dashboardController', function ($scope, UserService, $sce) {
         
         $scope.profile = response.profile;
         $scope.info = response.info;
+
         $scope.preferences = response.preferences;
+
 
         if ($scope.info.YoutubeLink == 1) {
             var videoHtml = ' <iframe width="100%" height="100%" src="' + $scope.info.video_url + '"></iframe>';
@@ -104,6 +107,7 @@ app.controller('dashboardController', function ($scope, UserService, $sce) {
 
         $scope.videoDashboard = $sce.trustAsHtml(videoHtml);
         $scope.intro = $sce.trustAsHtml($scope.preferences.intro);
+
     });
 
 });
