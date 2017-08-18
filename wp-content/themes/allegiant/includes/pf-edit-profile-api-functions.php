@@ -457,19 +457,24 @@ class PFEditApi {
         $data['special_need'] = (!empty($data['special_needs']) && count($data['special_needs']) > 0) ? 'yes': 'no';
 
         if (isset($data['child_desired'][0]) && $data['child_desired'][0] == "-1001") {
-            array_unshift($dataOpt['child_desired'], array('selectVal' => '-1002', 'selectText' => 'None'));
+            $dataOpt['child_desired'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $data['child_desired'][0] = "-1002";
         }
         if (isset($data['age_group_pref'][0]) && $data['age_group_pref'][0] == "-1001") {
-            array_unshift($dataOpt['age_group'], array('selectVal' => '-1002', 'selectText' => 'None'));
+            $dataOpt['age_group'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $data['age_group_pref'][0] = "-1002";
         }
         if (isset($data['adoption_type_pref'][0]) && $data['adoption_type_pref'][0] == "-1001") {
-            array_unshift($dataOpt['adoption_type'], array('selectVal' => '-1002', 'selectText' => 'None'));
+            $dataOpt['adoption_type'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $data['adoption_type_pref'][0] = "-1002";
         }
         if (isset($data['birthfatherPrefs'][0]) && $data['birthfatherPrefs'][0] == "-1001") {
-            array_unshift($dataOpt['birthfather_status'], array('selectVal' => '-1002', 'selectText' => 'None'));
+            $dataOpt['birthfather_status'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $data['birthfatherPrefs'][0] = "-1002";
         }
         if (isset($data['ethnicityprefs'][0]) && $data['ethnicityprefs'][0] == "-1001") {
-            array_unshift($dataOpt['ethnicity'], array('selectVal' => '-1002', 'selectText' => 'None'));
+            $dataOpt['ethnicity'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $data['ethnicityprefs'][0] = "-1002";
         }
 
 
@@ -654,7 +659,7 @@ class PFEditApi {
                     if ($cdesired == '-1002')
                         $cdesired = -1001;
 
-                    $this->wpdb->insert($this->tbl_desired_child_pref, array('desired_child_id' => $cdesired, 'user_id' => $this->user_ID), array('%d', '%d'));
+                    $this->wpdb->insert($this->tbl_desired_child_pref, array('desired_child_id' => $cdesired, 'user_id' => $this->user_ID), array('%s', '%d'));
                 }
             }
 
@@ -672,7 +677,7 @@ class PFEditApi {
                     if ($agp == '-1002')
                         $agp = -1001;
 
-                    $this->wpdb->insert($this->tbl_age_group_preference, array('age_group_id' => $agp, 'user_id' => $this->user_ID), array('%d', '%d'));
+                    $this->wpdb->insert($this->tbl_age_group_preference, array('age_group_id' => $agp, 'user_id' => $this->user_ID), array('%s', '%d'));
                 }
             }
 
@@ -682,7 +687,7 @@ class PFEditApi {
                     if ($ep == '-1002')
                         $ep = -1001;
 
-                    $this->wpdb->insert($this->tbl_ethnicity_pref, array('ethnicity_id' => $ep, 'user_id' => $this->user_ID), array('%d', '%d'));
+                    $this->wpdb->insert($this->tbl_ethnicity_pref, array('ethnicity_id' => $ep, 'user_id' => $this->user_ID), array('%s', '%d'));
                 }
             }
 
@@ -692,7 +697,7 @@ class PFEditApi {
                     if ($atp == '-1002')
                         $atp = -1001;
 
-                    $this->wpdb->insert($this->tbl_adoption_type_preference, array('adoption_type_id' => $atp, 'user_id' => $this->user_ID), array('%d', '%d'));
+                    $this->wpdb->insert($this->tbl_adoption_type_preference, array('adoption_type_id' => $atp, 'user_id' => $this->user_ID), array('%s', '%d'));
                 }
             }
 
@@ -702,7 +707,7 @@ class PFEditApi {
                     if ($bf == '-1002')
                         $bf = -1001;
 
-                    $this->wpdb->insert($this->tbl_birthfather_pref, array('birthfather_status_id' => $bf, 'user_id' => $this->user_ID), array('%d', '%d'));
+                    $this->wpdb->insert($this->tbl_birthfather_pref, array('birthfather_status_id' => $bf, 'user_id' => $this->user_ID), array('%s', '%d'));
                 }
             }
 

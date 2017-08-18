@@ -1,4 +1,5 @@
 jQuery(function($) {
+
     /*tinymce init*/
     tinymce.init( {
         mode : "exact",
@@ -85,7 +86,7 @@ jQuery(function($) {
                    if(data.status == 200){
 
                         $('<div class="alert alert-success">\n\
-                            <strong>Success!</strong> Journal removed successfully.\n\
+                            <strong>Success!</strong> Journal saved successfully.\n\
                         </div>').prependTo('#journal-form').delay(1000).fadeOut(function(){
                             $(this).remove();
                             if(journalAction == 'update'){

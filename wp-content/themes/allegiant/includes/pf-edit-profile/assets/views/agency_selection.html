@@ -53,8 +53,8 @@
             </div>
         </div>
         <div class="row margins" ng-show="showAgencyBlock">
-            <div class="col-xs-8">
-                <div class="col-xs-8">
+            <div class="col-sm-8">
+                <div class="col-sm-8">
                     <div class="input-group add-on">
                         <input class="form-control" placeholder="Search Agency ..." ng-model="searchAgency" type="text">
                         <div class="input-group-btn">
@@ -62,23 +62,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-8" ng-show="resultsHidden">
+                <div class="col-sm-8" ng-show="resultsHidden">
                     <div style="max-height: 500px;overflow: auto;" >
                         <ul class="list-group checked-list-box">
-                            <li class="checkbox list-group-item" ng-repeat="agency in agencyList | filter:{agencyName:filter}" ng-cloak>
+                            <li class="checkbox list-group-item" ng-repeat="agency in agencyList | filter:{agencyName:filter} as filteredAgencies" ng-cloak>
                                 <label for="adopt_{{agency.agencyId}}">
                                     <input type="checkbox" id="adopt_{{agency.agencyId}}"  ng-model="agency.selected" ng-change="agencyCheck();">{{agency.agencyName}}
                                     <!--<input type="checkbox" id="UNIQUELABEL{{::$id}}"  ng-checked="agency.selected === 1" data-checklist-model="selectedAgencies" data-checklist-value="agency" ng-change="agencyCheck();">{{agency.agencyName}}-->
                                 </label>
                             </li>
+                            <li class="list-group-item" ng-show="!filteredAgencies.length">Sorry, no agencies found</li>
                         </ul>
                     </div>
                 </div>
-                <div class="col-xs-4 text-center" ng-show="resultsHidden">
+                <div class="col-sm-4 text-center" ng-show="resultsHidden">
                     <button type="button" class="btn btn-primary btn-lg" style="vertical-align: middle" ng-click="addAgencies();">Add</button>
                 </div>
             </div>
-            <div class="col-xs-4">
+            <div class="col-sm-4">
                 <div style="max-height: 500px;overflow: auto;">
                     <div  class="panel panel-primary" ng-repeat="selectedAgency in selectedAgencies" ng-class="{'accept':selectedAgency.user_status == 2, 'reject':selectedAgency.user_status == 3}">
                         <div class="panel-heading">
@@ -106,4 +107,4 @@
             </div>
         </div>
     </form>
-</div>	
+</div>  
