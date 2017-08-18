@@ -136,14 +136,7 @@ jQuery(function ($) {
 //
 //    });
 
-    $( "#birds" ).autocomplete({
-      source: appConst.apiRequest + '/lstates',
-      minLength: 2,
-      select: function( event, ui ) {
-        log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-      }
-    });
-    console.log(mrt_readCookie('MrtToken'));
+    
 
 });
 

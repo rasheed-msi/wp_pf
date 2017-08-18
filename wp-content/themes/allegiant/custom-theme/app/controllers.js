@@ -15,7 +15,8 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
 
         AlbumService.getItems().then(function (response) {
             $scope.albums = response;
-            $scope.albums_count = $scope.albums.length;
+            var albumCount = $scope.albums.length;
+            $scope.albums_count = (albumCount)? albumCount: 'no';
         });
     }
 

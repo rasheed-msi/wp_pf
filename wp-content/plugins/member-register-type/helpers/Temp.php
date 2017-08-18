@@ -33,6 +33,9 @@ class Temp {
         } elseif ($agency_status == 3) {
             $return['new_label'] = 'Approve';
             $return['new_status_id'] = 1;
+        } else {
+            $return['new_label'] = 'Approve';
+            $return['new_status_id'] = 1;
         }
         
         return $return;

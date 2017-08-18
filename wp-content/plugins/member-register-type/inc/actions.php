@@ -35,6 +35,7 @@ function test_page() {
     }
 
     // $test->list_states();
+    echo get_current_user_id();
     $test->get_letter();
 }
 
