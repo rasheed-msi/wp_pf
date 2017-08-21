@@ -33,10 +33,10 @@ function test_page() {
     if (isset($_GET['action']) && $_GET['action'] == 'setYoutubeLinkOne') {
         $test->setYoutubeLinkOne();
     }
-
-    // $test->list_states();
-    echo get_current_user_id();
-    $test->get_letter();
+    
+    $active_memberships = pmpro_getMembershipLevelForUser();
+    print_r($active_memberships);
+    echo 'test2';
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
@@ -241,12 +241,12 @@ function mrt_wsl_alter_insert_user_data($userdata) {
 add_filter('wsl_hook_process_login_alter_wp_insert_user_data', 'mrt_wsl_alter_insert_user_data', 10, 2);
 
 function mrt_after_wp_insert_user($user_id) {
-    
+
     $mrtuser = new MrtUser($user_id);
     $data = [
-        'first_name' =>  get_user_meta($user_id, 'first_name', true),
-        'last_name' =>  get_user_meta($user_id, 'last_name', true),
-        'user_type' =>  $mrtuser->user_role,
+        'first_name' => get_user_meta($user_id, 'first_name', true),
+        'last_name' => get_user_meta($user_id, 'last_name', true),
+        'user_type' => $mrtuser->user_role,
     ];
     $mrtuser->create_profile($data);
 }

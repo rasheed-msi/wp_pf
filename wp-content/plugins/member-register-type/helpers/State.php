@@ -26,5 +26,17 @@ class State {
         global $wpdb;
         return $wpdb->get_results("SELECT state_id, State FROM pf_states WHERE State LIKE '%{$term}%'", ARRAY_A);
     }
+    
+    static function has_membership_access($membership_level = null) {
+        $user_id = get_current_user_id();
+        
+        if(!$user_id){
+            return false;
+        }
+        
+        $mrt_user = new MrtUser($user_id);
+        return $mrt_user->has_mem_access($membership_level);
+        
+    }
 
 }

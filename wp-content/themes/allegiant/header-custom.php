@@ -33,8 +33,12 @@
                     <div class="headerContents flexFullChild clearfix">
                         <div class="buttonsGroup clearfix">
                             <?php if (is_user_logged_in()): ?>
-                                <span><a href="<?php echo wp_logout_url( home_url() ); ?>" class="buttons">Logout</a></span>
+                                <span><a href="<?php echo wp_logout_url(home_url()); ?>" class="buttons">Logout</a></span>
                                 <span><a href="<?php echo site_url('dashboard'); ?>" class="buttons buttonGreen">Dashboard</a></span>
+                                <?php if (!State::has_membership_access()): ?>
+                                    <span><a href="<?php echo site_url('membership-account/membership-levels'); ?>" class="buttons buttonGreen">Membership</a></span>
+                                <?php endif; ?>
+
                             <?php else: ?>
                                 <span><a href="<?php echo site_url('register-options'); ?>" class="buttons">Register</a></span>
                                 <span><a href="<?php echo site_url('login'); ?>" class="buttons buttonGreen">Login</a></span>

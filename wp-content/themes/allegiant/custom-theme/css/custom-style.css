@@ -10,3 +10,11 @@
 .albumItemImage {
     text-align:center
 }
+
+.dashBoardAlbumTitle input {
+    text-align:center;
+}
+
+a.buttons {
+    color: #FFF;
+}

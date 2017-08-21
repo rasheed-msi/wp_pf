@@ -42,24 +42,32 @@ class MrtUser {
      * @return array
      */
     public function get_memberships() {
-
-        if (!$this->logged_in) {
-            return [];
+        
+        $active_memberships = pmpro_getMembershipLevelForUser($this->user_id);
+        
+        if (is_object($active_memberships)) {
+            $return[$active_memberships->ID] = $active_memberships->name;
+            return $return;
         }
-
-        $user = MeprUtils::get_currentuserinfo();
-        $active_memberships = $user->active_product_subscriptions('products');
 
         $return = [];
-        foreach ($active_memberships as $membership) {
-            $return[$membership->ID] = $membership->post_title;
+        if (is_array($active_memberships)) {
+            foreach ($active_memberships as $membership) {
+                $return[$membership->ID] = $membership->name;
+            }
         }
-
+        
         return $return;
     }
 
-    public function has_mem_access($membership_level) {
+    public function has_mem_access($membership_level = null) {
         $memberships = $this->get_memberships();
+
+        if (is_null($membership_level)) {
+            // Check has any membership level
+            return (count($memberships) > 0) ? true : false;
+        }
+
         return in_array($membership_level, $memberships);
     }
 

@@ -36,7 +36,7 @@ get_header('custom');
                                             <figure ng-click="showPhoto(album)"><a href="#"><img src="{{album.album_thumb}}" alt=""></a></figure>
                                         </div>
                                         <div class="dashBoardAlbumContents">
-                                            <div class="dashBoardAlbumTitle text-center flexbox verticalAlign">
+                                            <div class="dashBoardAlbumTitle text-center verticalAlign">
 
                                                 <form name="formAlbum">
                                                     <input type="text" name="caption" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="showEditBox == album.pf_album_id"  required>
@@ -56,7 +56,7 @@ get_header('custom');
                                             <figure ng-click="showPhotoSingle(photo)"><a href="#"><img ng-src="{{photo.thumb}}" alt=""></a></figure>
                                         </div>
                                         <div class="dashBoardAlbumContents">
-                                            <div class="dashBoardAlbumTitle text-center flexbox verticalAlign">
+                                            <div class="dashBoardAlbumTitle text-center verticalAlign">
                                                 <form name="formPhoto">
                                                     <input type="text" name="Title" ng-model="photo.Title" ng-blur="editPhotoTitle(photo, false)" ng-show="showEditBox == photo.pf_photo_id">
                                                     <p ng-show="formPhoto.Title.$touched && formPhoto.Title.$invalid"> Please enter title</p>
