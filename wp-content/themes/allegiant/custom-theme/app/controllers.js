@@ -16,7 +16,8 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
         AlbumService.getItems().then(function (response) {
             $scope.albums = response;
             var albumCount = $scope.albums.length;
-            $scope.albums_count = (albumCount)? albumCount: 'no';
+            albumCount = (albumCount) ? albumCount : 'no';
+            $scope.heading = "You have " + albumCount + " Albums";
         });
     }
 
@@ -27,9 +28,11 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
         $scope.pages = AppService.showPage('photo', $scope.pages);
         $scope.backButton = true;
         $scope.photos = [];
+        $scope.heading = data.caption;
 
         PhotoService.getItems(data).then(function (response) {
             $scope.photos = response;
+            
         });
     }
 
@@ -37,6 +40,7 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
         $scope.pages = AppService.showPage('photoSingle', $scope.pages);
         $scope.backButton = true;
         $scope.photo = [];
+        $scope.heading = model.Title;
 
         PhotoService.getItem(model).then(function (response) {
             $scope.photo = response;
@@ -90,7 +94,7 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
 app.controller('dashboardController', function ($scope, UserService, $sce) {
 
     UserService.dashboard().then(function (response) {
-        
+
         $scope.profile = response.profile;
         $scope.info = response.info;
 

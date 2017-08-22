@@ -1,0 +1,16 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 22 Aug, 2017, 1:03:00 PM
+    Author     : MSI1374
+*/
+
+/*Rasheed Css for Journals*/
+.author-journal-container .edit-journal, .author-letter-container .edit-letter{float: left;margin: 0;left: -15px;position: relative;top: -15px;color: #b33c00;border-radius: 50%;width: 30px;height: 30px;font-weight: 3px;background: #ECA;visibility:hidden;}
+.author-journal-container .delete-journal, .author-letter-container .delete-letter{float: right;position: relative;top: -15px;right: -15px;border-radius: 50%;width: 30px;height: 30px;color:#b33c00;background: #ECA;visibility:hidden;}
+.author-journal-container .edit-journal:hover, .author-journal-container .delete-journal:hover,.author-letter-container .edit-letter:hover, .author-letter-container .delete-letter:hover{color:#b33c00;background: #ECA;}
+.author-journal-container .author-journal-container span[id^="post-title-"], .author-letter-container .author-letter-container[id^="letter-title-"] {-ms-word-break: break-all;word-break: break-all;}
+/*Rasheed Css for Journals*/

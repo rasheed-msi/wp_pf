@@ -3,12 +3,12 @@
  * 
  * Template Name: Albums
  */
-get_header('custom');
+get_header();
 ?>
 
-<section class="container" ng-controller="albumController">
+<section class="container"  ng-app="appParentfinder">
 
-    <div class="dashboardTabs flexbox" style="margin-top:50px;">
+    <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
 
         <?php get_sidebar('albums'); ?>
 
@@ -18,7 +18,7 @@ get_header('custom');
 
                     <div class="dashboardTabsHeader flexbox verticalAlign">
                         <div class="dashboardTabsHeaderContent flexFullChild">
-                            <h4>You have {{albums_count}} Albums</h4>
+                            <h4>{{heading}}</h4>
                             <p>Need some help? Read the documentation or watch a video</p>
                         </div>
                         <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="showAlbum()">
@@ -74,7 +74,6 @@ get_header('custom');
 
                             <div ng-if="pages.photoSingle">
                                 <div class="col-lg-12">
-                                    <h2>{{photo.Title}}</h2>
                                     <img src="{{photo.webview}}" alt="">
                                 </div>
                             </div>

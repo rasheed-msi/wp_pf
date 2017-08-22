@@ -56,8 +56,7 @@
 
                             </div>
                         </div>
-                        <!--                                    
-                        <div class="articleItemColumn flexFullChild">
+                        <!--                                    <div class="articleItemColumn flexFullChild">
                                                                 <div class="articleItemHead blue">{{profile.spouse_first_name}}</div>
                                                                 <div class="articleItemContents">
                                                                     <div class="articleItemWidget">
@@ -77,8 +76,7 @@
                                                                         <p>{{info.spouse_religion}}</p>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                        -->
+                                                            </div>-->
 
 
                     </div>

@@ -20,12 +20,12 @@
                     _e('Username or E-mail', 'theme-my-login');
                 }
                 ?></label>
-            <input type="text" name="log" id="user_login<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('log'); ?>" size="20" />
+            <input type="text" name="log" id="user_login<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('log'); ?>" size="20" required>
         </p>
 
         <p class="tml-user-pass-wrap">
             <label for="user_pass<?php $template->the_instance(); ?>"><?php _e('Password', 'theme-my-login'); ?></label>
-            <input type="password" name="pwd" id="user_pass<?php $template->the_instance(); ?>" class="input" value="" size="20" autocomplete="off" />
+            <input type="password" name="pwd" id="user_pass<?php $template->the_instance(); ?>" class="input" value="" size="20" autocomplete="off" required>
         </p>
 
         <?php do_action('login_form'); ?>

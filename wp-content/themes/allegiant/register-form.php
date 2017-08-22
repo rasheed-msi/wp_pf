@@ -17,7 +17,6 @@
     <?php endif; ?>
 
     <?php do_action('wordpress_social_login'); ?>
-
     <h3>OR</h3>
     
     <form name="registerform" id="registerform<?php $template->the_instance(); ?>" action="<?php $template->the_action_url('register', 'login_post'); ?>" method="post">
@@ -30,13 +29,12 @@
         <?php endif; ?>
 
         <?php echo $form['form_html']; ?>
-        
-        <!--        
-        <p class="tml-user-email-wrap">
+
+
+<!--        <p class="tml-user-email-wrap">
             <label for="user_email<?php $template->the_instance(); ?>"><?php _e('E-mail', 'theme-my-login'); ?></label>
             <input type="text" name="user_email" id="user_email<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_email'); ?>" size="20" />
-        </p>
-        -->
+        </p>-->
 
         <?php do_action('register_form'); ?>
 
