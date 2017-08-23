@@ -44,6 +44,7 @@
             </p>
         </div>
     </form>
+    
     <?php do_action('wordpress_social_login'); ?>
 
     <?php $template->the_action_links(array('login' => false)); ?>

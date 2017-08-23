@@ -21,7 +21,6 @@ jQuery(function ($) {
             $(this).parent().toggleClass('accordianItemActive');
             $(this).next().slideToggle();
         }
-
     });
 
     //Isotop

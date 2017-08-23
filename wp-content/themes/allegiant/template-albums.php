@@ -21,7 +21,7 @@ get_header();
                             <h4>{{heading}}</h4>
                             <p>Need some help? Read the documentation or watch a video</p>
                         </div>
-                        <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="showAlbum()">
+                        <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="executeBackButton(backButton)">
                             <a href="#" class="btn buttons clearfix"><i class="fa fa-angle-left"></i><span>Back</span></a>
                         </div>
                     </div>
@@ -39,9 +39,8 @@ get_header();
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
 
                                                 <form name="formAlbum">
-                                                    <input type="text" name="caption" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="showEditBox == album.pf_album_id"  required>
-                                                    <p ng-show="formAlbum.caption.$touched && formAlbum.caption.$invalid"> Please enter title</p>
-                                                    <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="(showEditBox != album.pf_album_id)">{{album.caption}}</span>
+                                                    <input type="text" class="span-caption" name="caption" ng-class="{error: formAlbum.caption.$invalid}" ng-maxlength="28" ng-click="editAlbumTitle(album, true)" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="showEditBox == album.pf_album_id || album.caption == ''">
+                                                    <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="!(showEditBox == album.pf_album_id || album.caption == '')">{{album.caption}}</span>
                                                 </form>
                                             </div>                                                    
                                         </div>

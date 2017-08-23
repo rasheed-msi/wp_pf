@@ -1,6 +1,6 @@
 .join-link a {
     display: block;
-    
+
     height: 100px;
     width: 100px;
     float: left;
@@ -9,9 +9,20 @@
     color: #FFF;
     margin: 2px;
     text-align: center;
-    
+
 }
 
 .join-link a:hover {
     opacity: 0.8;
+}
+
+input.error {
+    border:1px solid red;
+}
+
+.span-caption {
+    line-height: 20px;
+    min-height: 30px;
+    padding: 5px 0;
+    border: 0px !important;
 }

@@ -34,9 +34,7 @@ function test_page() {
         $test->setYoutubeLinkOne();
     }
     
-    $active_memberships = pmpro_getMembershipLevelForUser();
-    print_r($active_memberships);
-    echo 'test2';
+    print_r($_SERVER);
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
@@ -163,6 +161,7 @@ function mrt_custom_authentication($username) {
 
 function your_function() {
     setcookie('MrtToken', $token, time() - (3600 * 24), '/');
+    wp_cache_flush();
 }
 
 add_action('wp_logout', 'your_function');
