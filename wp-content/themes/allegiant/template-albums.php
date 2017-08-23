@@ -39,9 +39,8 @@ get_header();
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
 
                                                 <form name="formAlbum">
-                                                    <input type="text" name="caption" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="showEditBox == album.pf_album_id"  required>
-                                                    <p ng-show="formAlbum.caption.$touched && formAlbum.caption.$invalid"> Please enter title </p>
-                                                    <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="(showEditBox != album.pf_album_id)">{{album.caption}}</span>
+                                                    <input type="text" class="span-caption" name="caption" ng-class="{error: formAlbum.caption.$invalid}" ng-maxlength="28" ng-click="editAlbumTitle(album, true)" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="showEditBox == album.pf_album_id || album.caption == ''">
+                                                    <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="!(showEditBox == album.pf_album_id || album.caption == '')">{{album.caption}}</span>
                                                 </form>
                                             </div>                                                    
                                         </div>
