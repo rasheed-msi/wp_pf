@@ -3,11 +3,11 @@
  * 
  * Template Name: Dashboard
  */
-get_header('custom');
+get_header();
 ?>
-<section class="container" ng-controller="dashboardController">
+<section class="container" ng-app="appParentfinder">
     <!--Profile Start-->
-    <div class="profile" style="margin-top:25px;">
+    <div class="profile" style="margin-top:25px;" ng-controller="dashboardController">
 
         <div class="profileSection profileIntro clearfix">
             <div class="row profileRow">
@@ -133,11 +133,10 @@ get_header('custom');
                 </div>
             </div><!--//Accordian Item-->
 
-
         </div>
 
     </div>
     <!--Profile end-->
 
 </section>
-<?php get_footer('custom'); ?>
+<?php get_footer(); ?>

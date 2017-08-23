@@ -18,11 +18,9 @@ jQuery(function ($) {
             $(this).next().slideToggle();
         } else {
             $(".accordianItemActive").find(".accordianItemContents").slideToggle();
-            $(".accordianItemActive").toggleClass('accordianItemActive');
             $(this).parent().toggleClass('accordianItemActive');
             $(this).next().slideToggle();
         }
-
     });
 
     //Isotop

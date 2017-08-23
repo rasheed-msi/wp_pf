@@ -3,12 +3,12 @@
  * 
  * Template Name: Albums
  */
-get_header('custom');
+get_header();
 ?>
 
-<section class="container" ng-controller="albumController">
+<section class="container"  ng-app="appParentfinder">
 
-    <div class="dashboardTabs flexbox" style="margin-top:50px;">
+    <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
 
         <?php get_sidebar('albums'); ?>
 
@@ -18,10 +18,10 @@ get_header('custom');
 
                     <div class="dashboardTabsHeader flexbox verticalAlign">
                         <div class="dashboardTabsHeaderContent flexFullChild">
-                            <h4>You have {{albums_count}} Albums</h4>
+                            <h4>{{heading}}</h4>
                             <p>Need some help? Read the documentation or watch a video</p>
                         </div>
-                        <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="showAlbum()">
+                        <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="executeBackButton(backButton)">
                             <a href="#" class="btn buttons clearfix"><i class="fa fa-angle-left"></i><span>Back</span></a>
                         </div>
                     </div>
@@ -40,7 +40,7 @@ get_header('custom');
 
                                                 <form name="formAlbum">
                                                     <input type="text" name="caption" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="showEditBox == album.pf_album_id"  required>
-                                                    <p ng-show="formAlbum.caption.$touched && formAlbum.caption.$invalid"> Please enter title</p>
+                                                    <p ng-show="formAlbum.caption.$touched && formAlbum.caption.$invalid"> Please enter title </p>
                                                     <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="(showEditBox != album.pf_album_id)">{{album.caption}}</span>
                                                 </form>
                                             </div>                                                    
@@ -74,7 +74,6 @@ get_header('custom');
 
                             <div ng-if="pages.photoSingle">
                                 <div class="col-lg-12">
-                                    <h2>{{photo.Title}}</h2>
                                     <img src="{{photo.webview}}" alt="">
                                 </div>
                             </div>

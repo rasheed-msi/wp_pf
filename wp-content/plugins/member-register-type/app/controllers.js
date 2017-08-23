@@ -1,7 +1,5 @@
 app.controller('albumController', function ($http, $scope, AppService, PhotoService, AlbumService) {
 
-    $scope.backButton = false;
-
     $scope.pages = {
         album: true,
         photo: false,
@@ -16,7 +14,8 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
         AlbumService.getItems().then(function (response) {
             $scope.albums = response;
             var albumCount = $scope.albums.length;
-            $scope.albums_count = (albumCount)? albumCount: 'no';
+            albumCount = (albumCount) ? albumCount : 'no';
+            $scope.heading = "You have " + albumCount + " Albums";
         });
     }
 
@@ -25,24 +24,37 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
 
     $scope.showPhoto = function (data) {
         $scope.pages = AppService.showPage('photo', $scope.pages);
-        $scope.backButton = true;
+        $scope.backButton = 'photo';
         $scope.photos = [];
+        $scope.heading = data.caption;
+        $scope.lastModel = data;
 
         PhotoService.getItems(data).then(function (response) {
             $scope.photos = response;
+            
         });
     }
 
     $scope.showPhotoSingle = function (model) {
         $scope.pages = AppService.showPage('photoSingle', $scope.pages);
-        $scope.backButton = true;
+        $scope.backButton = 'photoSingle';
         $scope.photo = [];
-
+        $scope.heading = model.Title;
+        
         PhotoService.getItem(model).then(function (response) {
             $scope.photo = response;
         });
     }
-
+    
+    $scope.executeBackButton = function(viewing){
+        if(viewing == 'photoSingle'){
+            $scope.showPhoto($scope.lastModel);
+            $scope.backButton = 'photo';
+        }else if(viewing == 'photo'){
+            $scope.showAlbum();
+            $scope.backButton = false;
+        }
+    }
 
     // Title Edit
     $scope.showEditBox = false;
@@ -90,7 +102,7 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
 app.controller('dashboardController', function ($scope, UserService, $sce) {
 
     UserService.dashboard().then(function (response) {
-        
+
         $scope.profile = response.profile;
         $scope.info = response.info;
 
