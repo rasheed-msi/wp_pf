@@ -175,6 +175,11 @@ class LetterConf {
     function letterScriptForImages() {
         // Check for correct post_type
         global $post;
+        
+        if(!isset($post->post_type)){
+            return;
+        }
+        
         if ('letter' != $post->post_type)// here you can set post type name
             return;
 
@@ -193,6 +198,10 @@ class LetterConf {
         // Doing revision, exit earlier **can be removed**
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
             return;
+        
+        if(!isset($post_object->post_type)){
+            return;
+        }
 
         // Doing revision, exit earlier
         if ('revision' == $post_object->post_type)
