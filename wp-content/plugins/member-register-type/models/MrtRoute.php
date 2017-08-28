@@ -19,7 +19,8 @@ class MrtRoute {
                 'set_agency_approve' => "{$this->pattern['agency_id']}/status/{$this->pattern['status_id']}",
             ],
             'albums' => [
-                'item' => 'albums'
+                'item' => 'albums',
+                'bulk_delete' => 'bulk-delete'
             ],
             'photos' => [
                 'item' => "{$this->pattern['album_id']}/photos",

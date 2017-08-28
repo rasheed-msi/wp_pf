@@ -15,6 +15,7 @@
                     display: none;
                 }
             </style>
+            
         <?php endif; ?>
 
         <!--[if lt IE 9]>
@@ -23,6 +24,7 @@
         <![endif]-->
     </head>
     <body style="<?php echo mrt_body_style(); ?>">
+        
 
         <header class="header">
             <div class="container">

@@ -7,9 +7,12 @@ get_header();
 ?>
 
 <section class="container"  ng-app="appParentfinder">
+    
+    
 
     <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
 
+        <div id="ajaxloader" ng-show="showAjaxLoader"></div>
         <?php get_sidebar('albums'); ?>
 
         <div class="dashboardTabsContent flexFullChild">
@@ -29,18 +32,31 @@ get_header();
                         <div class="row albumGroup">
 
                             <div ng-if="pages.album">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="album in albums">
-
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-show="albumSettings.htmlAddBox">
                                     <div class="albumItem">
                                         <div class="albumItemImage">
-                                            <figure ng-click="showPhoto(album)"><a href="#"><img src="{{album.album_thumb}}" alt=""></a></figure>
+                                            <figure><img src="<?php echo MRT_URL_DEFAULT_PHOTOS_THUMB ?>" alt=""></figure>
+                                        </div>
+                                        <div class="dashBoardAlbumContents">
+                                            <div class="dashBoardAlbumTitle text-center verticalAlign">
+                                                <form name="formAlbum">
+                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="28" ng-class="{error: formAlbum.caption.$invalid}" ng-model="newAlbum.caption" ng-keypress="enterPressedAlbum($event, 'newalbum')" ng-blur="addAlbum()">
+                                                </form>
+                                            </div>                                                    
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="album in albums" ng-class="{selected: hasInSelectList(album)}">
+                                    <div class="albumItem">
+                                        <div class="albumItemImage">
+                                            <figure ng-click="changeSelectList(album)" ng-dblclick="showPhoto(album)"><img src="{{album.album_thumb}}" alt=""></figure>
                                         </div>
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
 
                                                 <form name="formAlbum">
-                                                    <input type="text" class="span-caption" name="caption" ng-class="{error: formAlbum.caption.$invalid}" ng-maxlength="28" ng-click="editAlbumTitle(album, true)" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="showEditBox == album.pf_album_id || album.caption == ''">
-                                                    <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="!(showEditBox == album.pf_album_id || album.caption == '')">{{album.caption}}</span>
+                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="28" ng-click="editAlbumTitle(album, true)" ng-class="{error: formAlbum.caption.$invalid}" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="albumSettings.htmlTitleInput == album.pf_album_id || album.caption == ''" ng-keypress="enterPressedAlbum($event, 'album', album)">
+                                                    <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="!(albumSettings.htmlTitleInput == album.pf_album_id || album.caption == '')">{{album.caption}}</span>
                                                 </form>
                                             </div>                                                    
                                         </div>
