@@ -15,6 +15,7 @@ class MrtApiAlbums extends WP_REST_Controller {
         $this->auth = new MrtAuth;
         $this->route = new MrtRoute;
         $this->mrt_album = new MrtAlbum;
+        $this->mrt_photo = new MrtPhoto;
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 

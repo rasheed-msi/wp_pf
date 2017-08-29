@@ -8,3 +8,13 @@ Array.prototype.remove = function() {
     }
     return this;
 };
+
+Array.prototype.collectiveRemove = function (key, value) {
+    var keep = [];
+    this.forEach(function (item, index, object) {
+        if (item[key] != value) {
+            keep.push(item)
+        }
+    });
+    return keep;
+};

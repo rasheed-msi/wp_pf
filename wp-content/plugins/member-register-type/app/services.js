@@ -7,13 +7,24 @@ app.service("AppService", function () {
         pages[show] = true;
         return pages;
     }
+
+    this.collectiveRemove = function (Obj, key, value) {
+        var keep = [];
+        
+        angular.forEach(Obj, function (item, index) {
+            if (item[key] != value) {
+                keep.push(item)
+            }
+        });
+        return keep;
+    }
 });
 
 
 app.service("WebService", function ($http, $q) {
-    
+
     this.request = function (req) {
-        
+
         var deferred = $q.defer();
 
         req.headers = {Token: appConst.mrtToken}

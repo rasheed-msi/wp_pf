@@ -36,6 +36,9 @@ class MrtRoute {
                 'set_agency_status_approve' => "agency-status/{$this->pattern['agency_id']}/status/{$this->pattern['status_id']}",
                 'states' => "states/{$this->pattern['id']}",
             ],
+            'filestack_album_processing' => [
+                'item' => 'filestack-album-processing'
+            ],
         ];
 
         $this->order = $this->order();

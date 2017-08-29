@@ -7,8 +7,8 @@ get_header();
 ?>
 
 <section class="container"  ng-app="appParentfinder">
-    
-    
+
+
 
     <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
 
@@ -46,10 +46,10 @@ get_header();
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="album in albums" ng-class="{selected: hasInSelectList(album)}">
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="album in albums" ng-class="{selected: hasInAlbumSelectList(album)}">
                                     <div class="albumItem">
                                         <div class="albumItemImage">
-                                            <figure ng-click="changeSelectList(album)" ng-dblclick="showPhoto(album)"><img src="{{album.album_thumb}}" alt=""></figure>
+                                            <figure ng-click="changeAlbumSelectList(album)" ng-dblclick="showPhoto(album)"><img src="{{album.album_thumb}}" alt=""></figure>
                                         </div>
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
@@ -65,17 +65,16 @@ get_header();
                             </div>
 
                             <div ng-if="pages.photo">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="photo in photos">
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="photo in photos" ng-class="{selected: hasInPhotoSelectList(photo)}">
                                     <div class="albumItem">
                                         <div class="albumItemImage">
-                                            <figure ng-click="showPhotoSingle(photo)"><a href="#"><img ng-src="{{photo.thumb}}" alt=""></a></figure>
+                                            <figure ng-click="changePhotoSelectList(photo)" ng-dblclick="showPhotoSingle(photo)"><img ng-src="{{photo.thumb}}" alt=""></figure>
                                         </div>
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
                                                 <form name="formPhoto">
-                                                    <input type="text" name="Title" ng-model="photo.Title" ng-blur="editPhotoTitle(photo, false)" ng-show="showEditBox == photo.pf_photo_id">
-                                                    <p ng-show="formPhoto.Title.$touched && formPhoto.Title.$invalid"> Please enter title</p>
-                                                    <span class="flexFullChild" ng-click="editPhotoTitle(photo, true)" ng-show="(showEditBox != photo.pf_photo_id)">{{photo.Title}}</span>
+                                                    <input type="text" class="span-caption" name="Title" ng-click="editPhotoTitle(photo, true)" ng-model="photo.Title" ng-blur="editPhotoTitle(photo, false)" ng-show="photoSettings.htmlTitleInput == photo.pf_photo_id || photo.Title == ''" ng-keypress="enterPressedPhoto($event, 'photo', photo)">
+                                                    <span class="flexFullChild" ng-click="editPhotoTitle(photo, true)" ng-show="!(photoSettings.htmlTitleInput == photo.pf_photo_id || photo.Title == '')">{{photo.Title}}</span>
                                                 </form>
                                             </div>
                                             <div class="ashBoardAlbumContentBottom">

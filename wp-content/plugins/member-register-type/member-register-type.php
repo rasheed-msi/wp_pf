@@ -24,6 +24,7 @@ define('MRT_DIR_ALBUMS_UPLOADS', wp_upload_dir()['basedir'] . '/albums');
 define('MRT_URL_AVATHAR_UPLOADS', wp_upload_dir()['baseurl'] . '/avatar');
 define('MRT_DIR_AVATHAR_UPLOADS', wp_upload_dir()['basedir'] . '/avatar');
 define('MRT_URL_IMAGE_UPLOADS', wp_upload_dir()['baseurl'] . '/images');
+define('MRT_URL_IMAGE_PROCESSING', MRT_PLUGIN_URL . '/images/processing.gif');
 
 /**
  * MRT_URL_PHOTOS => MRT_URL_ALBUMS_UPLOADS

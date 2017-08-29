@@ -32,7 +32,7 @@
                     <li ng-click="selectAllAlbum()">
                         <a class="flexbox verticalAlign">
                             <div class="tabMenuItems flexbox verticalAlign">
-                                <span><i class="fa fa-check-circle"></i> {{selectAllText}}</span>
+                                <span><i class="fa fa-check-circle"></i> {{albumSettings.selectAllLabel}}</span>
                             </div>
                         </a>
                     </li>
@@ -58,7 +58,7 @@
                             </div>
                         </a>
                     </li>
-                    <li>
+                    <li class="file-uploader" data-userid="<?php echo get_current_user_id(); ?>" data-albumid="{{selectedAlbumId}}">
                         <a class="flexbox verticalAlign">
                             <div class="tabMenuItems flexbox verticalAlign">
                                 <span><i class="fa fa-plus-circle"></i> New</span>
@@ -73,18 +73,18 @@
                         </a>
                     </li>-->
 
-                    <li>
-                        <a href="#tab5" class="flexbox verticalAlign" aria-controls="tab5" role="tab" data-toggle="tab">
+                    <li ng-click="bulkDeletePhoto()">
+                        <a class="flexbox verticalAlign">
                             <div class="tabMenuItems flexbox verticalAlign">
                                 <span><i class="fa fa-trash"></i> Delete</span>
                             </div>
                         </a>
                     </li>
 
-                    <li>
-                        <a href="#tab7" class="flexbox verticalAlign" aria-controls="tab7" role="tab" data-toggle="tab">
+                    <li ng-click="selectAllPhotos()">
+                        <a class="flexbox verticalAlign">
                             <div class="tabMenuItems flexbox verticalAlign">
-                                <span><i class="fa fa-check-circle"></i> Select All</span>
+                                <span><i class="fa fa-check-circle"></i> {{photoSettings.selectAllLabel}}</span>
                             </div>
                         </a>
                     </li>
