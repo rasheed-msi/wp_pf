@@ -14,11 +14,21 @@ define('MRT_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('MRT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MRT_TEMPLATE_PATH', MRT_PLUGIN_PATH . '/templates');
 define('MRT_PLUGIN_BASENAME', plugin_basename(__FILE__));
-define('MRT_ALBUMS_UPLOADS', wp_upload_dir()['baseurl'] . '/albums');
-define('MRT_URL_IMAGE_UPLOADS', wp_upload_dir()['baseurl'] . '/images');
 
 /**
  * 
+ * 
+ */
+define('MRT_URL_ALBUMS_UPLOADS', wp_upload_dir()['baseurl'] . '/albums');
+define('MRT_DIR_ALBUMS_UPLOADS', wp_upload_dir()['basedir'] . '/albums');
+define('MRT_URL_AVATHAR_UPLOADS', wp_upload_dir()['baseurl'] . '/avatar');
+define('MRT_DIR_AVATHAR_UPLOADS', wp_upload_dir()['basedir'] . '/avatar');
+define('MRT_URL_IMAGE_UPLOADS', wp_upload_dir()['baseurl'] . '/images');
+define('MRT_URL_IMAGE_PROCESSING', MRT_PLUGIN_URL . '/images/processing.gif');
+
+/**
+ * MRT_URL_PHOTOS => MRT_URL_ALBUMS_UPLOADS
+ * MRT_URL_AVATHAR => MRT_URL_AVATHAR_UPLOADS
  * Images
  */
 define('MRT_PARENTFINDER', 'https://www.parentfinder.com');
@@ -70,9 +80,12 @@ function mrt_add_user_scripts() {
     
     //App
     wp_enqueue_script('angularjs', MRT_PLUGIN_URL . 'app/angular.min.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-ng-prototype', MRT_PLUGIN_URL . 'app/prototype.js', array('jquery'), '1.0.0', true);
     wp_enqueue_script('mrt-ng-app', MRT_PLUGIN_URL . 'app/app.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-ng-directive', MRT_PLUGIN_URL . 'app/directive.js', array('jquery'), '1.0.0', true);
     wp_enqueue_script('mrt-ng-services', MRT_PLUGIN_URL . 'app/services.js', array('jquery'), '1.0.0', true);
     wp_enqueue_script('mrt-ng-controllers', MRT_PLUGIN_URL . 'app/controllers.js', array('jquery'), '1.0.0', true);
+    
     
 }
 

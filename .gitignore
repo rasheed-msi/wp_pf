@@ -10,7 +10,7 @@ wp-content/blogs.dir/
 wp-content/cache/
 wp-content/themes/allegiant_bak/
 wp-content/upgrade/
-wp-content/uploads/
+wp-content/uploads/*
 wp-content/wp-cache-config.php
 wp-content/plugins/hello.php
 

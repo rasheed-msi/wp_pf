@@ -16,6 +16,7 @@
                     display: none;
                 }
             </style>
+            
         <?php endif; ?>
 
 
@@ -25,6 +26,7 @@
         <![endif]-->
     </head>
     <body style="<?php echo mrt_body_style(); ?>">
+        
 
         <header class="header">
             <div class="container">

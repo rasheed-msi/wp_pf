@@ -19,7 +19,8 @@ class MrtRoute {
                 'set_agency_approve' => "{$this->pattern['agency_id']}/status/{$this->pattern['status_id']}",
             ],
             'albums' => [
-                'item' => 'albums'
+                'item' => 'albums',
+                'bulk_delete' => 'bulk-delete'
             ],
             'photos' => [
                 'item' => "{$this->pattern['album_id']}/photos",
@@ -34,6 +35,9 @@ class MrtRoute {
             'general' => [
                 'set_agency_status_approve' => "agency-status/{$this->pattern['agency_id']}/status/{$this->pattern['status_id']}",
                 'states' => "states/{$this->pattern['id']}",
+            ],
+            'filestack_album_processing' => [
+                'item' => 'filestack-album-processing'
             ],
         ];
 

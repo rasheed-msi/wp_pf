@@ -38,7 +38,7 @@ class MrtAlbum extends MrtDbbase {
 
     function all($user_id) {
         $albums = $this->link->get_results(
-                "SELECT * FROM {$this->table} WHERE user_id = {$user_id}", ARRAY_A
+                "SELECT * FROM {$this->table} WHERE user_id = {$user_id} ORDER BY {$this->pkey} DESC", ARRAY_A
         );
 
         if (count($albums) == 0) {

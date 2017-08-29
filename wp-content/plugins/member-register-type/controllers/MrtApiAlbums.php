@@ -15,6 +15,7 @@ class MrtApiAlbums extends WP_REST_Controller {
         $this->auth = new MrtAuth;
         $this->route = new MrtRoute;
         $this->mrt_album = new MrtAlbum;
+        $this->mrt_photo = new MrtPhoto;
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
@@ -49,6 +50,12 @@ class MrtApiAlbums extends WP_REST_Controller {
                 'callback' => array($this, 'delete_item'),
                 'permission_callback' => array($this, 'items_permissions_check'),
             ),
+        ));
+
+        register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'bulk_delete'), array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => array($this, 'bulk_delete_items'),
+            'permission_callback' => array($this, 'items_permissions_check'),
         ));
     }
 
@@ -115,14 +122,24 @@ class MrtApiAlbums extends WP_REST_Controller {
 
     public function delete_item($request) {
 
+        $this->input = $request->get_params();
         $this->mrt_album = MrtAlbum::find($request['id']);
 
         if (isset($this->mrt_album->id)) {
             $this->mrt_album->delete();
+            $this->mrt_photo->update(['deleteFlag' => 1], $this->mrt_album->pkey, $this->mrt_album->id);
+            
             return new WP_REST_Response([], 200);
         }
 
         return new WP_REST_Response(null, 401);
+    }
+
+    public function bulk_delete_items($request) {
+        $this->input = $request->get_params();
+        $this->mrt_album->bulk_delete(null, $this->input['ids']);
+        // $this->input = [1,2,3];
+        return new WP_REST_Response($this->input, 200);
     }
 
     public function validate() {

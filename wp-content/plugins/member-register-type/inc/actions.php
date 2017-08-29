@@ -34,7 +34,6 @@ function test_page() {
         $test->setYoutubeLinkOne();
     }
     
-    print_r($_SERVER);
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
@@ -251,3 +250,9 @@ function mrt_after_wp_insert_user($user_id) {
 }
 
 add_filter('wsl_hook_process_login_after_wp_insert_user', 'mrt_after_wp_insert_user', 10, 2);
+
+function download_file(){
+    $test = new MrtApiTest;
+    $test->create_zip();
+}
+// add_action('wp', 'download_file');
