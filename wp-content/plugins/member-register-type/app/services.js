@@ -119,6 +119,14 @@ app.service("PhotoService", function (WebService) {
             url: appConst.apiRequest + '/' + data.pf_album_id + '/photos/' + data.pf_photo_id,
         });
     }
+    
+    this.download = function (data) {
+        return WebService.request({
+            method: 'POST',
+            data: data,
+            url: appConst.apiRequest + '/' + data.pf_album_id + '/photos/download-photos',
+        });
+    }
 });
 
 app.service("UserService", function (WebService) {

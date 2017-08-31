@@ -19,11 +19,13 @@ define('MRT_PLUGIN_BASENAME', plugin_basename(__FILE__));
  * 
  * 
  */
-define('MRT_URL_ALBUMS_UPLOADS', wp_upload_dir()['baseurl'] . '/albums');
-define('MRT_DIR_ALBUMS_UPLOADS', wp_upload_dir()['basedir'] . '/albums');
-define('MRT_URL_AVATHAR_UPLOADS', wp_upload_dir()['baseurl'] . '/avatar');
-define('MRT_DIR_AVATHAR_UPLOADS', wp_upload_dir()['basedir'] . '/avatar');
-define('MRT_URL_IMAGE_UPLOADS', wp_upload_dir()['baseurl'] . '/images');
+define('MRT_URL_UPLOADS', wp_upload_dir()['baseurl']);
+define('MRT_DIR_UPLOADS', wp_upload_dir()['basedir']);
+define('MRT_URL_ALBUMS_UPLOADS', MRT_URL_UPLOADS . '/albums');
+define('MRT_DIR_ALBUMS_UPLOADS', MRT_DIR_UPLOADS . '/albums');
+define('MRT_URL_AVATHAR_UPLOADS', MRT_URL_UPLOADS . '/avatar');
+define('MRT_DIR_AVATHAR_UPLOADS', MRT_DIR_UPLOADS . '/avatar');
+define('MRT_URL_IMAGE_UPLOADS', MRT_URL_UPLOADS . '/images');
 define('MRT_URL_IMAGE_PROCESSING', MRT_PLUGIN_URL . '/images/processing.gif');
 
 /**
@@ -38,6 +40,7 @@ define('MRT_URL_VIDEO', MRT_PARENTFINDER . '/flash/modules/video/files');
 define('MRT_URL_DEFAULT_PHOTOS_THUMB', 'http://via.placeholder.com/220X150');
 define('MRT_URL_DEFAULT_PHOTOS_AVATHAR', 'http://via.placeholder.com/220X150');
 define('MRT_URL_YOUTUBE_EMBED', 'https://www.youtube.com/embed');
+define('MRT_URL_S3BUCKET', 'https://s3.amazonaws.com/cairs');
 
 include_once MRT_PLUGIN_PATH . 'helpers/Stock.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Dot.php';
