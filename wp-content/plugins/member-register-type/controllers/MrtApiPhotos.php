@@ -50,6 +50,17 @@ class MrtApiPhotos extends WP_REST_Controller {
                 'callback' => array($this, 'delete_item'),
                 'permission_callback' => array($this, 'items_permissions_check'),
             ),
+            array(
+                'methods' => WP_REST_Server::CREATABLE,
+                'callback' => array($this, 'download_items'),
+                'permission_callback' => array($this, 'items_permissions_check'),
+            ),
+        ));
+
+        register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'download_items'), array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => array($this, 'download_items'),
+            // 'permission_callback' => array($this, 'items_permissions_check'),
         ));
     }
 
@@ -65,7 +76,7 @@ class MrtApiPhotos extends WP_REST_Controller {
         if (!isset($input['album_id'])) {
             return false;
         }
-        
+
         if (!$this->mrt_album->is_user_album($this->user->ID, $input['album_id'])) {
             return false;
         }
@@ -91,17 +102,17 @@ class MrtApiPhotos extends WP_REST_Controller {
     }
 
     public function create_item($request) {
-        
+
         $input = $request->get_params();
 
         //return new WP_REST_Response($input, 200);
         $validate = $this->validate($input);
-        
+
         if ($validate['status']) {
             $validate['input']['pf_photo_id'] = $this->mrt_photo->insert($validate['input']);
 
             $filestack_validate = $this->validate_filestack($validate['input']);
-            
+
             if ($filestack_validate['status']) {
                 $this->mrt_file_stack->insert($filestack_validate['input']);
             } else {
@@ -143,13 +154,14 @@ class MrtApiPhotos extends WP_REST_Controller {
 
         return new WP_REST_Response(null, 401);
     }
-    
+
     public function delete_item($request) {
 
         $this->mrt_photo = MrtPhoto::find($request['id']);
 
         if (isset($this->mrt_photo->id)) {
             $this->mrt_photo->delete();
+            
             $this->mrt_file_stack->update(['deleteFlag' => 1], 'pf_photo_id', $this->mrt_photo->id);
             return new WP_REST_Response([], 200);
         }
@@ -218,6 +230,21 @@ class MrtApiPhotos extends WP_REST_Controller {
             'message' => $message,
             'input' => $input,
         ];
+    }
+
+    public function download_items($request) {
+        
+        $input = $request->get_params();
+        
+        $photos = $this->mrt_photo->getset_items($input['ids']);
+        $files = [];
+        foreach ($photos as $key => $value) {
+            $files[] = $value['original'];
+        }
+        
+        $zip['zip_url'] = State::create_zip($files);
+        $zip['files_count'] = count($files);
+        return new WP_REST_Response($zip, 200);
     }
 
 }

@@ -34,6 +34,8 @@ function test_page() {
         $test->setYoutubeLinkOne();
     }
     
+    $route = new MrtRoute;
+    
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');

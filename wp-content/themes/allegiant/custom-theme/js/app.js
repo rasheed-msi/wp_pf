@@ -13,13 +13,15 @@ jQuery(function ($) {
 
 
     $('.accordianItemHeader').click(function () {
+        
         if ($(this).parent().hasClass('accordianItemActive')) {
-            $(this).parent().toggleClass('accordianItemActive');
-            $(this).next().slideToggle();
+            $(this).parent().removeClass('accordianItemActive');
+            $(this).parent().find(".accordianItemContents").slideToggle();
         } else {
             $(".accordianItemActive").find(".accordianItemContents").slideToggle();
-            $(this).parent().toggleClass('accordianItemActive');
-            $(this).next().slideToggle();
+            $('.accordianItem').removeClass('accordianItemActive');
+            $(this).parent().addClass('accordianItemActive');
+            $(this).parent().find(".accordianItemContents").slideToggle();
         }
     });
 

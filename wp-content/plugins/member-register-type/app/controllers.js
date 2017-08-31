@@ -1,16 +1,19 @@
-app.controller('albumController', function ($http, $scope, AppService, PhotoService, AlbumService, WebService) {
+app.controller('albumController', function ($http, $window, $scope, AppService, PhotoService, AlbumService, WebService) {
 
     $scope.pages = {
         album: true,
         photo: false,
         photoSingle: false,
-    };    
+        download: false,
+    };
+    
+    
 
     $scope.showAjaxLoader = false;
     $scope.setAjaxLoader = function () {
         $scope.showAjaxLoader = ($scope.showAjaxLoader) ? false : true;
     }
-    
+
     $scope.resetAlbumSettings = function () {
         $scope.albumSettings = {
             htmlAddBox: false,
@@ -23,9 +26,6 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
     }
     $scope.resetAlbumSettings()
 
-    
-
-
     $scope.showAlbum = function () {
 
         $scope.setAjaxLoader();
@@ -34,13 +34,17 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
 
         AlbumService.getItems().then(function (response) {
             $scope.albums = response;
-            var albumCount = $scope.albums.length;
-            albumCount = (albumCount) ? albumCount : 'no';
-            $scope.heading = "You have " + albumCount + " Albums";
-
+            $scope.setAlbumCount();
             $scope.resetAlbumSettings();
+            $scope.resetPhotoSettings();
             $scope.setAjaxLoader();
         });
+    }
+
+    $scope.setAlbumCount = function () {
+        var albumCount = $scope.albums.length;
+        $scope.albumCount = (albumCount) ? albumCount : 'no';
+        $scope.heading = "You have " + $scope.albumCount + " Albums";
     }
 
     // Init ...
@@ -57,7 +61,7 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
             $scope.albumSettings.selectList = [];
         } else {
             // hide textbox and save
-            if (typeof model.caption != 'undefined') {
+            if (typeof model.caption != 'undefined' && model.caption.trim().length != 0) {
                 $scope.albumSettings.htmlTitleInput = false;
 
                 AlbumService.update({
@@ -67,7 +71,7 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
             }
         }
     }
-    
+
     $scope.enterPressedAlbum = function ($event, type, album) {
 
         var keyCode = $event.which || $event.keyCode;
@@ -107,6 +111,15 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
         } else {
             $scope.albumSettings.selectList.remove(id);
         }
+        if ($scope.albums.length == $scope.albumSettings.selectList.length) {
+            $scope.albumSettings.selectAllLabel = "DESELECT ALL";
+        }
+
+        if (Object.keys($scope.albums).length == $scope.albumSettings.selectList.length) {
+            $scope.albumSettings.selectAllLabel = "DESELECT ALL";
+        } else {
+            $scope.albumSettings.selectAllLabel = "SELECT ALL";
+        }
     }
 
     $scope.hasInAlbumSelectList = function (model) {
@@ -119,6 +132,7 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
             AlbumService.delete(id).then(function (response) {});
             $scope.albums = AppService.collectiveRemove($scope.albums, 'pf_album_id', id);
         });
+        $scope.setAlbumCount();
     }
 
 
@@ -156,8 +170,8 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
             selectAllLabel: "SELECT ALL",
         };
     }
-    $scope.resetPhotoSettings()
-    
+    $scope.resetPhotoSettings();
+
     $scope.showPhoto = function (data) {
         $scope.pages = AppService.showPage('photo', $scope.pages);
         $scope.backButton = 'photo';
@@ -222,6 +236,12 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
         } else {
             $scope.photoSettings.selectList.remove(id);
         }
+
+        if (Object.keys($scope.photos).length == $scope.photoSettings.selectList.length) {
+            $scope.photoSettings.selectAllLabel = "DESELECT ALL";
+        } else {
+            $scope.photoSettings.selectAllLabel = "SELECT ALL";
+        }
     }
 
     $scope.hasInPhotoSelectList = function (model) {
@@ -252,23 +272,42 @@ app.controller('albumController', function ($http, $scope, AppService, PhotoServ
             }
         }
     }
-    
+
     $scope.bulkDeletePhoto = function () {
-        
+
         angular.forEach($scope.photoSettings.selectList, function (id, key) {
-            console.log($scope.photos);
+
             $scope.photos = AppService.collectiveRemove($scope.photos, 'pf_photo_id', id);
             var data = {
                 pf_album_id: $scope.selectedAlbumId,
                 pf_photo_id: id,
             };
             PhotoService.delete(data).then(function (response) {});
-            
-            
+
+
         });
     }
 
+    $scope.downloadPhotos = function () {
 
+        if ($scope.photoSettings.selectList.length == 0) {
+            return false;
+        }
+
+        var data = {
+            pf_album_id: $scope.selectedAlbumId,
+            ids: $scope.photoSettings.selectList,
+        };
+
+        $scope.setAjaxLoader();
+        PhotoService.download(data).then(function (response) {
+            $scope.setAjaxLoader();
+            console.log(response);
+
+            $window.open(response.zip_url, '_blank');
+        });
+
+    }
 
 });
 
