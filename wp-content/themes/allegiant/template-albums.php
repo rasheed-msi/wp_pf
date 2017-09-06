@@ -24,7 +24,7 @@ get_header();
                             <h4>{{heading}}</h4>
                             <p>Need some help? Read the documentation or watch a video</p>
                         </div>
-                        <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="executeBackButton(backButton)">
+                        <div class="dashboardTabsHeaderButton" ng-click="executeBackButton()">
                             <a href="#" class="btn buttons clearfix"><i class="fa fa-angle-left"></i><span>Back</span></a>
                         </div>
                     </div>
@@ -40,7 +40,7 @@ get_header();
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
                                                 <form name="formAlbum">
-                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="28" ng-class="{error: formAlbum.caption.$invalid}" ng-model="newAlbum.caption" ng-keypress="enterPressedAlbum($event, 'newalbum')" ng-blur="addAlbum()">
+                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="appSettings.maxCaptionLength" ng-class="{error: formAlbum.caption.$invalid}" ng-model="newAlbum.caption" ng-keypress="enterPressedAlbum($event, 'newalbum')" ng-blur="addAlbum()">
                                                 </form>
                                             </div>                                                    
                                         </div>
@@ -55,7 +55,7 @@ get_header();
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
 
                                                 <form name="formAlbum">
-                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="28" ng-click="editAlbumTitle(album, true)" ng-class="{error: formAlbum.caption.$invalid}" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="albumSettings.htmlTitleInput == album.pf_album_id || album.caption == ''" ng-keypress="enterPressedAlbum($event, 'album', album)">
+                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="appSettings.maxCaptionLength" ng-click="editAlbumTitle(album, true)" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="albumSettings.htmlTitleInput == album.pf_album_id || album.caption == ''" ng-keypress="enterPressedAlbum($event, 'album', album)">
                                                     <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="!(albumSettings.htmlTitleInput == album.pf_album_id || album.caption == '')">{{album.caption}}</span>
                                                 </form>
                                             </div>                                                    
@@ -65,6 +65,11 @@ get_header();
                             </div>
 
                             <div ng-if="pages.photo">
+                                <div ng-show="downloadSettings.showAlert">
+                                    <p class="msg-alert">You can select multiple photos from different albums</p>
+                                    <p class="msg-alert">Number of photos Selected: {{photoSettings.selectListCount}}</p>
+                                    <p class="msg-alert msg-link" ng-click="downloadPhotos()" ng-show="photoSettings.selectListCount">Download selected photos</p>
+                                </div>
                                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="photo in photos" ng-class="{selected: hasInPhotoSelectList(photo)}">
                                     <div class="albumItem">
                                         <div class="albumItemImage">
@@ -73,12 +78,12 @@ get_header();
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
                                                 <form name="formPhoto">
-                                                    <input type="text" class="span-caption" name="Title" ng-click="editPhotoTitle(photo, true)" ng-model="photo.Title" ng-blur="editPhotoTitle(photo, false)" ng-show="photoSettings.htmlTitleInput == photo.pf_photo_id || photo.Title == ''" ng-keypress="enterPressedPhoto($event, 'photo', photo)">
+                                                    <input type="text" class="span-caption" name="Title" ng-maxlength="appSettings.maxCaptionLength" ng-click="editPhotoTitle(photo, true)" ng-model="photo.Title" ng-blur="editPhotoTitle(photo, false)" ng-show="photoSettings.htmlTitleInput == photo.pf_photo_id || photo.Title == ''" ng-keypress="enterPressedPhoto($event, 'photo', photo)">
                                                     <span class="flexFullChild" ng-click="editPhotoTitle(photo, true)" ng-show="!(photoSettings.htmlTitleInput == photo.pf_photo_id || photo.Title == '')">{{photo.Title}}</span>
                                                 </form>
                                             </div>
                                             <div class="ashBoardAlbumContentBottom">
-                                                <div class="albumWidgets text-center"><span class="albumCounts green">16</span><span class="albumCounts yellow"><i class="fa fa-image"></i></span></div>
+                                                <div class="albumWidgets text-center"><span class="albumCounts green">{{photo.Size}}</span><span class="albumCounts yellow"><i class="fa fa-image"></i></span></div>
                                                 <div class="albumWidgets text-center albumFor">image quality <span class="albumForLabel web">web</span></div>
                                             </div>
                                         </div>
@@ -89,6 +94,30 @@ get_header();
                             <div ng-if="pages.photoSingle">
                                 <div class="col-lg-12">
                                     <img src="{{photo.webview}}" alt="">
+                                </div>
+                            </div>
+                            
+                            <div ng-if="pages.download">
+                                <div ng-show="downloadSettings.showAlert">
+                                    <p class="msg-alert">You can select multiple photos from different albums</p>
+                                    <p class="msg-alert">Number of photos Selected: {{photoSettings.selectListCount}}</p>
+                                    <p class="msg-alert msg-link" ng-click="downloadPhotos()" ng-show="photoSettings.selectListCount">Download selected photos</p>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="album in albums" ng-class="{selected: hasInAlbumSelectList(album)}">
+                                    <div class="albumItem">
+                                        <div class="albumItemImage">
+                                            <figure ng-click="showPhoto(album)"><img src="{{album.album_thumb}}" alt=""></figure>
+                                        </div>
+                                        <div class="dashBoardAlbumContents">
+                                            <div class="dashBoardAlbumTitle text-center verticalAlign">
+
+                                                <form name="formAlbum">
+                                                    <span class="flexFullChild">{{album.caption}}</span>
+                                                </form>
+                                            </div>                                                    
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                            

@@ -18,3 +18,4 @@ Array.prototype.collectiveRemove = function (key, value) {
     });
     return keep;
 };
+

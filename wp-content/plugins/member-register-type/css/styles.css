@@ -73,3 +73,16 @@ input.error {
     top: 0%;
     left: 0%;
 }
+
+.msg-alert {
+    padding: 0 9px;
+}
+
+.msg-link {
+    color: #0073bb;
+    cursor: pointer;
+}
+
+input.ng-invalid-maxlength {
+    background-color: #ffc8c8;
+}
