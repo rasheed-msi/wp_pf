@@ -1,22 +1,25 @@
 app.service("AppService", function () {
-
-    this.showPage = function (show, pages) {
-        angular.forEach(pages, function (value, key) {
-            pages[key] = false
-        });
-        pages[show] = true;
-        return pages;
-    }
-
+    
     this.collectiveRemove = function (Obj, key, value) {
         var keep = [];
-        
+
         angular.forEach(Obj, function (item, index) {
             if (item[key] != value) {
                 keep.push(item)
             }
         });
         return keep;
+    }
+
+    this.download = {
+        alert: '',
+        selectList: [],
+        isActive: false,
+        showAlert: false,
+    }
+    
+    this.settings = {
+        maxCaptionLength: 23,
     }
 });
 
@@ -41,6 +44,15 @@ app.service("WebService", function ($http, $q) {
 
 
 app.service("AlbumService", function (WebService) {
+
+    this.settings = {
+        htmlAddBox: false,
+        htmlTitleInput: false,
+        selectList: [],
+        selectAllLabel: "SELECT ALL",
+        count: 0,
+        refresh: true,
+    }
 
     this.getItems = function () {
         return WebService.request({
@@ -83,6 +95,14 @@ app.service("AlbumService", function (WebService) {
 
 app.service("PhotoService", function (WebService) {
 
+    this.settings = {
+        htmlAddBox: false,
+        htmlTitleInput: false,
+        selectList: [],
+        selectAllLabel: "SELECT ALL",
+        selectListCount: 0,
+    }
+
     this.getItems = function (data) {
         return WebService.request({
             method: 'GET',
@@ -119,7 +139,7 @@ app.service("PhotoService", function (WebService) {
             url: appConst.apiRequest + '/' + data.pf_album_id + '/photos/' + data.pf_photo_id,
         });
     }
-    
+
     this.download = function (data) {
         return WebService.request({
             method: 'POST',
@@ -139,5 +159,40 @@ app.service("UserService", function (WebService) {
         });
 
     }
+});
+app.service("PageService", function () {
+
+    this.visit = [];
+    this.backHref = false;
+    this.previousPage = false;
+    this.showBackButton = false;
+
+    this.showPage = function (show, pages) {
+        this.addVisit(show);
+        this.showBackButton = (typeof this.getPreviousPage() == 'undefined') ? false : true;
+        angular.forEach(pages, function (value, key) {
+            pages[key] = false
+        });
+        pages[show] = true;
+        return pages;
+    }
+
+    this.addVisit = function (page) {
+        if (!this.backHref) {
+            this.visit.push(page);
+        } else {
+            // Visit the page by back button
+            this.visit.pop();
+            this.backHref = false;
+        }
+    };
+    this.getPreviousPage = function () {
+        var index = this.visit.length - 2 // second last index 
+        this.previousPage = this.visit[index];
+        return this.previousPage;
+    };
+
+
+
 });
 
