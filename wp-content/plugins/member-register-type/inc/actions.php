@@ -34,9 +34,10 @@ function test_page() {
         $test->setYoutubeLinkOne();
     }
     
-    $active_memberships = pmpro_getMembershipLevelForUser();
-    print_r($active_memberships);
-    echo 'test2';
+    $route = new MrtRoute;
+    echo '<pre>', print_r($route->order), '</pre>';
+    exit();
+    
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
@@ -163,6 +164,7 @@ function mrt_custom_authentication($username) {
 
 function your_function() {
     setcookie('MrtToken', $token, time() - (3600 * 24), '/');
+    wp_cache_flush();
 }
 
 add_action('wp_logout', 'your_function');
@@ -252,3 +254,9 @@ function mrt_after_wp_insert_user($user_id) {
 }
 
 add_filter('wsl_hook_process_login_after_wp_insert_user', 'mrt_after_wp_insert_user', 10, 2);
+
+function download_file(){
+    $test = new MrtApiTest;
+    $test->create_zip();
+}
+// add_action('wp', 'download_file');

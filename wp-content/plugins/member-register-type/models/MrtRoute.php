@@ -19,10 +19,12 @@ class MrtRoute {
                 'set_agency_approve' => "{$this->pattern['agency_id']}/status/{$this->pattern['status_id']}",
             ],
             'albums' => [
-                'item' => 'albums'
+                'item' => 'albums',
+                'bulk_delete' => 'bulk-delete'
             ],
             'photos' => [
                 'item' => "{$this->pattern['album_id']}/photos",
+                'download_items' => "download-photos",
             ],
             'users' => [
                 'current' => "current",
@@ -34,6 +36,9 @@ class MrtRoute {
             'general' => [
                 'set_agency_status_approve' => "agency-status/{$this->pattern['agency_id']}/status/{$this->pattern['status_id']}",
                 'states' => "states/{$this->pattern['id']}",
+            ],
+            'filestack_album_processing' => [
+                'item' => 'filestack-album-processing'
             ],
         ];
 
@@ -64,13 +69,15 @@ class MrtRoute {
         foreach ($this->request as $key => $value) {
             $return = [];
 
+            $base = (isset($value['item']))? $value['item']: $key;
+            
             if (is_array($value) && isset($value['item'])) {
-                $return['index'] = $value['item'];
-                $return['create'] = $value['item'];
-                $return['delete'] = $value['item'] . '/' . $this->pattern['id'];
-                $return['update'] = $value['item'] . '/' . $this->pattern['id'];
-                $return['read'] = $value['item'] . '/' . $this->pattern['id'];
-                unset($value['item']);
+                $return['index'] = $base;
+                $return['create'] = $base;
+                $return['delete'] = $base . '/' . $this->pattern['id'];
+                $return['update'] = $base . '/' . $this->pattern['id'];
+                $return['read'] = $base . '/' . $this->pattern['id'];
+                
                 $this->request[$key] = array_merge($return, $value);
             }
             
@@ -78,10 +85,10 @@ class MrtRoute {
             if(is_array($value)){
                 $extra = [];
                 foreach ($value as $k => $val) {
-                    if($val == 'item'){
+                    if($k == 'item'){
                         continue;
                     }
-                    $this->request[$key][$k] = $key . '/' . $val;
+                    $this->request[$key][$k] = $base . '/' . $val;
                 }
                 
             }

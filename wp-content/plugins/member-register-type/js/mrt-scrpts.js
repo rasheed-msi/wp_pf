@@ -81,20 +81,22 @@ jQuery(function ($) {
     });
 
 
-    $(".file-uploader").click(function () {
+    $("body").on("click", ".file-uploader",function () {
+        console.log("clicked");
 
-        var profileId = $(this).data('profileId');
-        var albumId = $(this).data('albumId');
+        var userid = $(this).data('userid');
+        var albumid = $(this).data('albumid');
 
         var client = filestack.init(appConst.fileStackClient);
 
         client.pick({
             accept: 'image/*',
-            path: '/' + appConst.s3Domain + '/' + profileId + '/album/' + albumId + '/original/',
+            
             // fromSources: ['local_file_system', 'facebook', 'flickr', 'instagram', 'picasa'],
             fromSources: ['local_file_system'],
             maxFiles: 50,
             storeTo: {
+                path: '/' + appConst.s3Domain + '/' + userid + '/album/' + albumid + '/original/',
                 location: 'S3',
                 access: 'public'
             },
@@ -107,7 +109,22 @@ jQuery(function ($) {
                 console.log(error);
             }
         }).then(function (result) {
-            console.log(JSON.stringify(result.filesUploaded))
+            result.filesUploaded.forEach
+            $.each(result.filesUploaded, function(index, value){
+                value.album_id = albumid;
+                console.log(value);
+                $.ajax({
+                    url: appConst.apiRequest + '/filestack-album-processing',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: value,
+                    headers: {
+                        Token: appConst.mrtToken
+                    }
+                }).success(function (response) {
+                    console.log(response);
+                });
+            });
         });
     });
 

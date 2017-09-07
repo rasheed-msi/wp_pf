@@ -5,228 +5,238 @@
 </style>
 <div ng-controller="aboutUsController" ng-click="$parent.newFn(aboutus.$dirty, 0)">
     <form class="form"  name="aboutus" ng-submit="aboutus.$valid && submit()">
-<!--<div ng-controller="aboutUsController" >-->
-<div class="container-fluid" >
-    <div class ="row" style="margin-top: 10px;margin-bottom:25px">
-        <div class="col-sm-12">
-		    <div style="float: right;">
-			
-			<input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="aboutus.$setPristine()"  class="cancel_btn" ng-disabled="disabled" id="cancel2"/>&nbsp;&nbsp;
-			<input value="SAVE"  class="save_btn" type="submit" ng-if="show" ng-click ="submitted=true;" ng-disabled="disabled" id="save2"/>
-		</div>
-        </div>
-    </div>
-    <div class="row margins">
-        <div class="col">
-        	<div class="col-sm-4">
-                <label>HOW LONG YOU HAVE BEEN WAITING</label>
-            <br>
-            <select ng-model="account.waiting" class="form-control">
-    			<option ng-repeat="option in data_options.waiting" value="{{option.selectVal}}">
-    				{{option.selectText}}
-    			</option>
-    		</select>	
-        </div>
-        </div>
-                <div class="col">
-                    <div class="col-sm-4">
-                <label>FAMILY STRUCTURE</label><br>
-                <select class="form-control" ng-model="account.family_structure">
-						<option ng-repeat="option in data_options.family_structure" value="{{option.selectVal}}">
-							{{option.selectText}}
-						</option>
-					</select>
-            </div></div>
-        <div class="col"><div class="col-sm-4">
-                <label>HOW MANY CHILDREN DO YOU HAVE?</label><br>
-               		<select ng-model="account.children" class="form-control">
-		    			<option ng-repeat="option in data_options.children" value="{{option.selectVal}}">
-		    				{{option.selectText}}
-		    			</option>
-		    		</select>	
-            </div></div>
-    </div>
+        <!--<div ng-controller="aboutUsController" >-->
+        <div class="container-fluid" >
+            <div class ="row" style="margin-top: 10px;margin-bottom:25px">
+                <div class="col-sm-12">
+                    <div style="float: right;">
 
-    <div class="row margins">
+                        <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="resetAbout();"  class="cancel_btn" ng-disabled="disabled" id="cancel2"/>&nbsp;&nbsp;
+                        <!--<input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="aboutus.$setPristine()"  class="cancel_btn" ng-disabled="disabled" id="cancel2"/>&nbsp;&nbsp;-->
+                        <input value="SAVE"  class="save_btn" type="submit" ng-if="show" ng-click ="submitted = true;" ng-disabled="disabled" id="save2"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row margins">
                 <div class="col">
                     <div class="col-sm-4">
-                <label>WHAT STYLE OF HOUSE DO YOU OWN?</label><br>
-               <select class="form-control" ng-model= "account.house_style">
-						<option ng-repeat="option in data_options.residency" value="{{option.selectVal}}">
-							{{option.selectText}}
-						</option>
-					</select>
+                        <label>HOW LONG YOU HAVE BEEN WAITING</label>
+                        <br>
+                        <select ng-model="account.waiting" class="form-control">
+                            <option ng-repeat="option in data_options.waiting" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>	
                     </div>
                 </div>
                 <div class="col">
                     <div class="col-sm-4">
-                <label>WHAT IS YOUR NEIGHBORHOOD LIKE?</label><br>
-                <select class="form-control" ng-model= "account.neighborhood">
-                    <option ng-repeat="option in data_options.neighborhood" value="{{option.selectText}}">
-                        {{option.selectText}}
-                    </option>
-                </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="col-sm-4">
-                <label>WHAT TYPE OF PET DO YOU HAVE?</label><br>
-                <select class="form-control" multiple="true" ng-model="account.pets">
-                    <option ng-repeat="option in data_options.pets" value="{{option.selectText}}">{{option.selectText}}</option>
-                </select>
-                    </div>
-                </div>
-    </div>
+                        <label>FAMILY STRUCTURE</label><br>
+                        <select class="form-control" ng-model="account.family_structure">
+                            <option ng-repeat="option in data_options.family_structure" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>
+                    </div></div>
+                <div class="col"><div class="col-sm-4">
+                        <label>HOW MANY CHILDREN DO YOU HAVE?</label><br>
+                        <select ng-model="account.children" class="form-control">
+                            <option ng-repeat="option in data_options.children" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>	
+                    </div></div>
+            </div>
 
-</div>
-<div class="container-fluid">
-    <div class="row margins">
+            <div class="row margins">
+                <div class="col">
+                    <div class="col-sm-4">
+                        <label>WHAT STYLE OF HOUSE DO YOU OWN?</label><br>
+                        <select class="form-control" ng-model= "account.house_style">
+                            <option ng-repeat="option in data_options.residency" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="col-sm-4">
+                        <label>WHAT IS YOUR NEIGHBORHOOD LIKE?</label><br>
+                        <select class="form-control" ng-model= "account.neighborhood">
+                            <option ng-repeat="option in data_options.neighborhood" value="{{option.selectText}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="col-sm-4">
+                        <label>WHAT TYPE OF PET DO YOU HAVE?</label><br>
+                        <select class="form-control" multiple="true" ng-model="account.pets">
+                            <option ng-repeat="option in data_options.pets" value="{{option.selectText}}">{{option.selectText}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="container-fluid">
+            <div class="row margins">
                 <div class="col">
                     <div class="col-sm-6">
-                <label>Person 1 - First Name</label><span class="mandatory">*</span><br>
+                        <label>MARITAL STATUS&nbsp;&nbsp;</label><br>
+                        <label class="radio-inline"><input type="radio" value="single" name="profile_type" ng-model="account.profile_type">Single&nbsp;</label>
+                        <label class="radio-inline"><input type="radio" value="couple" name="profile_type" ng-model="account.profile_type">Couple</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row margins">
+                <div class="col">
+                    <div class="col-sm-6">
+                        <label>Person 1 - First Name</label><span class="mandatory">*</span><br>
                         <input type="text" name="firstname" ng-model="account.profiles[0].name" class="form-control" required ng-keyup="$parent.newFn(aboutus.$dirty, 0)"/>
                         <span class="error" ng-show="aboutus.firstname.$error.required && aboutus.firstname.$dirty" style="color:red">First Name is Required</span>
                     </div>
                 </div>
                 <div class="col" >
                     <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
-                <label>Person 2 - First Name</label><span class="mandatory">*</span><br>
+                        <label>Person 2 - First Name</label><span class="mandatory">*</span><br>
                         <input type="text" name="secondname" ng-model="account.profiles[1].name" class="form-control" ng-if="account.profile_type == 'couple'" required ng-keyup="$parent.newFn(aboutus.$dirty, 0)"/>
                         <span class="error" ng-show="aboutus.secondname.$error.required && aboutus.secondname.$dirty" style="color:red">Second Name is Required</span>
                     </div>
                 </div>
-    </div>
-    <div class="row margins">
+            </div>
+            <div class="row margins">
                 <div class="col">
                     <div class="col-sm-6">
-                <label>Parent 1 - Date of Birth</label><br>
+                        <label>Parent 1 - Date of Birth</label><br>
                         <!--<p class="input-group">-->
-                            <!--<input name="calender1" type="text"  ng-blur="validateDate()" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" class="form-control"  model-view-value="true" uib-datepicker-popup="MM/dd/yyyy" ng-model="dt"  placeholder="mm/dd/yyyy" ui-mask="99/99/9999"/>-->
-                            <input name="calender1" type="text"  ng-blur="validateDate()" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" class="form-control"  ng-model="dt"  ui-mask="99/99/9999" model-view-value="true" uib-datepicker-popup="MM/dd/yyyy" placeholder="mm/dd/yyyy"/>
-                       <span ng-if="aboutus.calender1.$invalid" style="color:red">Please enter a valid Date</span>
-                       <!--<span ng-show="err1" style="color:red">Please avoid future date</span>-->
+                        <!--<input name="calender1" type="text"  ng-blur="validateDate()" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" class="form-control"  model-view-value="true" uib-datepicker-popup="MM/dd/yyyy" ng-model="dt"  placeholder="mm/dd/yyyy" ui-mask="99/99/9999"/>-->
+                        <input name="calender1" type="text"  ng-blur="validateDate()" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" class="form-control"  ng-model="dt"  ui-mask="99/99/9999" model-view-value="true" uib-datepicker-popup="MM/dd/yyyy" placeholder="mm/dd/yyyy"/>
+                        <span ng-if="aboutus.calender1.$invalid" style="color:red">Please enter a valid Date</span>
+                        <!--<span ng-show="err1" style="color:red">Please avoid future date</span>-->
                     </div>
                 </div>
                 <div class="col">
                     <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
-                <label>Parent 2 - Date of Birth</label><br>
-                       <!--<p class="input-group">-->
-                            <input type="text" name="calender2" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" class="form-control" ng-blur="validateDate()" model-view-value="true" uib-datepicker-popup="MM/dd/yyyy" ng-model="dt2" placeholder="mm/dd/yyyy" ui-mask="99/99/9999"/>
+                        <label>Parent 2 - Date of Birth</label><br>
+                        <!--<p class="input-group">-->
+                        <input type="text" name="calender2" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" class="form-control" ng-blur="validateDate()" model-view-value="true" uib-datepicker-popup="MM/dd/yyyy" ng-model="dt2" placeholder="mm/dd/yyyy" ui-mask="99/99/9999"/>
                         <!--</p>-->
                         <span ng-show="aboutus.calender2.$invalid" style="color:red">Please enter a valid Date</span>
                         <!--<span ng-show="err2" style="color:red">Please avoid future date</span>-->
                     </div>
                 </div>
-    </div>
-    <div class="row margins">
-                <div class="col">
-                    <div class="col-sm-6">
-                <label>Parent 1 - Gender</label><br>
-                <select ng-model="account.profiles[0].gender" class="form-control">
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
-                <label>Parent 2 - Gender</label><br>
-                <select ng-model="account.profiles[1].gender" class="form-control">
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                </select>
-                    </div>
-                </div>
-    </div>
-    <div class="row margins">
-                <div class="col">
-                    <div class="col-sm-6">
-                <label>Parent 1 - Ethnicity</label><br>
-                <select ng-model="account.profiles[0].ethnicity" class="form-control">
-                    <option ng-repeat="option in data_options.ethnicity" value="{{option.selectVal}}">{{option.selectText}}</option>
-                </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
-                <label>Parent 2 - Ethnicity</label><br>
-                <select ng-model="account.profiles[1].ethnicity" class="form-control">
-                    <option ng-repeat="option in data_options.ethnicity" value="{{option.selectVal}}">
-                        {{option.selectText}}
-                    </option>
-                </select>
-                    </div>
-                </div>
-    </div>
-    <div class="row margins">
-                <div class="col">
-                    <div class="col-sm-6">
-                <label>Parent 1 - Education</label><br>
-                <select ng-model="account.profiles[0].education" class="form-control">
-                    <option ng-repeat="option in data_options.education" value="{{option.selectVal}}">
-                        {{option.selectText}}
-                    </option>
-                </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
-                <label>Parent 2 - Education</label><br>
-                <select ng-model="account.profiles[1].education" class="form-control">
-                   <option ng-repeat="option in data_options.education" value="{{option.selectVal}}">
-                        {{option.selectText}}
-                    </option>
-                </select>
-                    </div>
-                </div>
-    </div>
-    <div class="row margins">
-                <div class="col">
-                    <div class="col-sm-6">
-                <label>Parent 1 - Religion</label><br>
-                <select ng-model="account.profiles[0].religion"  class="form-control">
-                    <option ng-repeat="option in data_options.religion" value="{{option.selectVal}}">
-                        {{option.selectText}}
-                    </option>
-                </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
-                <label>Parent 2 - Religion</label><br>
-                <select ng-model="account.profiles[1].religion"  class="form-control">
-                    <option ng-repeat="option in data_options.religion" value="{{option.selectVal}}">
-                        {{option.selectText}}
-                    </option>
-                </select>
-                    </div>
-                </div>
-    </div>
-    <div class="row margins">
-                <div class="col">
-                    <div class="col-sm-6">
-                <label>Parent 1 - Occupation</label><br>
-                        <input type="text" ng-model="account.profiles[0].occupation"  class="form-control" ng-keyup="$parent.newFn(aboutus.$dirty, 0)"/>
             </div>
-        </div>
+            <div class="row margins">
+                <div class="col">
+                    <div class="col-sm-6">
+                        <label>Parent 1 - Gender</label><br>
+                        <select ng-model="account.profiles[0].gender" class="form-control">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="col">
                     <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
-                <label>Parent 2 - Occupation</label><br>
+                        <label>Parent 2 - Gender</label><br>
+                        <select ng-model="account.profiles[1].gender" class="form-control">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row margins">
+                <div class="col">
+                    <div class="col-sm-6">
+                        <label>Parent 1 - Ethnicity</label><br>
+                        <select ng-model="account.profiles[0].ethnicity" class="form-control">
+                            <option ng-repeat="option in data_options.ethnicity" value="{{option.selectVal}}">{{option.selectText}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
+                        <label>Parent 2 - Ethnicity</label><br>
+                        <select ng-model="account.profiles[1].ethnicity" class="form-control">
+                            <option ng-repeat="option in data_options.ethnicity" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row margins">
+                <div class="col">
+                    <div class="col-sm-6">
+                        <label>Parent 1 - Education</label><br>
+                        <select ng-model="account.profiles[0].education" class="form-control">
+                            <option ng-repeat="option in data_options.education" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
+                        <label>Parent 2 - Education</label><br>
+                        <select ng-model="account.profiles[1].education" class="form-control">
+                            <option ng-repeat="option in data_options.education" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row margins">
+                <div class="col">
+                    <div class="col-sm-6">
+                        <label>Parent 1 - Religion</label><br>
+                        <select ng-model="account.profiles[0].religion"  class="form-control">
+                            <option ng-repeat="option in data_options.religion" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
+                        <label>Parent 2 - Religion</label><br>
+                        <select ng-model="account.profiles[1].religion"  class="form-control">
+                            <option ng-repeat="option in data_options.religion" value="{{option.selectVal}}">
+                                {{option.selectText}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row margins">
+                <div class="col">
+                    <div class="col-sm-6">
+                        <label>Parent 1 - Occupation</label><br>
+                        <input type="text" ng-model="account.profiles[0].occupation"  class="form-control" ng-keyup="$parent.newFn(aboutus.$dirty, 0)"/>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="col-sm-6" ng-show="account.profile_type == 'couple'">
+                        <label>Parent 2 - Occupation</label><br>
                         <input type="text" ng-model="account.profiles[1].occupation" class="form-control" ng-keyup="$parent.newFn(aboutus.$dirty, 0)"/>
                     </div>
                 </div>
-    </div>
-    <div class="row margins">
+            </div>
+            <div class="row margins">
                 <div class="col">
                     <div class="col-sm-6">	
-                <label>Social Website</label><br>
-			<input type="input" ng-model="account.website"  placeholder="https://www.example.com" name="websites" class="form-control" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" ng-pattern="/^(http[s]?:\/\/){0,1}(www\.){0,1}[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,5}[\.]{0,1}/">
+                        <label>Social Website</label><br>
+                        <input type="input" ng-model="account.website"  placeholder="https://www.example.com" name="websites" class="form-control" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" ng-pattern="/^(http[s]?:\/\/){0,1}(www\.){0,1}[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,5}[\.]{0,1}/">
                         <!--<input type="input" ng-model="account.website"  name="websites" class="form-control" ng-keyup="$parent.newFn(aboutus.$dirty, 0)" ng-blur="urlValidation()">-->
                         <span ng-if="aboutus.websites.$error.pattern" class="error" style="color:red">This website URL is not valid</span>
-            </div>
-        </div>
-        <div class="col">
-            <div class="col-sm-6">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="col-sm-6">
                     </div>
                 </div>
             </div>
@@ -239,12 +249,13 @@
                     <div class="col-sm-4">
                         <div style="float: right;">
                             <input value="SAVE"  class="save_btn" type="submit" ng-if="show" id="save_bottom2" ng-disabled="disabled"/>
-                            <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="aboutus.$setPristine();" class="cancel_btn"  id="cancel_bottom2" ng-disabled="disabled"/>&nbsp;&nbsp;
+                            <!--<input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="aboutus.$setPristine();" class="cancel_btn"  id="cancel_bottom2" ng-disabled="disabled"/>&nbsp;&nbsp;-->
+                            <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="resetAbout();" class="cancel_btn"  id="cancel_bottom2" ng-disabled="disabled"/>&nbsp;&nbsp;
                         </div>
                         <!--<div style="float: right; margin-top:15px"></div>-->
                     </div>
                 </div>
-    </div>
-</div>
-</form>  
+            </div>
+        </div>
+    </form>  
 </div>

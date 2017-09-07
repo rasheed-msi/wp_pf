@@ -1,4 +1,24 @@
 //'use strict';
+
+angular.module("uib/template/tabs/tabset.html", []).run(["$templateCache", function($templateCache) {
+        $templateCache.put("uib/template/tabs/tabset.html",
+                "<div class=\"row\">\n" +
+                "  <div class=\"dashboardTabMenu pull-left\">\n" +
+                "  <ul class=\"nav nav-{{tabset.type || 'tabs'}}\" ng-class=\"{'nav-stacked': vertical, 'nav-justified': justified}\" ng-transclude></ul>\n" +
+                "    </div>\n" +
+                "  <div class=\"dashboardTabsContent flexFullChild pull-left\">\n" +
+                "  <div class=\"tab-content\">\n" +
+                "    <div class=\"tab-pane\"\n" +
+                "         ng-repeat=\"tab in tabset.tabs\"\n" +
+                "         ng-class=\"{active: tabset.active === tab.index}\"\n" +
+                "         uib-tab-content-transclude=\"tab\">\n" +
+                "    </div>\n" +
+                "  </div>\n" +
+                "  </div>\n" +
+                "</div>\n" +
+                "");
+    }]);
+
 if (typeof edit_obj != 'undefined') {
 
     var api_url = '';
@@ -16,7 +36,22 @@ if (typeof edit_obj != 'undefined') {
     var agencySelectionPostUrl = edit_obj.agencyselection_posturl;
     var agencyDelPostUrl = edit_obj.agencydel_posturl;
 
+    angular.module("template/tabs/tabset.html", []).run(["$templateCache", function($templateCache) {
+            $templateCache.put("template/tabs/tabset.html",
+                    "<div>\n" +
+                    "  <ul class=\"nav nav-{{type || 'tabs'}}\" ng-class=\"{'nav-stacked': vertical, 'nav-justified': justified}\" ng-transclude></ul>\n" +
+                    "  <div class=\"tab-content vfsdgfdgdfg\">\n" +
+                    "    <div class=\"tab-pane\" \n" +
+                    "         ng-repeat=\"tab in tabs\" \n" +
+                    "         ng-class=\"{active: tab.active}\"\n" +
+                    "         uib-tab-content-transclude=\"tab\">\n" +
+                    "    </div>\n" +
+                    "  </div>\n" +
+                    "</div>\n" +
+                    "");
+        }]);
     var app = angular.module('ui.bootstrap.demo', ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap', 'ui.mask']);
+
     app.config(['$qProvider', function($qProvider) {
             $qProvider.errorOnUnhandledRejections(false);
         }]);
@@ -107,6 +142,7 @@ if (typeof edit_obj != 'undefined') {
         }]);
 
     app.controller('aboutUsController', ['$scope', '$http', function($scope, $http, $window) {
+            $scope.masterAbout = {};
             //$qProvider.errorOnUnhandledRejections(false);
             $scope.dt = new Date();
             $scope.dt2 = new Date();
@@ -166,9 +202,7 @@ if (typeof edit_obj != 'undefined') {
                 var respData = response.data.data;
                 $scope.data_options = response.data.data_options;
                 $scope.account = response.data.data;
-                $scope.userTypes = respData.profile_type;
-                $scope.ethnicity = $scope.account.profiles[0].ethnicity;
-                var person1_dob = $scope.account.profiles[0].dob;
+                var person1_dob = $scope.account.profiles[0].dob, person2_dob = $scope.account.profiles[1].dob;
 
                 if (typeof (person1_dob) !== "undefined" && person1_dob != '0000-00-00' && person1_dob != null) {
                     $scope.pDoBext = person1_dob.split("-");
@@ -178,6 +212,16 @@ if (typeof edit_obj != 'undefined') {
                 } else {
                     $scope.dt = '';
                 }
+
+                if (typeof (person2_dob) !== "undefined" && person2_dob != '0000-00-00' && person2_dob != null) {
+                    $scope.pDoBext = person2_dob.split("-");
+                    if ($scope.pDoBext.length == 3) {
+                        $scope.dt2 = new Date($scope.pDoBext[0], $scope.pDoBext[1] - 1, $scope.pDoBext[2]);
+                    }
+                } else {
+                    $scope.dt2 = '';
+                }
+
                 if (respData.profile_type == 'couple') {
                     var person2_dob = $scope.account.profiles[1].dob;
                     if (typeof ($scope.account.profiles[1].dob) !== "undefined" && person2_dob != '0000-00-00') {
@@ -191,8 +235,19 @@ if (typeof edit_obj != 'undefined') {
 
                 }
 
-
+                var account = $scope.account, dt = $scope.dt, dt2 = $scope.dt2;
+                $scope.masterAbout = {dt: dt, dt2: dt2, account: account};
+                console.log($scope.masterAbout, 'get');
+//                console.log($scope, "about controller");
             });
+
+            $scope.resetAbout = function() {
+                console.log($scope.masterAbout);
+                $scope.aboutus.$setPristine();
+                $scope.dt = $scope.masterAbout.dt;
+                $scope.dt2 = $scope.masterAbout.dt2;
+                $scope.account = angular.copy($scope.masterAbout.account);
+            }
 
             $scope.submit = function() {
                 //$scope.$parent.newFn(false);
@@ -284,7 +339,7 @@ if (typeof edit_obj != 'undefined') {
                         respData.address1 = respData.StreetAddress;
                     }
                 }
-                
+
                 $scope.data_options = response.data.data_options;
                 $scope.account = respData; //submitContactInfo
                 console.log($scope.account);
@@ -580,9 +635,9 @@ if (typeof edit_obj != 'undefined') {
             $scope.deleteAgency = function(selectedAgency) {
 
                 var AgencyName = selectedAgency.agencyName;
-                if(typeof $scope.searchAgency !== 'undefined' && $scope.searchAgency.length <= 0){
+                if (typeof $scope.searchAgency !== 'undefined' && $scope.searchAgency.length <= 0) {
                     $scope.resultsHidden = false;
-                    $scope.filter = $scope.searchAgency;                    
+                    $scope.filter = $scope.searchAgency;
                 }
 
                 var modalInstance = $uibModal.open({

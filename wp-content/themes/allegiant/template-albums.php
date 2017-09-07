@@ -8,8 +8,11 @@ get_header();
 
 <section class="container"  ng-app="appParentfinder">
 
+
+
     <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
 
+        <div id="ajaxloader" ng-show="showAjaxLoader"></div>
         <?php get_sidebar('albums'); ?>
 
         <div class="dashboardTabsContent flexFullChild">
@@ -21,7 +24,7 @@ get_header();
                             <h4>{{heading}}</h4>
                             <p>Need some help? Read the documentation or watch a video</p>
                         </div>
-                        <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="showAlbum()">
+                        <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="executeBackButton(backButton)">
                             <a href="#" class="btn buttons clearfix"><i class="fa fa-angle-left"></i><span>Back</span></a>
                         </div>
                     </div>
@@ -29,19 +32,31 @@ get_header();
                         <div class="row albumGroup">
 
                             <div ng-if="pages.album">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="album in albums">
-
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-show="albumSettings.htmlAddBox">
                                     <div class="albumItem">
                                         <div class="albumItemImage">
-                                            <figure ng-click="showPhoto(album)"><a href="#"><img src="{{album.album_thumb}}" alt=""></a></figure>
+                                            <figure><img src="<?php echo MRT_URL_DEFAULT_PHOTOS_THUMB ?>" alt=""></figure>
+                                        </div>
+                                        <div class="dashBoardAlbumContents">
+                                            <div class="dashBoardAlbumTitle text-center verticalAlign">
+                                                <form name="formAlbum">
+                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="28" ng-class="{error: formAlbum.caption.$invalid}" ng-model="newAlbum.caption" ng-keypress="enterPressedAlbum($event, 'newalbum')" ng-blur="addAlbum()">
+                                                </form>
+                                            </div>                                                    
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="album in albums" ng-class="{selected: hasInAlbumSelectList(album)}">
+                                    <div class="albumItem">
+                                        <div class="albumItemImage">
+                                            <figure ng-click="changeAlbumSelectList(album)" ng-dblclick="showPhoto(album)"><img src="{{album.album_thumb}}" alt=""></figure>
                                         </div>
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
 
                                                 <form name="formAlbum">
-                                                    <input type="text" name="caption" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="showEditBox == album.pf_album_id"  required>
-                                                    <p ng-show="formAlbum.caption.$touched && formAlbum.caption.$invalid"> Please enter title</p>
-                                                    <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="(showEditBox != album.pf_album_id)">{{album.caption}}</span>
+                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="28" ng-click="editAlbumTitle(album, true)" ng-class="{error: formAlbum.caption.$invalid}" ng-model="album.caption" ng-blur="editAlbumTitle(album, false)" ng-show="albumSettings.htmlTitleInput == album.pf_album_id || album.caption == ''" ng-keypress="enterPressedAlbum($event, 'album', album)">
+                                                    <span class="flexFullChild" ng-click="editAlbumTitle(album, true)" ng-show="!(albumSettings.htmlTitleInput == album.pf_album_id || album.caption == '')">{{album.caption}}</span>
                                                 </form>
                                             </div>                                                    
                                         </div>
@@ -50,17 +65,16 @@ get_header();
                             </div>
 
                             <div ng-if="pages.photo">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="photo in photos">
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="photo in photos" ng-class="{selected: hasInPhotoSelectList(photo)}">
                                     <div class="albumItem">
                                         <div class="albumItemImage">
-                                            <figure ng-click="showPhotoSingle(photo)"><a href="#"><img ng-src="{{photo.thumb}}" alt=""></a></figure>
+                                            <figure ng-click="changePhotoSelectList(photo)" ng-dblclick="showPhotoSingle(photo)"><img ng-src="{{photo.thumb}}" alt=""></figure>
                                         </div>
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
                                                 <form name="formPhoto">
-                                                    <input type="text" name="Title" ng-model="photo.Title" ng-blur="editPhotoTitle(photo, false)" ng-show="showEditBox == photo.pf_photo_id">
-                                                    <p ng-show="formPhoto.Title.$touched && formPhoto.Title.$invalid"> Please enter title</p>
-                                                    <span class="flexFullChild" ng-click="editPhotoTitle(photo, true)" ng-show="(showEditBox != photo.pf_photo_id)">{{photo.Title}}</span>
+                                                    <input type="text" class="span-caption" name="Title" ng-click="editPhotoTitle(photo, true)" ng-model="photo.Title" ng-blur="editPhotoTitle(photo, false)" ng-show="photoSettings.htmlTitleInput == photo.pf_photo_id || photo.Title == ''" ng-keypress="enterPressedPhoto($event, 'photo', photo)">
+                                                    <span class="flexFullChild" ng-click="editPhotoTitle(photo, true)" ng-show="!(photoSettings.htmlTitleInput == photo.pf_photo_id || photo.Title == '')">{{photo.Title}}</span>
                                                 </form>
                                             </div>
                                             <div class="ashBoardAlbumContentBottom">
@@ -77,6 +91,7 @@ get_header();
                                     <img src="{{photo.webview}}" alt="">
                                 </div>
                             </div>
+                           
 
 
                         </div>

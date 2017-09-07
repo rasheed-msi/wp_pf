@@ -39,10 +39,8 @@ get_header();
             <?php get_template_part('template-part/view', 'vitals'); ?>
             
             <?php get_template_part('template-part/view', 'journal'); ?>
-            
-            <?php get_template_part('template-part/view', 'letter'); ?>
 
-            
+            <?php get_template_part('template-part/view', 'letter'); ?>
 
             <div class="accordianItem">
                 <div class="accordianItemHeader clearfix flexbox verticalAlign">

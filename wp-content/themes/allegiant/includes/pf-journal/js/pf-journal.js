@@ -176,24 +176,32 @@ jQuery(function($) {
     $('#add-journal').on('click', function() {
         var currentBtnElem = $(this);
         currentBtnElem.attr('disabled', 'disabled');
+        clearJournalData();
         $('#edit-journal-modal').find('.modal-title').text('Add Journal');
         $('#journal-action').val('add');
-        $('#journal-id').val(0);
         $('#edit-journal-modal').modal('show');
         currentBtnElem.removeAttr('disabled');
     });
 
     $(document).on('click', '.cancel', function() {
-        $('#journal-id').val('');
+        clearJournalData();
+    });
+    
+    $('#edit-journal-modal, #delete-journal-modal').on('hidden.bs.modal', function() {
+        clearJournalData();
+    });
+
+    function clearJournalData() {
+        $('#journal-id').val(0);
         $('#journal-action').val('');
         $('#journal-title').val('');
         tinymce.get('journal-editor').setContent('');
-        $('#del-journal-id').val('');//del journal id
-    })
-
+        $('#del-journal-id').val('');//del journal id 
+    }
 
 });
 
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+

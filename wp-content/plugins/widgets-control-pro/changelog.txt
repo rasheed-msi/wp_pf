@@ -1,0 +1,29 @@
+Changelog - Widgets Control Pro
+
+= 1.5.0 =
+* Added the `[widgets_control]` shortcode.
+* Added changelog.txt and moved full changelog there.
+* Improvement: Using plugin_dir_path() and plugins_url() functions to determine paths.
+
+= 1.4.1 =
+
+  * Improved the has_term token to check categories and tags if no taxonomy is indicated.
+  * Fixed a PHP Notice due to an undefined variable when using the has_term token.
+
+= 1.4.0 =
+
+  * Added support for visibility settings on whole sidebars.
+  * Fixed conditions display with some special characters.
+
+= 1.1.1 =
+
+  * Fixed condition by post ID not working.
+  * Fixed condition by post ID or title applied when not on a single post or page.
+
+= 1.1.0 =
+
+  * Added more flexible support for conditions based on taxonomies and terms.
+
+= 1.0.0 =
+
+  * Initial release.

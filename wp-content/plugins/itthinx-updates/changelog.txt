@@ -1,0 +1,17 @@
+Itthinx Updates
+
+* 1.2.0
+
+  - Fixed filter addition and priorities.
+
+* 1.1.1
+
+  - readme.txt added
+
+* 1.1.0
+
+  - New API functions added
+
+* 1.0.0
+
+  - Initial release

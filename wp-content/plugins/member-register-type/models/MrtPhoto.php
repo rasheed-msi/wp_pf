@@ -50,7 +50,7 @@ class MrtPhoto extends MrtDbbase {
         $photos = $this->link->get_results(
                 "SELECT *, p.pf_photo_id, p.user_id FROM {$this->table} p "
                 . "LEFT JOIN pf_filestack_photos fp ON fp.pf_photo_id = p.pf_photo_id "
-                . "WHERE p.{$where_key} = {$id} ORDER BY display_order ASC", ARRAY_A
+                . "WHERE p.{$where_key} = {$id} ORDER BY p.{$this->pkey} DESC", ARRAY_A
         );
 
         $records = $this->get_photo_views($photos);
@@ -61,7 +61,26 @@ class MrtPhoto extends MrtDbbase {
         $photos = $this->link->get_results(
                 "SELECT *, p.pf_photo_id, p.user_id FROM {$this->table} p "
                 . "LEFT JOIN pf_filestack_photos fp ON fp.pf_photo_id = p.pf_photo_id "
-                . "WHERE p.pf_album_id = {$album_id} ORDER BY display_order ASC", ARRAY_A
+                . "WHERE p.pf_album_id = {$album_id} ORDER BY p.{$this->pkey} DESC", ARRAY_A
+        );
+
+        $records = $this->get_photo_views($photos);
+        return $records;
+    }
+    
+    public function getset_items($ids = null, $where_key = null) {
+        if(!is_array($ids)){
+            return [];
+        }
+        
+        $where_key = (is_null($where_key)) ? $this->pkey : $where_key;
+        
+        $ids_str = implode(', ', $ids);
+
+        $photos = $this->link->get_results(
+                "SELECT *, p.pf_photo_id, p.user_id FROM {$this->table} p "
+                . "LEFT JOIN pf_filestack_photos fp ON fp.pf_photo_id = p.pf_photo_id "
+                . "WHERE p.{$where_key} IN ({$ids_str}) ORDER BY p.{$this->pkey} DESC", ARRAY_A
         );
 
         $records = $this->get_photo_views($photos);
@@ -71,21 +90,22 @@ class MrtPhoto extends MrtDbbase {
     public function get_photo_views($photos) {
         $records = [];
         foreach ($photos as $key => $photo) {
-            if (isset($photo['cloud_path']) && $photo['cloud_path'] != "") {
+            if (isset($photo['cloud_filename']) && $photo['cloud_filename'] != "") {
 
                 // Filestack images
 
                 if ($photo['view_type'] == 'thumb') {
-                    $photo['thumb'] = $photo['cloud_path'];
+                    $photo['thumb'] = MRT_URL_S3BUCKET . '/' . $photo['cloud_filename'];
                 }
 
                 if ($photo['view_type'] == 'webview') {
-                    $photo['webview'] = $photo['cloud_path'];
+                    $photo['webview'] = MRT_URL_S3BUCKET . '/' . $photo['cloud_filename'];
                 }
 
                 if ($photo['view_type'] == 'original') {
-                    $photo['original'] = $photo['cloud_path'];
+                    $photo['original'] = MRT_URL_S3BUCKET . '/' . $photo['cloud_filename'];
                 }
+                
                 
             } else {
                 // Server images

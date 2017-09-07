@@ -14,11 +14,23 @@ define('MRT_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('MRT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MRT_TEMPLATE_PATH', MRT_PLUGIN_PATH . '/templates');
 define('MRT_PLUGIN_BASENAME', plugin_basename(__FILE__));
-define('MRT_ALBUMS_UPLOADS', wp_upload_dir()['baseurl'] . '/albums');
-define('MRT_URL_IMAGE_UPLOADS', wp_upload_dir()['baseurl'] . '/images');
 
 /**
  * 
+ * 
+ */
+define('MRT_URL_UPLOADS', wp_upload_dir()['baseurl']);
+define('MRT_DIR_UPLOADS', wp_upload_dir()['basedir']);
+define('MRT_URL_ALBUMS_UPLOADS', MRT_URL_UPLOADS . '/albums');
+define('MRT_DIR_ALBUMS_UPLOADS', MRT_DIR_UPLOADS . '/albums');
+define('MRT_URL_AVATHAR_UPLOADS', MRT_URL_UPLOADS . '/avatar');
+define('MRT_DIR_AVATHAR_UPLOADS', MRT_DIR_UPLOADS . '/avatar');
+define('MRT_URL_IMAGE_UPLOADS', MRT_URL_UPLOADS . '/images');
+define('MRT_URL_IMAGE_PROCESSING', MRT_PLUGIN_URL . '/images/processing.gif');
+
+/**
+ * MRT_URL_PHOTOS => MRT_URL_ALBUMS_UPLOADS
+ * MRT_URL_AVATHAR => MRT_URL_AVATHAR_UPLOADS
  * Images
  */
 define('MRT_PARENTFINDER', 'https://www.parentfinder.com');
@@ -28,6 +40,7 @@ define('MRT_URL_VIDEO', MRT_PARENTFINDER . '/flash/modules/video/files');
 define('MRT_URL_DEFAULT_PHOTOS_THUMB', 'http://via.placeholder.com/220X150');
 define('MRT_URL_DEFAULT_PHOTOS_AVATHAR', 'http://via.placeholder.com/220X150');
 define('MRT_URL_YOUTUBE_EMBED', 'https://www.youtube.com/embed');
+define('MRT_URL_S3BUCKET', 'https://s3.amazonaws.com/cairs');
 
 include_once MRT_PLUGIN_PATH . 'helpers/Stock.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Dot.php';
@@ -65,14 +78,18 @@ function mrt_add_user_scripts() {
     wp_enqueue_script('mrt-app-const-scripts', MRT_PLUGIN_URL . 'js/appConst.js', array('jquery'), '1.0.0', true);
     wp_enqueue_script('mrt-filestack-scripts', 'https://static.filestackapi.com/v3/filestack.js', array('jquery'), '1.0.0', true);
 
-    wp_register_script('mrt-scripts', MRT_PLUGIN_URL . 'js/mrt-scrpts.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-scripts', MRT_PLUGIN_URL . 'js/mrt-scrpts.js', array('jquery'), '1.0.0', true);
     // wp_enqueue_script('mrt-jquery-ui-scripts', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), null, true);
-    wp_localize_script('mrt-scripts', 'myLocalized', array(
-        'partials' => 'test',
-        'nonce' => wp_create_nonce('wp_rest')
-            )
-    );
-    wp_enqueue_script('mrt-scripts');
+    
+    //App
+    wp_enqueue_script('angularjs', MRT_PLUGIN_URL . 'app/angular.min.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-ng-prototype', MRT_PLUGIN_URL . 'app/prototype.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-ng-app', MRT_PLUGIN_URL . 'app/app.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-ng-directive', MRT_PLUGIN_URL . 'app/directive.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-ng-services', MRT_PLUGIN_URL . 'app/services.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-ng-controllers', MRT_PLUGIN_URL . 'app/controllers.js', array('jquery'), '1.0.0', true);
+    
+    
 }
 
 function mrt_admin_scripts() {
