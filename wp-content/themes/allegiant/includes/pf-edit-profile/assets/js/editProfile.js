@@ -2,6 +2,7 @@
 
 angular.module("uib/template/tabs/tabset.html", []).run(["$templateCache", function($templateCache) {
         $templateCache.put("uib/template/tabs/tabset.html",
+                "<div class=\"container\">\n" +
                 "<div class=\"row\">\n" +
                 "  <div class=\"dashboardTabMenu pull-left\">\n" +
                 "  <ul class=\"nav nav-{{tabset.type || 'tabs'}}\" ng-class=\"{'nav-stacked': vertical, 'nav-justified': justified}\" ng-transclude></ul>\n" +
@@ -15,6 +16,7 @@ angular.module("uib/template/tabs/tabset.html", []).run(["$templateCache", funct
                 "    </div>\n" +
                 "  </div>\n" +
                 "  </div>\n" +
+                "</div>\n" +
                 "</div>\n" +
                 "");
     }]);

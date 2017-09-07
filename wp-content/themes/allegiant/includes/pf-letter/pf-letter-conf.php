@@ -50,17 +50,17 @@ class LetterConf {
 
     function letterInfo($post) {
         $letterMeta = get_post_meta($post->ID);
-        $letterAbout = $letterMeta['letter_slug'][0];
-        $letterIntro = $letterMeta['letter_intro'][0];
-        $letterImages = maybe_unserialize($letterMeta['letter_image'][0]);
+        $letterAbout = $letterMeta['letter_about_selection'][0];
+        $letterIntro = $letterMeta['letter_is_intro'][0];
+        $letterImages = maybe_unserialize($letterMeta['letter_images'][0]);
 
         /* letter intro */
         $letterIntroSel = array('yes' => 1, 'no' => 0);
         wp_nonce_field(plugin_basename(__FILE__), 'noncename_so_14445904');
         ?>
         <p>
-            <label for="letter_intro"><b><?php _e('Is Intro:', ''); ?></b></label>
-            <select name="letter_intro" id="letter_intro" class="widefat">
+            <label for="letter_is_intro"><b><?php _e('Is Intro:', ''); ?></b></label>
+            <select name="letter_is_intro" id="letter_is_intro" class="widefat">
                 <option value=""><?php _e('Select'); ?></option>
                 <?php
                 foreach ($letterIntroSel as $introKey => $introVal):
@@ -77,8 +77,8 @@ class LetterConf {
 
         /* letter about lable */
         $couple = array(
-            'about_him' => __('About Parent 1', ''),
-            'about_her' => __('About parent 2', ''),
+            'about_parent1' => __('About Parent 1', ''),
+            'about_parent2' => __('About parent 2', ''),
             'about_them' => __('About them', ''),
             'agency_letter' => __('Agency Letter', ''),
         );
@@ -86,12 +86,12 @@ class LetterConf {
         $single = array(
             'agency_letter' => __('Agency Letter', ''),
             'expecting_mother_letter' => __('Expecting Mother Letter', ''),
-            'about_him' => __('About Parent 1', ''),
+            'about_parent1' => __('About Parent 1', ''),
         );
         ?>
         <p>
-            <label for="letter_slug"><b><?php _e('Letter Label/Type:'); ?></b></label>
-            <select name="letter_slug" id="letter_slug" class="widefat">
+            <label for="letter_about_selection"><b><?php _e('Letter Label/Type:'); ?></b></label>
+            <select name="letter_about_selection" id="letter_about_selection" class="widefat">
                 <option value=""><?php _e('Select'); ?></option>
                 <optgroup label="For Couple">
                     <?php foreach ($couple as $coKey => $co): ?>
@@ -112,7 +112,7 @@ class LetterConf {
         /* associate images */
         ?>
         <div id="dynamic_form">
-            <p><label for="letter_image[image_url][]"><b><?php _e('Associate Images:'); ?></b></label></p>
+            <p><label for="letter_images[image_url][]"><b><?php _e('Associate Images:'); ?></b></label></p>
             <div id="field_wrap">
                 <?php
                 if (isset($letterImages['image_url'])) {
@@ -125,7 +125,7 @@ class LetterConf {
                                 <label><?php _e('Image URL:', ''); ?></label>
                                 <input type="text"
                                        class="meta_image_url widefat"
-                                       name="letter_image[image_url][]"
+                                       name="letter_images[image_url][]"
                                        value="<?php esc_html_e($letterImages['image_url'][$i]); ?>"
                                        />
                             </div>
@@ -149,7 +149,7 @@ class LetterConf {
             <div class="field_row">
                 <div class="form_field">
                     <label><?php _e('Image URL:', ''); ?></label>
-                    <input class="meta_image_url widefat" value="" type="text" name="letter_image[image_url][]" />
+                    <input class="meta_image_url widefat" value="" type="text" name="letter_images[image_url][]" />
                 </div>
                 <div class="image_wrap"></div> 
                 <div class="field_right"> 
@@ -217,32 +217,32 @@ class LetterConf {
 
 
 
-        if (isset($_POST['letter_intro'])) {
-            update_post_meta($post_id, 'letter_intro', $_POST['letter_intro']);
+        if (isset($_POST['letter_is_intro'])) {
+            update_post_meta($post_id, 'letter_is_intro', $_POST['letter_is_intro']);
         }
 
-        if ($_POST['letter_slug']) {
-            update_post_meta($post_id, 'letter_slug', $_POST['letter_slug']);
+        if ($_POST['letter_about_selection']) {
+            update_post_meta($post_id, 'letter_about_selection', $_POST['letter_about_selection']);
         }
 
 
-        if ($_POST['letter_image']) {
+        if ($_POST['letter_images']) {
             // Build array for saving post meta
             $letterImages = array();
-            for ($i = 0; $i < count($_POST['letter_image']['image_url']); $i++) {
-                if ('' != $_POST['letter_image']['image_url'][$i]) {
-                    $letterImages['image_url'][] = $_POST['letter_image']['image_url'][$i];
+            for ($i = 0; $i < count($_POST['letter_images']['image_url']); $i++) {
+                if ('' != $_POST['letter_images']['image_url'][$i]) {
+                    $letterImages['image_url'][] = $_POST['letter_images']['image_url'][$i];
                 }
             }
 
             if ($letterImages)
-                update_post_meta($post_id, 'letter_image', $letterImages);
+                update_post_meta($post_id, 'letter_images', $letterImages);
             else
-                delete_post_meta($post_id, 'letter_image');
+                delete_post_meta($post_id, 'letter_images');
         }
         // Nothing received, all fields are empty, delete option
         else {
-            delete_post_meta($post_id, 'letter_image');
+            delete_post_meta($post_id, 'letter_images');
         }
     }
 
@@ -316,7 +316,7 @@ class LetterConf {
         switch ($column) {
 
             case 'is_intro' :
-                $isIntro = get_post_meta($post_id, 'letter_intro', true);
+                $isIntro = get_post_meta($post_id, 'letter_is_intro', true);
                 if ($isIntro == 0)
                     _e('No');
                 elseif ($isIntro == 1)

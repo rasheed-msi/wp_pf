@@ -3,6 +3,7 @@
     <head>
         <meta charset="<?php bloginfo('charset'); ?>">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <meta name="author" content="dev1">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
@@ -17,6 +18,7 @@
             </style>
             
         <?php endif; ?>
+
 
         <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -33,10 +35,12 @@
                     <div class="headerContents flexFullChild clearfix">
                         <div class="buttonsGroup clearfix">
                             <?php if (is_user_logged_in()): ?>
-                                <span><a href="<?php echo wp_logout_url(home_url() . '?applogout=1'); ?>" class="buttons">Logout</a></span>
-                                <span><a href="<?php echo site_url('dashboard'); ?>" class="buttons buttonGreen">Dashboard</a></span>
 
-                                <?php if (!State::has_membership_access()): ?>
+                                <span><a href="<?php echo wp_logout_url(home_url() . '?applogout=1'); ?>" class="buttons">Logout</a></span>
+
+                                <?php if (State::has_membership_access()): ?>
+                                    <span><a href="<?php echo site_url('dashboard'); ?>" class="buttons buttonGreen">Dashboard</a></span>
+                                <?php else: ?>
                                     <span><a href="<?php echo site_url('membership-account/membership-levels'); ?>" class="buttons buttonGreen">Membership</a></span>
                                 <?php endif; ?>
 

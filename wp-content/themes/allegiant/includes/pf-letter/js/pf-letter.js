@@ -176,8 +176,7 @@ jQuery(function($) {
                         } else {
                             var addLetter = '<div data-id="' + data.data.ID + '" class="col-lg-6 col-md-6 col-sm-6 col-xs-12 articleColumn articlePost author-letter-container letter-' + data.data.ID + '">\n\
                                     <a class="buttons text-center edit-letter" title="Edit this letter" id="edit-letter-' + data.data.ID + '"><i class="fa fa-pencil"></i></a>';
-var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise', 'our_traditions', 'our_vacations', 'thanksgiving'];
-                            if (  deletable.indexOf(letterLabel) != -1) {
+                            if (letterLabel == 'other') {
                                 addLetter += '<a class="buttons text-center delete-letter" title="Delete this letter" id="delete-letter-' + data.data.ID + '"><i class="fa fa-trash"></i></a>';
                             } else {
 
@@ -199,7 +198,7 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
                                         id: 'is_intro_selected',
                                         name: 'is_intro_selected',
                                         value: parseInt(data.data.ID, 10)
-                                    }).prependTo('#letter-title-' + data.data.ID)
+                                    }).prependTo('#letter-title-' + letterID)
                                 } else {
                                     $('#is_intro_selected').val(parseInt(data.data.ID, 10));
                                 }
@@ -239,10 +238,9 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
     });
 
     $(document).on('click', '.delete-btn', function(e) {
-        var currentBtnElem = $(this), letterID = parseInt($('#del-letter-id').val(), 10), currentIntro = parseInt($('#is_intro_selected').val(), 10);
+        var currentBtnElem = $(this), letterID = parseInt($('#del-letter-id').val(), 10);
         disableButton(currentBtnElem);
 
-        if( letterID != currentIntro){
         $.ajax({
             method: 'POST',
             url: letter_obj.ajax_url,
@@ -268,14 +266,6 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
                 }
             }
         });
-        }else{
-            $('<div class="alert alert-danger">\n\
-                            <strong>Failed!</strong> Please uncheck introduction  before deleting letter\n\
-                        </div>').prependTo('#delete-letter-modal .modal-body').delay(2000).fadeOut(function() {
-                        $('#delete-letter-modal').modal('hide');
-                        enableButton(currentBtnElem);
-                    });
-       } 
     });
 
 
@@ -350,11 +340,11 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
             }
             clearSelectedImgs(photoId);
         }
-        
+
         $(this).parents('li').remove();
-        
-        
-        if(!($('#selected-assoc-list li').length > 0 )){
+
+
+        if (!($('#selected-assoc-list li').length > 0)) {
             var assocImgData = getAssocImgData('');
             $('#selected-assoc-list').html(assocImgData);
             $('#photo-ids').val('');

@@ -1,5 +1,9 @@
 jQuery(function($) {
 
+    //Isotop
+    $('.articlePosts').isotope({
+        itemSelector: '.articlePost'
+    });
     /*tinymce init*/
     tinymce.init({
         mode: "exact",
@@ -186,7 +190,7 @@ jQuery(function($) {
     $(document).on('click', '.cancel', function() {
         clearJournalData();
     });
-    
+
     $('#edit-journal-modal, #delete-journal-modal').on('hidden.bs.modal', function() {
         clearJournalData();
     });

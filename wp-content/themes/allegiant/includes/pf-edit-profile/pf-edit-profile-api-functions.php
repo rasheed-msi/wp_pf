@@ -517,19 +517,13 @@ class PFEditApi {
             $data['religion_id'] = $postData['profiles'][0]['religion'];
             $data['waiting_id'] = $postData['profiles'][0]['waiting_id'];
             $data['occupation'] = $postData['profiles'][0]['occupation'];
-
-            if (isset($postData['profile_type']) && $postData['profile_type'] == 'single') {
-                $data['spouse_first_name'] = $data['spouse_dob'] = $data['spouse_gender'] = $data['spouse_education_id'] = $data['spouse_ethnicity_id'] = $data['spouse_religion_id'] = $data['spouse_occupation'] = '';
-            } else {
-                $data['spouse_first_name'] = $postData['profiles'][1]['name'];
-                $data['spouse_dob'] = $postData['profiles'][1]['dob'];
-                $data['spouse_gender'] = $postData['profiles'][1]['gender'];
-                $data['spouse_education_id'] = $postData['profiles'][1]['education'];
-                $data['spouse_ethnicity_id'] = $postData['profiles'][1]['ethnicity'];
-                $data['spouse_religion_id'] = $postData['profiles'][1]['religion'];
-                $data['spouse_occupation'] = $postData['profiles'][1]['occupation'];
-            }
-
+            $data['spouse_first_name'] = $postData['profiles'][1]['name'];
+            $data['spouse_dob'] = $postData['profiles'][1]['dob'];
+            $data['spouse_gender'] = $postData['profiles'][1]['gender'];
+            $data['spouse_education_id'] = $postData['profiles'][1]['education'];
+            $data['spouse_ethnicity_id'] = $postData['profiles'][1]['ethnicity'];
+            $data['spouse_religion_id'] = $postData['profiles'][1]['religion'];
+            $data['spouse_occupation'] = $postData['profiles'][1]['occupation'];
             //$data['website'] = $postData['website']
 
 

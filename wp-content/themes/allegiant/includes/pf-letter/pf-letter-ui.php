@@ -24,8 +24,7 @@ class LetterUI {
         wp_enqueue_style('pf-letter', get_template_directory_uri() . '/includes/pf-letter/css/pf-letter.css', array('pf-float-label'), '5.8.28');
         wp_enqueue_media();
         wp_enqueue_script('tinymce_js', includes_url('js/tinymce/') . 'wp-tinymce.php', array('jquery'), false, true);
-        wp_enqueue_script('pf-isotop', get_template_directory_uri() . '/includes/common/js/isotope.pkgd.min.js', array('jquery'), '1.1.8', true);
-        wp_register_script('pf-letter', get_template_directory_uri() . '/includes/pf-letter/js/pf-letter.js', array('jquery', 'pf-isotop', 'jquery-ui-sortable', 'tinymce_js'), '1.1.19.22', true);
+        wp_register_script('pf-letter', get_template_directory_uri() . '/includes/pf-letter/js/pf-letter.js', array('jquery', 'jquery-ui-sortable', 'tinymce_js'), '1.1.19.11', true);
         wp_localize_script('pf-letter', 'letter_obj', array('ajax_url' => admin_url('admin-ajax.php')));
         wp_enqueue_script('pf-letter');
     }
@@ -33,17 +32,12 @@ class LetterUI {
     function pf_letter_del_func() {
         $letter_id = isset($_POST['letter-id']) && is_numeric($_POST['letter-id']) ? $_POST['letter-id'] : 0;
         if ($letter_id != 0) {
-            $letter_intro = get_post_meta($letter_id, 'letter_intro', true);
-            if($letter_intro != 1){
-                global $wpdb;
-                $status = $wpdb->update($wpdb->posts, array('post_status' => 'trash'), array('ID' => $letter_id));
-                if ($status == 1) {
-                    echo json_encode(array('status' => 200, 'message' => 'Deleted successfully'));
-                } else {
-                    echo json_encode(array('status' => 400, 'message' => 'Something went wrong. Please try later.'));
-                }
-            }else{
-                echo json_encode(array('status' => 200, 'message' => 'Please uncheck before deleting letter'));
+            global $wpdb;
+            $status = $wpdb->update($wpdb->posts, array('post_status' => 'trash'), array('ID' => $letter_id));
+            if ($status == 1) {
+                echo json_encode(array('status' => 200, 'message' => 'Deleted successfully'));
+            } else {
+                echo json_encode(array('status' => 400, 'message' => 'Something went wrong. Please try later.'));
             }
         } else {
             echo json_encode(array('status' => 401, 'message' => 'Something went wrong. Please try later.'));
@@ -159,12 +153,6 @@ class LetterUI {
             LEFT JOIN pf_filestack_photos f ON f. pf_photo_id = p.pf_photo_id and f.view_type=%s  and  ifnull(f.deleteFlag,%d)=%d 
             WHERE  a.user_id = %d 
             ORDER BY a.pf_album_id,p.pf_photo_id";
-        /*$album_args = array($user_ID);
-        $album_query = "SELECT a.caption,a.pf_album_id, p.pf_photo_id,p.Uri,p.Ext,p.filename
-                          FROM `pf_albums` a  
-                          LEFT JOIN pf_photos p ON p.pf_album_id = a.pf_album_id
-                          WHERE  a.user_id = %d
-                          ORDER BY a.pf_album_id,p.pf_photo_id LIMIT 20";*/
 
         return $wpdb->get_results($wpdb->prepare($album_query, $album_args));
     }

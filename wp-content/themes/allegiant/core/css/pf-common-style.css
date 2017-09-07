@@ -1,6 +1,0 @@
-/*Rasheed Css for Journals*/
-.author-journal-container .edit-journal{float: left;margin: 0;left: -15px;position: relative;top: -15px;color: #b33c00;border-radius: 50%;width: 30px;height: 30px;font-weight: 3px;background: #ECA;visibility:hidden;}
-.author-journal-container .delete-journal{float: right;position: relative;top: -15px;right: -15px;border-radius: 50%;width: 30px;height: 30px;color:#b33c00;background: #ECA;visibility:hidden;}
-.author-journal-container .edit-journal:hover, .author-journal-container .delete-journal:hover{color:#b33c00;background: #ECA;}
-.author-journal-container .author-journal-container span[id^="post-title-"] {-ms-word-break: break-all;word-break: break-all;}
-/*Rasheed Css for Journals*/

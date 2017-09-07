@@ -9,51 +9,8 @@ and open the template in the editor.
 */
 
 .placeholder {
-    margin-left: 0 !important;
-    border: 1px solid #ccc;
-    background-color: #f4f0f2;
+    background-color: white;
     -webkit-box-shadow: 0px 0px 10px #888;
     -moz-box-shadow: 0px 0px 10px #888;
     box-shadow: 0px 0px 10px #888;
-
-    float: left; 
-    width: 25%;
-    height: 0px;
-    padding-bottom: 18%;  
-}
-.col-lg-6.col-md-6.col-sm-6.col-xs-12.articleColumn.articlePost.author-letter-container:hover {
-    cursor: move;
-}
-
-.nopad {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-/*image gallery*/
-.image-checkbox {
-    cursor: pointer;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    border: 4px solid transparent;
-    margin-bottom: 0;
-    outline: 0;
-}
-.image-checkbox input[type="checkbox"] {
-    display: none;
-}
-
-.image-checkbox-checked {
-    border-color: #4783B0;
-}
-.image-checkbox .fa {
-    position: absolute;
-    color: #4A79A3;
-    background-color: #fff;
-    padding: 10px;
-    top: 0;
-    right: 0;
-}
-.image-checkbox-checked .fa {
-    display: block !important;
 }
