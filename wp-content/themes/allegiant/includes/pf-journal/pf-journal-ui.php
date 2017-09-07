@@ -15,9 +15,10 @@ class JournalUI {
 
     function pf_journal_scripts() {
         wp_enqueue_style('pf-float-label', get_template_directory_uri() . '/includes/common/css/bootstrap-float-label.min.css');
-        wp_enqueue_style('pf-journal', get_template_directory_uri() . '/includes/pf-journal/css/pf-journal.css', array('pf-float-label'), '5.8.2');
+        wp_enqueue_style('pf-journal', get_template_directory_uri() . '/includes/pf-journal/css/pf-journal.css', array('pf-float-label'), '5.8.3');
         wp_enqueue_script('tinymce_js', includes_url('js/tinymce/') . 'wp-tinymce.php', array('jquery'), false, true);
-        wp_register_script('pf-journal', get_template_directory_uri() . '/includes/pf-journal/js/pf-journal.js', array('jquery', 'tinymce_js'), '1.1.8', true);
+        wp_enqueue_script('pf-isotop', get_template_directory_uri() . '/includes/common/js/isotope.pkgd.min.js', array('jquery'), '1.1.8', true);
+        wp_register_script('pf-journal', get_template_directory_uri() . '/includes/pf-journal/js/pf-journal.js', array('jquery', 'tinymce_js', 'pf-isotop'), '1.1.9', true);
         wp_localize_script('pf-journal', 'journal_obj', array('ajax_url' => admin_url('admin-ajax.php')));
         wp_enqueue_script('pf-journal');
     }

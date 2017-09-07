@@ -46,4 +46,5 @@ require_once (PF_DEP_PLUGIN_PATH . '/tml/tml.php'); /* theme my login */
 /* Other PF customisation */
 //require_once (PF_DEP_CUSTOM_PATH . '/password-encrypt/pf-encrypt-password.php'); //for password hashing
 //require_once (PF_DEP_CUSTOM_PATH . '/agency-approvals/agency-approvals.php'); //for agency approvals
+require_once (PF_DEP_CUSTOM_PATH . '/pf-genaral.php');
 /* Other PF customisation */

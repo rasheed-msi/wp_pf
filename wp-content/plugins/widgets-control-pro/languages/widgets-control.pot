@@ -1,0 +1,149 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid   ""
+msgstr  "Project-Id-Version: PACKAGE VERSION\n"
+        "Report-Msgid-Bugs-To: \n"
+        "POT-Creation-Date: 2016-11-01 17:53+0100\n"
+        "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+        "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+        "Language-Team: LANGUAGE <LL@li.org>\n"
+        "Language: \n"
+        "MIME-Version: 1.0\n"
+        "Content-Type: text/plain; charset=CHARSET\n"
+        "Content-Transfer-Encoding: 8bit\n"
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:52
+msgid   "Access denied."
+msgstr  ""
+
+#: lib/class-widgets-control-sidebars.php:347
+#: lib/class-widgets-control-sidebars.php:349
+msgid   "Apply"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:79
+msgid   "Automatic Cache Clearing"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:83
+msgid   "Automatically clear the cache when widgets are updated?"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:176
+#: lib/class-widgets-control-sidebars.php:314
+msgid   "Conditions"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:189
+#: lib/class-widgets-control-sidebars.php:327
+msgid   "For page hierarchies use: <em>some-page/*</em>."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:90
+msgid   "It is recommended while you set up your widgets or when you work on "
+        "changes."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:92
+msgid   "Note that you can also clear the cache manually even with this "
+        "option disabled and we recommend to disable it once you have "
+        "finished setting up your widgets."
+msgstr  ""
+
+#: widgets-control-pro.php:149
+msgid   "Oops!"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:203
+#: lib/class-widgets-control-sidebars.php:342
+msgid   "Please refer to the <a href=\"http://docs.itthinx.com/document/"
+        "widgets-control-pro/\">Documentation</a> for details."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:185
+#: lib/class-widgets-control-sidebars.php:323
+msgid   "Put each item on a line by itself."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:96
+msgid   "Save"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:35
+msgid   "Settings"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:167
+#: lib/class-widgets-control-sidebars.php:305
+msgid   "Show on all except these pages"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:155
+#: lib/class-widgets-control-sidebars.php:293
+msgid   "Show on all pages"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:161
+#: lib/class-widgets-control-sidebars.php:299
+msgid   "Show only on these pages"
+msgstr  ""
+
+#: lib/class-widgets-control-sidebars.php:265
+msgid   "Sidebar Visibility"
+msgstr  ""
+
+#: widgets-control-pro.php:152
+msgid   "The <em>Widgets Control Pro</em> plugin is activated, but the "
+        "<em>Widgets Control</em> plugin is also active."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:193
+#: lib/class-widgets-control-sidebars.php:331
+msgid   "These tokens can be used:"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:88
+msgid   "This option is only provided as a convenience while you set up your "
+        "site."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:86
+msgid   "This works with W3 Total Cache, WP Super Cache and WP Engine."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:187
+#: lib/class-widgets-control-sidebars.php:325
+msgid   "To include or exclude pages, use page ids, titles or slugs."
+msgstr  ""
+
+#: widgets-control-pro.php:154
+msgid   "To use the advanced features in <em>Widgets Control Pro</em>, you "
+        "must deactivate <em>Widgets Control</em>."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:191
+#: lib/class-widgets-control-sidebars.php:329
+msgid   "Use the prefix <em>!</em> for exclusions."
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin.php:138
+msgid   "Visibility"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:42
+#: lib/admin/class-widgets-plugin-admin-settings.php:43
+msgid   "Widgets Control"
+msgstr  ""
+
+#: lib/admin/class-widgets-plugin-admin-settings.php:69
+msgid   "Widgets Control Settings"
+msgstr  ""
+
+#: widgets-control-pro.php:156
+msgid   "You can also remove the <em>Widgets Control</em> plugin, as "
+        "<em>Widgets Control Pro</em> replaces it completely."
+msgstr  ""

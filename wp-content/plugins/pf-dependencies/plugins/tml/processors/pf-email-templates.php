@@ -576,7 +576,8 @@ if (!class_exists('PF_EmailTemplates')) :
             $this->options = $options;
         }
 
-     public static function pfGetEmailTemplateByKey($key, $placeHolder = array(), $userId) {
+
+       public static function pfGetEmailTemplateByKey($key, $placeHolder = array(), $userId) {
             $optionKey = '';
             switch ($key) {
                 case 'new_user':
@@ -604,10 +605,9 @@ if (!class_exists('PF_EmailTemplates')) :
 
             $options = get_option($optionKey, array());
             $selectedOpt = $options[$key];
-            $selectedOpt['message'] = Theme_My_Login_Common::replace_vars($selectedOpt['message'], $user_id, $placeHolder);
+            $selectedOpt['message'] = Theme_My_Login_Common::replace_vars($selectedOpt['message'], $userId, $placeHolder);
             return $selectedOpt;
         }
-
     }
 
     new PF_EmailTemplates;

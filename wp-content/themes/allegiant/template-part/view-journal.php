@@ -11,18 +11,20 @@ global $user_ID;
     </div>
     <div class="accordianItemContents">
         <div class="row articleRow articlePosts clearfix">
-            <div class="col-xs-12"><a id="add-journal" class="btn btn-default add-journal"><?php _e('Add new journal');?></a></div>
+            <div class="col-xs-12"><a id="add-journal" class="btn btn-default add-journal"><?php _e('Add new journal'); ?></a></div>
             <?php
             $journal_args = array('post_type' => 'journal', 'author' => $user_ID, 'post_status' => 'publish', 'orderby' => 'date');
             $journal_query = new WP_Query($journal_args);
             if ($journal_query->have_posts()) : while ($journal_query->have_posts()) : $journal_query->the_post();
                     ?>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 articleColumn articlePost author-journal-container journal-<?php the_ID();?>">
-                        <a class="buttons text-center edit-journal" title="<?php _e('Edit this journal', '');?>" id="edit-post-<?php the_ID();?>"><i class="fa fa-pencil"></i></a>
-                        <a class="buttons text-center delete-journal" title="<?php _e('Delete this journal', '');?>" id="delete-post-<?php the_ID();?>"><i class="fa fa-trash"></i></a>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 articleColumn articlePost author-journal-container journal-<?php the_ID(); ?>">
                         <div class="articleItem">
-                            <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-<?php the_ID();?>"><?php the_title(); ?></span><span class="pull-right postDate"><?php echo get_the_date('F d, Y'); ?></span></div>
-                            <div class="articleItemContents noPad" id="post-content-<?php the_ID();?>">
+                            <div class="articleItemButtons clearfix text-right">
+                                <a class="edit-journal" title="<?php _e('Edit this journal', ''); ?>" id="edit-post-<?php the_ID(); ?>"><i class="fa fa-pencil"></i></a>
+                                <a class="delete-journal" title="<?php _e('Delete this journal', ''); ?>" id="delete-post-<?php the_ID(); ?>"><i class="fa fa-trash"></i></a>
+                            </div>
+                            <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-<?php the_ID(); ?>"><?php the_title(); ?></span><span class="pull-right postDate"><?php echo get_the_date('F d, Y'); ?></span></div>
+                            <div class="articleItemContents noPad" id="post-content-<?php the_ID(); ?>">
                                 <?php the_content(); ?>
                             </div>
                         </div>
@@ -36,59 +38,59 @@ global $user_ID;
         </div><!--//Post Item-->
     </div>
     <!-- Modal -->
-<div id="edit-journal-modal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+    <div id="edit-journal-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
 
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"><?php _e('Edit Journal',''); ?></h4>
-      </div>
-      <div class="modal-body">
-            <div style="padding: 3rem 1rem">
-                <!-- The form is placed inside the body of modal -->
-                <form id="journal-form" method="post" class="center-block">
-                    <div class="form-group has-float-label">
-                      <input type="hidden" name="journal-id" id="journal-id" />
-                      <input type="hidden" name="journal-action" id="journal-action" />
-                      <input class="form-control" id="journal-title" type="text" placeholder="Journal Heading" />
-                      <label for="journal-title"><?php _e('Title'); ?></label>
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><?php _e('Edit Journal', ''); ?></h4>
+                </div>
+                <div class="modal-body">
+                    <div style="padding: 3rem 1rem">
+                        <!-- The form is placed inside the body of modal -->
+                        <form id="journal-form" method="post" class="center-block">
+                            <div class="form-group has-float-label">
+                                <input type="hidden" name="journal-id" id="journal-id" />
+                                <input type="hidden" name="journal-action" id="journal-action" />
+                                <input class="form-control" id="journal-title" type="text" placeholder="Journal Heading" />
+                                <label for="journal-title"><?php _e('Title'); ?></label>
+                            </div>
+                            <div class="form-group has-float-label">
+                                <textarea class="form-control" id="journal-editor" name="journal-editor" placeholder="<?php _e('Journal Content'); ?>"></textarea>
+                                <!--<label for="journal-editor">Your Journal</label>-->
+                            </div>
+                        </form>
                     </div>
-                    <div class="form-group has-float-label">
-                      <textarea class="form-control" id="journal-editor" name="journal-editor" placeholder="<?php _e('Journal Content'); ?>"></textarea>
-                      <!--<label for="journal-editor">Your Journal</label>-->
-                    </div>
-                </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default cancel" data-dismiss="modal" aria-hidden="true"><?php _e('Cancel'); ?></button>
+                    <button class="btn btn-primary edit-journal-btn" ><?php _e('Save'); ?></button>
+                </div>
             </div>
-      </div>
-      <div class="modal-footer">
-            <button class="btn btn-default cancel" data-dismiss="modal" aria-hidden="true"><?php _e('Cancel'); ?></button>
-            <button class="btn btn-primary edit-journal-btn" ><?php _e('Save'); ?></button>
-      </div>
+
+        </div>
     </div>
 
-  </div>
-</div>
+    <div id="delete-journal-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><?php _e('Confirm', ''); ?></h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="del-journal-id" name="del-journal-id" />
+                    <p><?php _e('Do you really want to delete this journal ?', ''); ?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default cancel" data-dismiss="modal"><?php _e('Cancel', ''); ?></button>
+                    <button type="button" class="btn btn-primary delete-btn" ><?php _e('Remove Journal', ''); ?></button>
+                </div>
+            </div>
 
-<div id="delete-journal-modal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"><?php _e('Confirm',''); ?></h4>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="del-journal-id" name="del-journal-id" />
-        <p><?php _e('Do you really want to delete this journal ?',''); ?></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default cancel" data-dismiss="modal"><?php _e('Cancel',''); ?></button>
-        <button type="button" class="btn btn-primary delete-btn" ><?php _e('Remove Journal',''); ?></button>
-      </div>
+        </div>
     </div>
-
-  </div>
-</div>
 </div><!--//Accordian Item-->

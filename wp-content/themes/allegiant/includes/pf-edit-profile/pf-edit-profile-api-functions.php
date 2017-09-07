@@ -223,7 +223,6 @@ class PFEditApi {
         return $this->wpdb->get_var("SELECT `gender` FROM " . $this->tbl_gender_preference . " WHERE `user_id`=" . $this->user_ID);
     }
 
-        
     function getSpecialNeedsById() {
         return wp_list_pluck($this->wpdb->get_results("SELECT `special_need_id` FROM " . $this->tbl_special_need_pref . " WHERE `user_id`=" . $this->user_ID, ARRAY_A), 'special_need_id');
     }
@@ -454,26 +453,26 @@ class PFEditApi {
         $data['ethnicityprefs'] = $this->getEthnicityPrefById();
         $data['birthfatherPrefs'] = $this->getBirthfatherPrefById();
         $data['special_needs'] = $this->getSpecialNeedsById(); //nickname
-        $data['special_need'] = (!empty($data['special_needs']) && count($data['special_needs']) > 0) ? 'yes': 'no';
+        $data['special_need'] = (!empty($data['special_needs']) && count($data['special_needs']) > 0) ? 'yes' : 'no';
 
         if (isset($data['child_desired'][0]) && $data['child_desired'][0] == "-1001") {
-            $dataOpt['child_desired'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $dataOpt['child_desired'][0] = array('selectVal' => '-1002', 'selectText' => 'None');
             $data['child_desired'][0] = "-1002";
         }
         if (isset($data['age_group_pref'][0]) && $data['age_group_pref'][0] == "-1001") {
-            $dataOpt['age_group'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $dataOpt['age_group'][0] = array('selectVal' => '-1002', 'selectText' => 'None');
             $data['age_group_pref'][0] = "-1002";
         }
         if (isset($data['adoption_type_pref'][0]) && $data['adoption_type_pref'][0] == "-1001") {
-            $dataOpt['adoption_type'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $dataOpt['adoption_type'][0] = array('selectVal' => '-1002', 'selectText' => 'None');
             $data['adoption_type_pref'][0] = "-1002";
         }
         if (isset($data['birthfatherPrefs'][0]) && $data['birthfatherPrefs'][0] == "-1001") {
-            $dataOpt['birthfather_status'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $dataOpt['birthfather_status'][0] = array('selectVal' => '-1002', 'selectText' => 'None');
             $data['birthfatherPrefs'][0] = "-1002";
         }
         if (isset($data['ethnicityprefs'][0]) && $data['ethnicityprefs'][0] == "-1001") {
-            $dataOpt['ethnicity'][0] =  array('selectVal' => '-1002', 'selectText' => 'None');
+            $dataOpt['ethnicity'][0] = array('selectVal' => '-1002', 'selectText' => 'None');
             $data['ethnicityprefs'][0] = "-1002";
         }
 
@@ -518,13 +517,19 @@ class PFEditApi {
             $data['religion_id'] = $postData['profiles'][0]['religion'];
             $data['waiting_id'] = $postData['profiles'][0]['waiting_id'];
             $data['occupation'] = $postData['profiles'][0]['occupation'];
-            $data['spouse_first_name'] = $postData['profiles'][1]['name'];
-            $data['spouse_dob'] = $postData['profiles'][1]['dob'];
-            $data['spouse_gender'] = $postData['profiles'][1]['gender'];
-            $data['spouse_education_id'] = $postData['profiles'][1]['education'];
-            $data['spouse_ethnicity_id'] = $postData['profiles'][1]['ethnicity'];
-            $data['spouse_religion_id'] = $postData['profiles'][1]['religion'];
-            $data['spouse_occupation'] = $postData['profiles'][1]['occupation'];
+
+            if (isset($postData['profile_type']) && $postData['profile_type'] == 'single') {
+                $data['spouse_first_name'] = $data['spouse_dob'] = $data['spouse_gender'] = $data['spouse_education_id'] = $data['spouse_ethnicity_id'] = $data['spouse_religion_id'] = $data['spouse_occupation'] = '';
+            } else {
+                $data['spouse_first_name'] = $postData['profiles'][1]['name'];
+                $data['spouse_dob'] = $postData['profiles'][1]['dob'];
+                $data['spouse_gender'] = $postData['profiles'][1]['gender'];
+                $data['spouse_education_id'] = $postData['profiles'][1]['education'];
+                $data['spouse_ethnicity_id'] = $postData['profiles'][1]['ethnicity'];
+                $data['spouse_religion_id'] = $postData['profiles'][1]['religion'];
+                $data['spouse_occupation'] = $postData['profiles'][1]['occupation'];
+            }
+
             //$data['website'] = $postData['website']
 
 
@@ -546,17 +551,20 @@ class PFEditApi {
                 $dataWhere = array('user_id' => $postData['user_id']);
                 $this->wpdb->update($this->tbl_contact_details, $dataContact, $dataWhere, array('%s'), array('%d'));
             } else {
-                $dataContact['wp_user_id'] = $postData['user_id'];
+                $dataContact['user_id'] = $postData['user_id'];
                 $this->wpdb->insert($this->tbl_contact_details, $dataContact, array('%s', '%d'));
             }
 
+            $relationship_status_id = (int) $postData['relationship_status'];
+            $relationship_status_id = $relationship_status_id == 0 ? 1 : $relationship_status_id;
             $dataHome = array(
                 'style' => $postData['house_style'],
                 'Neighborhood' => $postData['neighborhood'],
                 'pets' => (is_array($postData['pets']) && count($postData['pets']) > 0 ) ? join(",", $postData['pets']) : '',
-                'relationship_status_id' => (int) $postData['relationship_status'],
+                'relationship_status_id' => $relationship_status_id,
                 'family_structure_id' => (int) $postData['family_structure'],
             );
+
 
             if ($hExist > 0) {
                 $whereCond = array('user_id' => $postData['user_id']);
@@ -568,11 +576,11 @@ class PFEditApi {
                 $this->wpdb->insert($this->tbl_home, $dataHome, $dataFormat);
             }
 
-
-                $dataChild = array(
-                    'Number_of_childern' => $postData['children'],
-                    'Type' => $postData['children_type'],
-                );
+            $children_type = trim($postData['children_type']);
+            $dataChild = array(
+                'Number_of_childern' => $postData['children'],
+                'Type' => !empty($children_type) ? $children_type : '',
+            );
             $dataFormat = array('%d', '%s');
             if ($chExist > 0) {
                 $whereCond = array('user_id' => $postData['user_id']);
@@ -602,19 +610,19 @@ class PFEditApi {
             $cExist = $this->wpdb->get_var("SELECT count(*) as count FROM " . $this->tbl_contact_details . " WHERE user_id=" . $this->user_ID);
 
             $dataCon = array(
-            //  'user_id'               => $postData['user_id'],
-                'StreetAddress'         => $postData['address1'] . ',' . $postData['address2'],
-                'City'                  => $postData['City'],
-                'State'                 => (int)$postData['State'],
-                'Country'               => (int)$postData['Country'],
-                'Region'                => (int)$postData['Region'],
-                'Zip'                   => $postData['Zip'],
-                'mobile_num'            => $postData['mobile_num'],
-                'home_num'              => $postData['home_num'],
-                'office_num'            => $postData['office_num'],
-                'fax_num'               => $postData['fax_num'],
-                'DefaultContact'        => $postData['DefaultContact'],
-            //  'AllowDefaultContact'   => $postData['DefaultContacts_form'],
+                //  'user_id'               => $postData['user_id'],
+                'StreetAddress' => $postData['address1'] . ',' . $postData['address2'],
+                'City' => $postData['City'],
+                'State' => (int) $postData['State'],
+                'Country' => (int) $postData['Country'],
+                'Region' => (int) $postData['Region'],
+                'Zip' => $postData['Zip'],
+                'mobile_num' => $postData['mobile_num'],
+                'home_num' => $postData['home_num'],
+                'office_num' => $postData['office_num'],
+                'fax_num' => $postData['fax_num'],
+                'DefaultContact' => $postData['DefaultContact'],
+                    //  'AllowDefaultContact'   => $postData['DefaultContacts_form'],
             );
 
             $dataFormat = array('%s', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%d');
@@ -690,7 +698,7 @@ class PFEditApi {
                     $this->wpdb->insert($this->tbl_ethnicity_pref, array('ethnicity_id' => $ep, 'user_id' => $this->user_ID), array('%s', '%d'));
                 }
             }
-            
+
             $this->wpdb->delete($this->tbl_adoption_type_preference, array('user_id' => $this->user_ID));
             if (!empty($adoptionTypePref) && is_array($adoptionTypePref)) {
                 foreach ($adoptionTypePref as $atp) {
@@ -719,7 +727,7 @@ class PFEditApi {
 
                     $this->wpdb->insert($this->tbl_special_need_pref, array('special_need_id' => $sn, 'user_id' => $this->user_ID), array('%d', '%d'));
                 }
-            }elseif($special_need == 'no'){
+            }elseif ($special_need == 'no') {
                 $this->wpdb->delete($this->tbl_special_need_pref, array('user_id' => $this->user_ID));
             }
 
@@ -769,7 +777,7 @@ class PFEditApi {
         //selected agency list
         $agencyList = $params['data']['agencyList'];
         $this->user_ID = $params['data']['userId'];
-        
+
 
         if (is_numeric($this->user_ID) && $this->user_ID != 0) {
             try {
@@ -777,7 +785,7 @@ class PFEditApi {
                     foreach ($agencyList as $agency) {
                         $agencyUserId = $agency['pf_agency_user_id'];
                         $agencyId = $agency['agencyId'];
-                        $isContact = !empty($agency['isContact']) ?  $agency['isContact'] : 0;
+                        $isContact = !empty($agency['isContact']) ? $agency['isContact'] : 0;
                         if (!empty($agencyUserId)) {
                             $this->wpdb->update($this->tbl_agency_users, array('is_contact' => $isContact), array('pf_agency_user_id' => $agencyUserId, 'wp_user_id' => $this->user_ID), array('%d'), array('%d', '%d'));
                         } else {
@@ -788,7 +796,7 @@ class PFEditApi {
                 }
                 $agencyUsersInfo = $this->pfGetAgencyUserInfoByUid();
                 $agencyUsersInfo = $agencyUsersInfo + array('code' => 200);
-                return new WP_REST_Response($agencyUsersInfo , 200);
+                return new WP_REST_Response($agencyUsersInfo, 200);
             } catch (Exception $exc) {
                 return new WP_REST_Response(array('code' => $exc->getCode(), 'message' => $exc->getTraceAsString()), $exc->getCode());
             }
@@ -813,10 +821,3 @@ class PFEditApi {
 }
 
 new PFEditApi;
-
-
-
-
-
-
-

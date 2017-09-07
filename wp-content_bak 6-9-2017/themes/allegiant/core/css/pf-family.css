@@ -1,0 +1,287 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 27 Jun, 2017, 8:55:01 PM
+    Author     : MSI1374
+*/
+
+
+
+/*menu */
+.navbar-nav>li>.dropdown-menu {
+    margin-top: 20px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.navbar-default .navbar-nav>li>a, .navbar-default .navbar-nav>li>form {
+    width: 200px;
+    font-weight: bold;
+}
+
+.mega-dropdown {
+    position: static !important;
+    width: 100%;
+}
+
+.mega-dropdown-menu {
+    padding: 20px 0px;
+    width: 100%;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+/*.open .dropdown-toggle:after {
+    border-bottom: 15px solid #fff;
+    border-left: 17px solid transparent;
+    border-right: 17px solid transparent;
+    content: "";
+    left: 143px;
+    position: absolute;
+    bottom: -21px;
+    z-index: 1500;
+}*/
+
+.open .dropdown-toggle span:after {
+    border-bottom: 17px solid #ddd;
+    border-left: 19px solid transparent;
+    border-right: 19px solid transparent;
+    content: "";
+    left: -29px;
+    position: absolute;
+    bottom: -41px;
+    z-index: 8;
+}
+
+.mega-dropdown-menu > li > ul {
+    padding: 0;
+    margin: 0;
+}
+
+.mega-dropdown-menu > li > ul > li {
+    list-style: none;
+}
+
+.mega-dropdown-menu > li > ul > li > a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.428571429;
+    color: #999;
+    white-space: normal;
+}
+
+.mega-dropdown-menu > li ul > li > a:hover,
+.mega-dropdown-menu > li ul > li > a:focus {
+    text-decoration: none;
+    color: #444;
+    background-color: #f5f5f5;
+}
+
+.mega-dropdown-menu .dropdown-header {
+    color: #428bca;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.mega-dropdown-menu form {
+    margin: 3px 20px;
+}
+
+.mega-dropdown-menu .form-group {
+    margin-bottom: 3px;
+}
+
+
+
+/*!
+* bootstrap-vertical-tabs - v1.1.0
+* https://dbtek.github.io/bootstrap-vertical-tabs
+* 2014-06-06
+* Copyright (c) 2014 Ä°smail Demirbilek
+* License: MIT
+*/
+.tabs-left, .tabs-right {
+    border-bottom: none;
+    padding-top: 2px;
+}
+.tabs-left {
+    border-right: 1px solid #ddd;
+}
+.tabs-right {
+    border-left: 1px solid #ddd;
+}
+.tabs-left>li, .tabs-right>li {
+    float: none;
+    margin-bottom: 2px;
+}
+.tabs-left>li {
+    margin-right: -1px;
+}
+.tabs-right>li {
+    margin-left: -1px;
+}
+.tabs-left>li.active>a,
+.tabs-left>li.active>a:hover,
+.tabs-left>li.active>a:focus {
+    border-bottom-color: #ddd;
+    border-right-color: transparent;
+}
+
+.tabs-right>li.active>a,
+.tabs-right>li.active>a:hover,
+.tabs-right>li.active>a:focus {
+    border-bottom: 1px solid #ddd;
+    border-left-color: transparent;
+}
+.tabs-left>li>a {
+    border-radius: 4px 0 0 4px;
+    margin-right: 0;
+    display:block;
+}
+.tabs-right>li>a {
+    border-radius: 0 4px 4px 0;
+    margin-right: 0;
+}
+.vertical-text {
+    margin-top:50px;
+    border: none;
+    position: relative;
+}
+.vertical-text>li {
+    height: 20px;
+    width: 120px;
+    margin-bottom: 100px;
+}
+.vertical-text>li>a {
+    border-bottom: 1px solid #ddd;
+    border-right-color: transparent;
+    text-align: center;
+    border-radius: 4px 4px 0px 0px;
+}
+.vertical-text>li.active>a,
+.vertical-text>li.active>a:hover,
+.vertical-text>li.active>a:focus {
+    border-bottom-color: transparent;
+    border-right-color: #ddd;
+    border-left-color: #ddd;
+}
+.vertical-text.tabs-left {
+    left: -50px;
+}
+.vertical-text.tabs-right {
+    right: -50px;
+}
+.vertical-text.tabs-right>li {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+.vertical-text.tabs-left>li {
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
+div.imagetiles div.col-lg-3.col-md-3.col-sm-3.col-xs-6{
+    padding: 0px;
+}
+
+
+
+
+/*grid view*/
+
+.glyphicon { margin-right:5px; }
+.thumbnail
+{
+    margin-bottom: 20px;
+    padding: 0px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.item.list-group-item
+{
+    float: none;
+    width: 100%;
+    background-color: #fff;
+    margin-bottom: 10px;
+}
+.item.list-group-item:nth-of-type(odd):hover,.item.list-group-item:hover
+{
+    background: #428bca;
+}
+
+.item.list-group-item .list-group-image
+{
+    margin-right: 10px;
+}
+.item.list-group-item .thumbnail
+{
+    margin-bottom: 0px;
+}
+.item.list-group-item .caption
+{
+    padding: 9px 9px 0px 9px;
+}
+.item.list-group-item:nth-of-type(odd)
+{
+    background: #eeeeee;
+}
+
+.item.list-group-item:before, .item.list-group-item:after
+{
+    display: table;
+    content: " ";
+}
+
+.item.list-group-item img
+{
+    float: left;
+}
+.item.list-group-item:after
+{
+    clear: both;
+}
+.list-group-item-text
+{
+    margin: 0 0 11px;
+}   
+
+
+/*rasheed modifications*/
+.parent-item{text-transform: uppercase;}
+
+
+/* Medium Devices, Desktops */
+@media only screen and (min-width : 992px) {
+    #kids li a{width: 163px;}
+    #child-pref li a{width: 200px;}
+    #religion li a{width: 124px;}
+    #region li a{width: 112px;}
+    #country_state_menu li a{width: 173px;}
+    #sort-by li a{width: 119px;}
+    #pf-search form input {width:170px;}
+    #child-pref .mega-dropdown-menu{width: 100%;}
+    #religion .mega-dropdown-menu{width: 100%;}
+    #region .mega-dropdown-menu{width: 50%;position: absolute;left: 25%;}
+    #country_state_menu .mega-dropdown-menu{width: 100%;}
+    #sort-by .mega-dropdown-menu{position: absolute;left: 65%;width:20%;}
+}
+
+/*Mobiles & Tabs*/
+@media only screen and (max-width : 767px) {
+    .navbar-default .navbar-nav>li>a, .navbar-default .navbar-nav>li>form {
+        width: 100%;
+    }
+}

@@ -1,0 +1,110 @@
+<style>
+    .margins{
+        margin-bottom: 10px;
+    }
+
+    /* CSS REQUIRED */
+    .state-icon {
+        left: -5px;
+    }
+    .list-group-item-primary {
+        color: rgb(255, 255, 255);
+        background-color: rgb(66, 139, 202);
+    }
+
+    /* DEMO ONLY - REMOVES UNWANTED MARGIN */
+    .well .list-group {
+        margin-bottom: 0px;
+    }
+
+    .panel-heading span
+    {
+        margin-top: -26px;
+        font-size: 15px;
+        margin-right: -12px;
+    }
+
+    .clickable {
+        background: rgba(0, 0, 0, 0.15);
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button.close{margin-top: -25px;width: 30px;position: relative;font-size: 30px;color: red;font-weight: 900;}
+
+    .add-on .input-group-btn > .btn {
+      border-left-width:0;left:-2px;
+      -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    }
+
+    .input-group.add-on{ padding: 0 0 25px 25px;}
+
+</style>
+<div class="container-fluid" ng-controller="agencySelectionCntrl"  ng-click="$parent.newFn(agencyselection.$dirty, 1)">
+    <form class="form"  name="agencyselection" ng-submit="submit()">
+        <div class ="row" style="margin-top: 10px; margin-bottom:25px">
+            <div class="col-sm-12">
+                <div style="float: right">
+                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" ng-disabled="disabled" id="cancel3"/>&nbsp;&nbsp;
+                    <input ng-if="show" type="submit" value="SAVE"  class="save_btn" ng-disabled="disabled" id="save3"/></div>
+            </div>
+        </div>
+        <div class="row margins" ng-show="showAgencyBlock">
+            <div class="col-sm-8">
+                <div class="col-sm-8">
+                    <div class="input-group add-on">
+                        <input class="form-control" placeholder="Search Agency ..." ng-model="searchAgency" type="text">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" type="button" ng-click="filter = searchAgency.length > 0 ? searchAgency: '';resultsHidden = searchAgency.length > 0 ? true :false;"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8" ng-show="resultsHidden">
+                    <div style="max-height: 500px;overflow: auto;" >
+                        <ul class="list-group checked-list-box">
+                            <li class="checkbox list-group-item" ng-repeat="agency in agencyList | filter:{agencyName:filter} as filteredAgencies" ng-cloak>
+                                <label for="adopt_{{agency.agencyId}}">
+                                    <input type="checkbox" id="adopt_{{agency.agencyId}}"  ng-model="agency.selected" ng-change="agencyCheck();">{{agency.agencyName}}
+                                    <!--<input type="checkbox" id="UNIQUELABEL{{::$id}}"  ng-checked="agency.selected === 1" data-checklist-model="selectedAgencies" data-checklist-value="agency" ng-change="agencyCheck();">{{agency.agencyName}}-->
+                                </label>
+                            </li>
+                            <li class="list-group-item" ng-show="!filteredAgencies.length">Sorry, no agencies found</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-4 text-center" ng-show="resultsHidden">
+                    <button type="button" class="btn btn-primary btn-lg" style="vertical-align: middle" ng-click="addAgencies();">Add</button>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div style="max-height: 500px;overflow: auto;">
+                    <div  class="panel panel-primary" ng-repeat="selectedAgency in selectedAgencies" ng-class="{'accept':selectedAgency.user_status == 2, 'reject':selectedAgency.user_status == 3}">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">{{selectedAgency.agencyName}}</h3>
+                            <button type="button" class="text-center close" aria-label="Close" ng-click="deleteAgency(selectedAgency);">
+                                &times;
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="checkbox">
+                                <label><input type="checkbox" id="sadopt_{{selectedAgency.agencyId}}" ng-model="selectedAgency.isContact" ng-true-value="'1'" ng-false-value="'0'">Contact</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class ="row" style="margin-top: 25px; margin-bottom:15px">
+            <div class="col-sm-12">
+                <div style="float: right">
+                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" id="cancel_bottom3" ng-disabled="disabled"/>&nbsp;&nbsp;
+                    <input type="submit" ng-if="show" value="SAVE"  class="save_btn" id="save_bottom3" ng-disabled="disabled"/>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>  

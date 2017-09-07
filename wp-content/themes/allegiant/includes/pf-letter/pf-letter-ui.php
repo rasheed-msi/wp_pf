@@ -21,10 +21,11 @@ class LetterUI {
 
     function pf_letter_scripts() {
         wp_enqueue_style('pf-float-label', get_template_directory_uri() . '/includes/common/css/bootstrap-float-label.min.css');
-        wp_enqueue_style('pf-letter', get_template_directory_uri() . '/includes/pf-letter/css/pf-letter.css', array('pf-float-label'), '5.8.27');
+        wp_enqueue_style('pf-letter', get_template_directory_uri() . '/includes/pf-letter/css/pf-letter.css', array('pf-float-label'), '5.8.28');
         wp_enqueue_media();
         wp_enqueue_script('tinymce_js', includes_url('js/tinymce/') . 'wp-tinymce.php', array('jquery'), false, true);
-        wp_register_script('pf-letter', get_template_directory_uri() . '/includes/pf-letter/js/pf-letter.js', array('jquery', 'jquery-ui-sortable', 'tinymce_js'), '1.1.19.1', true);
+        wp_enqueue_script('pf-isotop', get_template_directory_uri() . '/includes/common/js/isotope.pkgd.min.js', array('jquery'), '1.1.8', true);
+        wp_register_script('pf-letter', get_template_directory_uri() . '/includes/pf-letter/js/pf-letter.js', array('jquery', 'pf-isotop', 'jquery-ui-sortable', 'tinymce_js'), '1.1.19.22', true);
         wp_localize_script('pf-letter', 'letter_obj', array('ajax_url' => admin_url('admin-ajax.php')));
         wp_enqueue_script('pf-letter');
     }
@@ -32,12 +33,17 @@ class LetterUI {
     function pf_letter_del_func() {
         $letter_id = isset($_POST['letter-id']) && is_numeric($_POST['letter-id']) ? $_POST['letter-id'] : 0;
         if ($letter_id != 0) {
-            global $wpdb;
-            $status = $wpdb->update($wpdb->posts, array('post_status' => 'trash'), array('ID' => $letter_id));
-            if ($status == 1) {
-                echo json_encode(array('status' => 200, 'message' => 'Deleted successfully'));
-            } else {
-                echo json_encode(array('status' => 400, 'message' => 'Something went wrong. Please try later.'));
+            $letter_intro = get_post_meta($letter_id, 'letter_intro', true);
+            if($letter_intro != 1){
+                global $wpdb;
+                $status = $wpdb->update($wpdb->posts, array('post_status' => 'trash'), array('ID' => $letter_id));
+                if ($status == 1) {
+                    echo json_encode(array('status' => 200, 'message' => 'Deleted successfully'));
+                } else {
+                    echo json_encode(array('status' => 400, 'message' => 'Something went wrong. Please try later.'));
+                }
+            }else{
+                echo json_encode(array('status' => 200, 'message' => 'Please uncheck before deleting letter'));
             }
         } else {
             echo json_encode(array('status' => 401, 'message' => 'Something went wrong. Please try later.'));
@@ -52,6 +58,7 @@ class LetterUI {
         $author_id = get_current_user_id();
         $currIntroId = $_POST['current_intro_id'];
         $isIntro = $_POST['is_intro'];
+        $photo_ids = !empty($_POST['photo_ids']) ? $_POST['photo_ids'] : '';
         $letterLabel = $_POST['letter_label'];
 
         $return_array = array();
@@ -75,12 +82,13 @@ class LetterUI {
                     $return_array['status'] = 400;
                     $return_array['message'] = 'Some thing went worng. Please try later';
                 } else {
-                    update_post_meta($status, 'letter_about_selection', $letterLabel);
-                    update_post_meta($status, 'letter_is_intro', $isIntro);
+                    update_post_meta($status, 'letter_slug', $letterLabel);
+                    update_post_meta($status, 'letter_intro', $isIntro);
                     if ($isIntro == 1 && $currIntroId != 0) {
-                        update_post_meta($currIntroId, 'letter_is_intro', 0);
+                        update_post_meta($currIntroId, 'letter_intro', 0);
                     }
 
+                    update_post_meta($status, 'letter_image', $photo_ids);
                     $return_array['status'] = 200;
                     $return_array['message'] = 'Letter inserted successfully';
                     $return_array['data'] = get_post($status);
@@ -104,9 +112,10 @@ class LetterUI {
                             $return_array['status'] = 400;
                             $return_array['message'] = 'Some thing went worng. Please try later';
                         } else {
-                            update_post_meta($status, 'letter_is_intro', $isIntro);
+                            update_post_meta($status, 'letter_intro', $isIntro);
+                            update_post_meta($status, 'letter_image', $photo_ids);
                             if ($isIntro == 1 && $currIntroId != 0) {
-                                update_post_meta($currIntroId, 'letter_is_intro', 0);
+                                update_post_meta($currIntroId, 'letter_intro', 0);
                             }
                             $return_array['status'] = 200;
                             $return_array['message'] = 'Letter saved successfully';
@@ -143,13 +152,19 @@ class LetterUI {
     public static function getAlbumsPhotosByUid($user_ID) {
         global $wpdb;
 
-        $album_args = array('thumb', $user_ID, 0, 0);
+        $album_args = array('thumb', 0, 0, $user_ID);
         $album_query = "SELECT a.caption,a.pf_album_id, p.pf_photo_id,p.Uri,p.Ext, f.cloud_path,p.filename,f.cloud_filename
+            FROM `pf_albums` a  
+            INNER JOIN pf_photos p ON p.pf_album_id = a.pf_album_id
+            LEFT JOIN pf_filestack_photos f ON f. pf_photo_id = p.pf_photo_id and f.view_type=%s  and  ifnull(f.deleteFlag,%d)=%d 
+            WHERE  a.user_id = %d 
+            ORDER BY a.pf_album_id,p.pf_photo_id";
+        /*$album_args = array($user_ID);
+        $album_query = "SELECT a.caption,a.pf_album_id, p.pf_photo_id,p.Uri,p.Ext,p.filename
                           FROM `pf_albums` a  
-                          INNER JOIN pf_photos p ON p.pf_album_id = a.pf_album_id
-                          LEFT JOIN pf_filestack_photos f ON f. pf_photo_id = p.pf_photo_id and f.view_type=%s 
-                          WHERE  a.user_id = %d and  ifnull(f.deleteFlag,%d)=%d 
-                          ORDER BY a.pf_album_id,p.pf_photo_id";
+                          LEFT JOIN pf_photos p ON p.pf_album_id = a.pf_album_id
+                          WHERE  a.user_id = %d
+                          ORDER BY a.pf_album_id,p.pf_photo_id LIMIT 20";*/
 
         return $wpdb->get_results($wpdb->prepare($album_query, $album_args));
     }
