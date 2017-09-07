@@ -56,7 +56,8 @@ input.error {
     line-height: 20px;
     min-height: 30px;
     padding: 5px 0;
-    border: 0px !important;
+    /* border: 0px !important; */
+    border: 1px solid #CCC;
     
 }
 
@@ -85,4 +86,9 @@ input.error {
 
 input.ng-invalid-maxlength {
     background-color: #ffc8c8;
+}
+
+.albumItemImage img {
+    width: 200px;
+    height: 150px;
 }

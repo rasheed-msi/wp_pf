@@ -31,12 +31,15 @@
 
         <?php echo $form['form_html']; ?>
         
-        <!--        
+        <?php if (isset($form['form_type']) && $form['form_type'] == 'adoptive_family'): ?>
         <p class="tml-user-email-wrap">
             <label for="user_email<?php $template->the_instance(); ?>"><?php _e('E-mail', 'theme-my-login'); ?></label>
-            <input type="text" name="user_email" id="user_email<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_email'); ?>" size="20" />
+            <input type="email" name="user_email" id="user_email<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value('user_email'); ?>" size="20" />
+            <input type="hidden" name="user_login">
         </p>
-        -->
+        <?php endif; ?>
+        
+        
 
         <?php do_action('register_form'); ?>
 

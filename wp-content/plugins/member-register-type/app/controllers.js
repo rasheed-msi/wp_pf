@@ -126,6 +126,7 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
     $scope.changeAlbumSelectList = function (model) {
         
         $scope.albumSettings.htmlTitleInput = false;
+        
         var id = model.pf_album_id;
         if ($scope.albumSettings.selectList.indexOf(id) == -1) {
             $scope.albumSettings.selectList.push(id);

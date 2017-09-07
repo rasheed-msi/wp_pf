@@ -40,9 +40,9 @@ get_header();
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
                                                 <form name="formAlbum">
-                                                    <input type="text" class="span-caption" name="caption" ng-maxlength="appSettings.maxCaptionLength" ng-class="{error: formAlbum.caption.$invalid}" ng-model="newAlbum.caption" ng-keypress="enterPressedAlbum($event, 'newalbum')" ng-blur="addAlbum()">
+                                                    <input placeholder="Enter Album Title" type="text" class="span-caption" name="caption" ng-maxlength="appSettings.maxCaptionLength" ng-class="{error: formAlbum.caption.$invalid}" ng-model="newAlbum.caption" ng-keypress="enterPressedAlbum($event, 'newalbum')" ng-blur="addAlbum()">
                                                 </form>
-                                            </div>                                                    
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

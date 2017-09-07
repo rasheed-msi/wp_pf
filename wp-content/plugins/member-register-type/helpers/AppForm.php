@@ -222,8 +222,8 @@ class AppForm {
             'submit' => false,
             'fields' => [
                 'user_type' => ['value' => 'adoptive_family'],
-                'first_name',
-                'last_name',
+//                'first_name',
+//                'last_name',
             ]
         ];
 

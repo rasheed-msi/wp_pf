@@ -62,6 +62,7 @@ class MrtUser {
 
     public function has_mem_access($membership_level = null) {
         $memberships = $this->get_memberships();
+        
 
         if (is_null($membership_level)) {
             // Check has any membership level
