@@ -57,6 +57,12 @@ class MrtApiAlbums extends WP_REST_Controller {
             'callback' => array($this, 'bulk_delete_items'),
             'permission_callback' => array($this, 'items_permissions_check'),
         ));
+        
+        register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'download_items'), array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => array($this, 'download_items'),
+                
+        ));
     }
 
     public function items_permissions_check($request) {
@@ -182,12 +188,27 @@ class MrtApiAlbums extends WP_REST_Controller {
         return $this->validate_response();
     }
 
-    function validate_response() {
+    public function validate_response() {
         return [
             'status' => ($this->error > 0) ? false : true,
             'message' => $this->message,
             'input' => $this->input,
         ];
+    }
+    
+    public function download_items($request) {
+
+        $input = $request->get_params();
+
+        $photos = $this->mrt_photo->getset_items($input['ids']);
+        $files = [];
+        foreach ($photos as $key => $value) {
+            $files[] = $value['original'];
+        }
+
+        $zip['zip_url'] = State::create_zip($files);
+        $zip['files_count'] = count($files);
+        return new WP_REST_Response($zip, 200);
     }
 
 }

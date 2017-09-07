@@ -33,9 +33,8 @@ function test_page() {
     if (isset($_GET['action']) && $_GET['action'] == 'setYoutubeLinkOne') {
         $test->setYoutubeLinkOne();
     }
-    
+
     $route = new MrtRoute;
-    
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
@@ -48,10 +47,10 @@ function mrt_display_user_dashboard() {
 add_filter('registration_errors', 'mrt_tml_registration_errors');
 
 function mrt_tml_registration_errors($errors) {
-    $mrt_errors = MrtProfile::validate($_POST);
-    foreach ($mrt_errors as $key => $error) {
-        $errors->add('empty_' . $key, $error);
-    }
+//    $mrt_errors = MrtProfile::validate($_POST);
+//    foreach ($mrt_errors as $key => $error) {
+//        $errors->add('empty_' . $key, $error);
+//    }
     $agency = new MrtAgencies();
     $agency_errors = $agency->validate($_POST);
     foreach ($agency_errors as $key => $error) {
@@ -174,11 +173,24 @@ function mrt_auth_page() {
     $pages = [
         'Albums',
         'Dashboard',
+        'Your Profile',
+    ];
+
+    $membership_level = [
+        'Silver',
+        'Gold',
+        'Platinum',
     ];
 
     if (in_array($title, $pages)) {
         if (!is_user_logged_in()) {
             wp_redirect(site_url() . '/login');
+        }
+
+
+        if (!State::has_membership_access()) {
+            wp_redirect(site_url() . '/membership-account/membership-levels');
+            exit();
         }
     }
 }
@@ -252,9 +264,3 @@ function mrt_after_wp_insert_user($user_id) {
 }
 
 add_filter('wsl_hook_process_login_after_wp_insert_user', 'mrt_after_wp_insert_user', 10, 2);
-
-function download_file(){
-    $test = new MrtApiTest;
-    $test->create_zip();
-}
-// add_action('wp', 'download_file');

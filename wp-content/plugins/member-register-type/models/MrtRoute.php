@@ -20,7 +20,8 @@ class MrtRoute {
             ],
             'albums' => [
                 'item' => 'albums',
-                'bulk_delete' => 'bulk-delete'
+                'bulk_delete' => 'bulk-delete',
+                'download_items' => 'download-photos',
             ],
             'photos' => [
                 'item' => "{$this->pattern['album_id']}/photos",

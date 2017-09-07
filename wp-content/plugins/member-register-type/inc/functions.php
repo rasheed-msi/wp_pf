@@ -30,12 +30,14 @@ function mrt_display_user_register() {
 
         $form = $gform->set_form(AppForm::adoptive_family_register(), $post);
         $return['heading'] = 'Adoptive Family';
+        $return['form_type'] = 'adoptive_family';
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 2) {
 
         
         
         $return['heading'] = 'Adoptive Agency';
+        $return['form_type'] = 'adoptive_agency';
         $return['form_html'] = $formhtmljq->create_form($gform->set_form(AppForm::adoption_agency_register(), (isset($_POST['user_type']))? $_POST : []));
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 3) {
 

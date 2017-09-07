@@ -84,6 +84,7 @@ class Stock {
                     'edit_posts',
                     'delete_posts',
                     'draft_to_profile',
+                    'cap_adoption_agency',
                 ),
             ),
             'adoptive_family' => array(
@@ -93,6 +94,7 @@ class Stock {
                     'edit_posts',
                     'delete_posts',
                     'view_subscriptions_nav',
+                    'cap_adoptive_family',
                 ),
             ),
             'birth_mother' => array(
@@ -155,5 +157,7 @@ class Stock {
     public static function wordpress_user_roles() {
         return ['administrator', 'editor', 'author', 'contributor', 'subscriber'];
     }
+    
+    
 
 }
