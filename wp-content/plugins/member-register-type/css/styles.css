@@ -92,3 +92,7 @@ input.ng-invalid-maxlength {
     width: 200px;
     height: 150px;
 }
+
+.albumGroup h4 {
+    padding: 10px 9px;
+}

@@ -90,6 +90,14 @@ app.service("AlbumService", function (WebService) {
             url: appConst.apiRequest + '/albums/' + id,
         });
     }
+    
+    this.download = function (data) {
+        return WebService.request({
+            method: 'POST',
+            data: data,
+            url: appConst.apiRequest + '/albums/download-photos',
+        });
+    }
 });
 
 

@@ -14,12 +14,12 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
     $scope.setAjaxLoader = function () {
         $scope.showAjaxLoader = ($scope.showAjaxLoader) ? false : true;
     }
-    
+
     $scope.albumSettings = angular.copy(AlbumService.settings);
     $scope.photoSettings = angular.copy(PhotoService.settings);
     $scope.appSettings = angular.copy(AppService.settings);
     $scope.downloadSettings = angular.copy(AppService.download);
-    
+
 
 
     $scope.showAlbum = function () {
@@ -54,7 +54,7 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
         $scope.albumSettings.count = $scope.albums.length;
         $scope.albumCountText = ($scope.albumSettings.count) ? $scope.albumSettings.count : 'no';
         $scope.heading = "You have " + $scope.albumCountText + " Albums";
-        
+
     }
 
     // Init ...
@@ -64,9 +64,9 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
     // Title Edit
 
     $scope.editAlbumTitle = function (model, showInput) {
-        
-        
-        
+
+
+
         if (showInput) {
             // show text box
             $scope.dupCaption = model.caption;
@@ -124,9 +124,9 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
 
 
     $scope.changeAlbumSelectList = function (model) {
-        
+
         $scope.albumSettings.htmlTitleInput = false;
-        
+
         var id = model.pf_album_id;
         if ($scope.albumSettings.selectList.indexOf(id) == -1) {
             $scope.albumSettings.selectList.push(id);
@@ -236,8 +236,8 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
             $scope.photoSettings.selectList = [];
         } else {
             // hide textbox and save
-            
-            if (typeof model.Title != 'undefined' &&  model.Title.trim().length != 0 && model.Title.trim().length <= $scope.appSettings.maxCaptionLength) {
+
+            if (typeof model.Title != 'undefined' && model.Title.trim().length != 0 && model.Title.trim().length <= $scope.appSettings.maxCaptionLength) {
                 $scope.photoSettings.htmlTitleInput = false;
 
                 PhotoService.update({
@@ -245,7 +245,7 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
                     pf_photo_id: model.pf_photo_id,
                     Title: model.Title,
                 }).then(function (response) {});
-            }else{
+            } else {
                 model.Title = $scope.dupCaption;
             }
         }
@@ -326,27 +326,50 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
         }
 
         var data = {
-            pf_album_id: $scope.selectedAlbumId,
             ids: $scope.photoSettings.selectList,
         };
 
         $scope.setAjaxLoader();
-        PhotoService.download(data).then(function (response) {
+        AlbumService.download(data).then(function (response) {
+            $scope.photoSettings.selectList = [];
             $scope.setAjaxLoader();
-            console.log(response);
-
             $window.open(response.zip_url, '_blank');
         });
 
     }
-
+    
     $scope.showDownload = function () {
-
         $scope.setAlbumCount();
         $scope.pages = PageService.showPage('download', $scope.pages);
         $scope.downloadSettings.isActive = true;
         $scope.downloadSettings.showAlert = true;
         $scope.albumSettings.selectList = [];
+
+
+        AlbumService.getItems().then(function (response) {
+            $scope.downloadAlbums = [];
+            angular.forEach(response, function (item, key) {
+
+                var obj = {};
+                obj.caption = item.caption;
+                
+                var data = {
+                    pf_album_id: item.pf_album_id,
+                    pf_photo_id: item.pf_photo_id
+                };
+                
+                PhotoService.getItems(data).then(function (response) {
+                    obj.photos = response;
+                    if(Object.keys(obj.photos).length > 0){
+                        $scope.downloadAlbums.push(obj);
+                    }
+                });
+
+            });
+
+
+
+        });
 
     }
 
