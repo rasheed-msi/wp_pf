@@ -22,18 +22,30 @@ jQuery(function($) {
             $('.accordianItem').removeClass('accordianItemActive');
             $(this).parent().addClass('accordianItemActive');
             $(this).parent().find(".accordianItemContents").slideToggle();
+
+            var block = $(this).parent().attr('id');
+            switch (block) {
+                case 'journal-section':
+                    getJournalSection();
+                    break;
+                case 'letter-section':
+                    getLetterSection();
+                    break;
+                default:
+                    break;
+            }
         }
-        $('.articlePosts').isotope({
-            itemSelector: '.articlePost'
-        });
+//        $('.articlePosts').isotope({
+//            itemSelector: '.articlePost'
+//        });
     });
 
     //Isotop
-    $(window).load(function() {
-        $('.articlePosts').isotope({
-            itemSelector: '.articlePost'
-        });
-    });
+//    $(window).load(function() {
+//        $('.articlePosts').isotope({
+//            itemSelector: '.articlePost'
+//        });
+//    });
 
     //dashboard Sub Menu
     $('.dashboardTabMenu li').each(function() {

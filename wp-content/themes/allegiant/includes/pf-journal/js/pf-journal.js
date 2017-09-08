@@ -95,6 +95,7 @@ jQuery(function($) {
                         if (journalAction == 'update') {
                             $('#post-title-' + journalID).text(journalTitle);
                             $('#post-content-' + journalID).html(jornalContent);
+                            $('#post-content-' + journalID).next('span.postDate').text(formatDate(new Date()));
                         } else {
                             var addJournal = '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 articleColumn articlePost author-journal-container journal-' + data.data.ID + '">\n\
                                     <a class="buttons text-center edit-journal" title="Edit this journal" id="edit-post-' + data.data.ID + '"><i class="fa fa-pencil"></i></a>\n\
@@ -173,7 +174,7 @@ jQuery(function($) {
     });
 
 
-    $('#add-journal').on('click', function() {
+    $(document).on('click', '#add-journal', function() {
         var currentBtnElem = $(this);
         currentBtnElem.attr('disabled', 'disabled');
         clearJournalData();
@@ -186,7 +187,7 @@ jQuery(function($) {
     $(document).on('click', '.cancel', function() {
         clearJournalData();
     });
-    
+
     $('#edit-journal-modal, #delete-journal-modal').on('hidden.bs.modal', function() {
         clearJournalData();
     });
@@ -205,3 +206,37 @@ function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+
+function getJournalSection() {
+    $ = jQuery;
+    if ($('#journal-section .accordianItemContents .loader').length > 0) {
+        $.ajax({
+            url: journal_obj.ajax_url,
+            data: {action: 'show_journal_section'},
+            dataType: 'json',
+            success: function(data) {
+                if (data.status == 200) {
+                    $('#journal-section .accordianItemContents .loader').replaceWith(data.content);
+                } else {
+                    alert("Something went wrong")
+                }
+            },
+        });
+    }
+}
+
+
+function formatDate(date) {
+    var monthNames = [
+        "January", "February", "March",
+        "April", "May", "June", "July",
+        "August", "September", "October",
+        "November", "December"
+    ];
+
+    var day = date.getDate();
+    var monthIndex = date.getMonth();
+    var year = date.getFullYear();
+
+    return monthNames[monthIndex] + ' ' +day + ', ' +  year;
+}

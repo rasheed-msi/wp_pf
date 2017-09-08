@@ -1,7 +1,4 @@
-<?php
-global $user_ID;
-?>
-<div class="accordianItem">
+<div id="journal-section" class="accordianItem">
     <div class="accordianItemHeader clearfix flexbox verticalAlign">
         <a href="#" class="buttons text-center"><i class="fa fa-pencil"></i></a>
         <div class="accordianItemIcons clearfix">
@@ -11,30 +8,7 @@ global $user_ID;
     </div>
     <div class="accordianItemContents">
         <div class="row articleRow articlePosts clearfix">
-            <div class="col-xs-12"><a id="add-journal" class="btn btn-default add-journal"><?php _e('Add new journal'); ?></a></div>
-            <?php
-            $journal_args = array('post_type' => 'journal', 'author' => $user_ID, 'post_status' => 'publish', 'orderby' => 'date');
-            $journal_query = new WP_Query($journal_args);
-            if ($journal_query->have_posts()) : while ($journal_query->have_posts()) : $journal_query->the_post();
-                    ?>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 articleColumn articlePost author-journal-container journal-<?php the_ID(); ?>">
-                        <div class="articleItem">
-                            <div class="articleItemButtons clearfix text-right">
-                                <a class="edit-journal" title="<?php _e('Edit this journal', ''); ?>" id="edit-post-<?php the_ID(); ?>"><i class="fa fa-pencil"></i></a>
-                                <a class="delete-journal" title="<?php _e('Delete this journal', ''); ?>" id="delete-post-<?php the_ID(); ?>"><i class="fa fa-trash"></i></a>
-                            </div>
-                            <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-<?php the_ID(); ?>"><?php the_title(); ?></span><span class="pull-right postDate"><?php echo get_the_date('F d, Y'); ?></span></div>
-                            <div class="articleItemContents noPad" id="post-content-<?php the_ID(); ?>">
-                                <?php the_content(); ?>
-                            </div>
-                        </div>
-                    </div><!--//Post Item-->
-                    <?php
-                endwhile;
-            else:
-                ?><?php
-            endif;
-            ?>
+            <div class="loader"></div>
         </div><!--//Post Item-->
     </div>
     <!-- Modal -->

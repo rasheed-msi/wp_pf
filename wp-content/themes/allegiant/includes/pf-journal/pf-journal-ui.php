@@ -11,6 +11,8 @@ class JournalUI {
         add_action('wp_ajax_nopriv_delete_journal', array($this, 'pf_journal_del_func'));
         add_action('wp_ajax_edit_journal', array($this, 'pf_journal_edit_func'));
         add_action('wp_ajax_nopriv_edit_journal', array($this, 'pf_journal_edit_func'));
+        add_action('wp_ajax_show_journal_section', array($this, 'pf_journal_show_journal_section_func'));
+        add_action('wp_ajax_nopriv_show_journal_section', array($this, 'pf_journal_show_journal_section_func'));
     }
 
     function pf_journal_scripts() {
@@ -18,7 +20,7 @@ class JournalUI {
         wp_enqueue_style('pf-journal', get_template_directory_uri() . '/includes/pf-journal/css/pf-journal.css', array('pf-float-label'), '5.8.3');
         wp_enqueue_script('tinymce_js', includes_url('js/tinymce/') . 'wp-tinymce.php', array('jquery'), false, true);
         wp_enqueue_script('pf-isotop', get_template_directory_uri() . '/includes/common/js/isotope.pkgd.min.js', array('jquery'), '1.1.8', true);
-        wp_register_script('pf-journal', get_template_directory_uri() . '/includes/pf-journal/js/pf-journal.js', array('jquery', 'tinymce_js', 'pf-isotop'), '1.1.9', true);
+        wp_register_script('pf-journal', get_template_directory_uri() . '/includes/pf-journal/js/pf-journal.js', array('jquery', 'tinymce_js', 'pf-isotop'), '1.1.10', true);
         wp_localize_script('pf-journal', 'journal_obj', array('ajax_url' => admin_url('admin-ajax.php')));
         wp_enqueue_script('pf-journal');
     }
@@ -101,6 +103,41 @@ class JournalUI {
                 echo json_encode($return_array);
                 die();
         }
+    }
+
+    function pf_journal_show_journal_section_func() {
+        global $user_ID;
+        ob_start();
+        ?>
+        <div class="col-xs-12"><a id="add-journal" class="btn btn-default add-journal"><?php _e('Add new journal'); ?></a></div>
+        <?php
+        $journal_args = array('post_type' => 'journal', 'author' => $user_ID, 'post_status' => 'publish', 'orderby' => 'date');
+        $journal_query = new WP_Query($journal_args);
+        if ($journal_query->have_posts()) : while ($journal_query->have_posts()) : $journal_query->the_post();
+                ?>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 articleColumn articlePost author-journal-container journal-<?php the_ID(); ?>">
+                    <div class="articleItem">
+                        <div class="articleItemButtons clearfix text-right">
+                            <a class="edit-journal" title="<?php _e('Edit this journal', ''); ?>" id="edit-post-<?php the_ID(); ?>"><i class="fa fa-pencil"></i></a>
+                            <a class="delete-journal" title="<?php _e('Delete this journal', ''); ?>" id="delete-post-<?php the_ID(); ?>"><i class="fa fa-trash"></i></a>
+                        </div>
+                        <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-<?php the_ID(); ?>"><?php the_title(); ?></span><span class="pull-right postDate"><?php echo get_the_date('F d, Y'); ?></span></div>
+                        <div class="articleItemContents noPad" id="post-content-<?php the_ID(); ?>">
+                            <?php the_content(); ?>
+                        </div>
+                    </div>
+                </div><!--//Post Item-->
+                <?php
+            endwhile;
+        else:
+            ?><?php
+        endif;
+        ?>
+        <?php
+        $content = ob_get_contents();
+        ob_end_clean();
+        echo json_encode(array('status' => 200, 'content' => $content));
+        die();
     }
 
 }

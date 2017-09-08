@@ -13,3 +13,7 @@ and open the template in the editor.
 /*.author-journal-container .edit-journal:hover, .author-journal-container .delete-journal:hover,.author-letter-container .edit-letter:hover, .author-letter-container .delete-letter:hover{color:#b33c00;background: #ECA;}*/
 .author-journal-container .author-journal-container span[id^="post-title-"], .author-letter-container .author-letter-container[id^="letter-title-"] {-ms-word-break: break-all;word-break: break-all;}
 /*Rasheed Css for Journals*/
+
+.articlePosts .loader {margin:0 auto;flat:none;border: 16px solid #f3f3f3;border-radius: 50%;border-top: 16px solid #00344d;border-right: 16px solid #f5b3d1;border-bottom: 16px solid #701b40;width: 120px;height: 120px;-webkit-animation: spin 2s linear infinite;animation: spin 2s linear infinite;}
+@-webkit-keyframes spin {0% { -webkit-transform: rotate(0deg); }100% { -webkit-transform: rotate(360deg); }}
+@keyframes spin {0% { transform: rotate(0deg); }100% { transform: rotate(360deg); }}

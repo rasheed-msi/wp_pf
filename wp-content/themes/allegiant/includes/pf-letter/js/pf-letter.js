@@ -36,27 +36,7 @@ jQuery(function($) {
             })
         }
     });
-    /*tinymce init*/
-    tinymce.init({
-        mode: "exact",
-        editor_selector: "tinymce-enabled",
-        elements: 'letter-editor',
-        theme: "modern",
-        skin: "lightgray",
-        menubar: true,
-        statusbar: true,
-        toolbar: [
-            "bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | undo redo | link image"
-        ],
-        file_picker_types: 'image',
-        plugins: "paste image",
-        image_title: true,
-        paste_auto_cleanup_on_paste: true,
-        paste_postprocess: function(pl, o) {
-            o.node.innerHTML = o.node.innerHTML.replace(/&nbsp;+/ig, " ");
-        }
-    });
-    /*tinymce init*/
+
 
     $(document).on('mouseenter', '.author-letter-container', function() {
         $(this).find('.edit-letter,.delete-letter').css('visibility', 'visible');
@@ -176,8 +156,8 @@ jQuery(function($) {
                         } else {
                             var addLetter = '<div data-id="' + data.data.ID + '" class="col-lg-6 col-md-6 col-sm-6 col-xs-12 articleColumn articlePost author-letter-container letter-' + data.data.ID + '">\n\
                                     <a class="buttons text-center edit-letter" title="Edit this letter" id="edit-letter-' + data.data.ID + '"><i class="fa fa-pencil"></i></a>';
-var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise', 'our_traditions', 'our_vacations', 'thanksgiving'];
-                            if (  deletable.indexOf(letterLabel) != -1) {
+                            var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise', 'our_traditions', 'our_vacations', 'thanksgiving'];
+                            if (deletable.indexOf(letterLabel) != -1) {
                                 addLetter += '<a class="buttons text-center delete-letter" title="Delete this letter" id="delete-letter-' + data.data.ID + '"><i class="fa fa-trash"></i></a>';
                             } else {
 
@@ -242,44 +222,44 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
         var currentBtnElem = $(this), letterID = parseInt($('#del-letter-id').val(), 10), currentIntro = parseInt($('#is_intro_selected').val(), 10);
         disableButton(currentBtnElem);
 
-        if( letterID != currentIntro){
-        $.ajax({
-            method: 'POST',
-            url: letter_obj.ajax_url,
-            dataType: 'json',
-            data: {action: 'delete_letter', 'letter-id': letterID},
-            success: function(data) {
-                if (data.status == 200) {
-                    $('<div class="alert alert-success">\n\
+        if (letterID != currentIntro) {
+            $.ajax({
+                method: 'POST',
+                url: letter_obj.ajax_url,
+                dataType: 'json',
+                data: {action: 'delete_letter', 'letter-id': letterID},
+                success: function(data) {
+                    if (data.status == 200) {
+                        $('<div class="alert alert-success">\n\
                             <strong>Success!</strong> Letter removed successfully.\n\
                         </div>').prependTo('#delete-letter-modal .modal-body').delay(1000).fadeOut(function() {
-                        $('.letter-' + letterID).fadeOut(500);
-                        $(this).remove();
-                        $('#delete-letter-modal').modal('hide');
-                        enableButton(currentBtnElem);
-                    });
-                } else {
-                    $('<div class="alert alert-danger">\n\
+                            $('.letter-' + letterID).fadeOut(500);
+                            $(this).remove();
+                            $('#delete-letter-modal').modal('hide');
+                            enableButton(currentBtnElem);
+                        });
+                    } else {
+                        $('<div class="alert alert-danger">\n\
                             <strong>Failed!</strong> Something went wrong. Please try later.\n\
                         </div>').prependTo('#delete-letter-modal .modal-body').delay(1000).fadeOut(function() {
-                        $('#delete-letter-modal').modal('hide');
-                        enableButton(currentBtnElem);
-                    });
+                            $('#delete-letter-modal').modal('hide');
+                            enableButton(currentBtnElem);
+                        });
+                    }
                 }
-            }
-        });
-        }else{
+            });
+        } else {
             $('<div class="alert alert-danger">\n\
                             <strong>Failed!</strong> Please uncheck introduction  before deleting letter\n\
                         </div>').prependTo('#delete-letter-modal .modal-body').delay(2000).fadeOut(function() {
-                        $('#delete-letter-modal').modal('hide');
-                        enableButton(currentBtnElem);
-                    });
-       } 
+                $('#delete-letter-modal').modal('hide');
+                enableButton(currentBtnElem);
+            });
+        }
     });
 
 
-    $('#add-letter').on('click', function() {
+    $(document).on('click', '#add-letter', function() {
         disableButton($(this));
         clearLetterModal();
         showLabelOnly();
@@ -304,7 +284,7 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
 
 
     //letter func
-    $('#letter-label').on('change', function() {
+    $(document).on('change', '#letter-label', function() {
         var optVal = $(this).val();
         if (optVal == 'other') {
             $('#letter-title').val('');
@@ -315,17 +295,17 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
         }
     });
 
-    $(".image-checkbox").each(function() {
-        if ($(this).find('input[type="checkbox"]').first().attr("checked")) {
-            $(this).addClass('image-checkbox-checked');
-        }
-        else {
-            $(this).removeClass('image-checkbox-checked');
-        }
-    });
+//    $(".image-checkbox").each(function() {
+//        if ($(this).find('input[type="checkbox"]').first().attr("checked")) {
+//            $(this).addClass('image-checkbox-checked');
+//        }
+//        else {
+//            $(this).removeClass('image-checkbox-checked');
+//        }
+//    });
 
 // sync the state to the input
-    $(".image-checkbox").on("click", function(e) {
+    $(document).on("click", ".image-checkbox", function(e) {
         $(this).toggleClass('image-checkbox-checked');
         var $checkbox = $(this).find('input[type="checkbox"]');
         $checkbox.prop("checked", !$checkbox.prop("checked"))
@@ -334,12 +314,12 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
     });
 
 
-    $('#edit-letter-modal, #delete-letter-modal').on('hidden.bs.modal', function() {
+    $(document).on('hidden.bs.modal', '#edit-letter-modal, #delete-letter-modal', function() {
         clearLetterModal();
     });
 
 
-    $('#selected-assoc-list').on('click', '.assoc-close', function() {
+    $(document).on('click', '.assoc-close', function() {
         var photoId = String($(this).data('id')), curSelImgs = $('#photo-ids').val();
         if (typeof curSelImgs != 'undefined') {
             var curSelImgsObj = curSelImgs.split(',');
@@ -350,18 +330,18 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
             }
             clearSelectedImgs(photoId);
         }
-        
+
         $(this).parents('li').remove();
-        
-        
-        if(!($('#selected-assoc-list li').length > 0 )){
+
+
+        if (!($('#selected-assoc-list li').length > 0)) {
             var assocImgData = getAssocImgData('');
             $('#selected-assoc-list').html(assocImgData);
             $('#photo-ids').val('');
         }
     });
 
-    $('#associate-img-container').on("click", ".image-checkbox", function(e) {
+    $(document).on("click", ".image-checkbox", function(e) {
 
         var curElemObj = $(this).find('input[id^=asso_image]');
         var curElemChkd = curElemObj.is(':checked'), curElemVal = curElemObj.val();
@@ -395,7 +375,7 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
         }
     });
 
-    $('#add-assoc-images').click(function() {
+    $(document).on('click', '#add-assoc-images', function() {
         var AlbumCheckObj = $("input[name='asso_image[]']:checked");
         if (AlbumCheckObj.length > 0) {
             var photoObj = [];
@@ -514,6 +494,45 @@ var deletable = ['other', 'our_family', 'our_holidays', 'our_home', 'our_promise
     }
 });
 
+
+function getLetterSection() {
+    $ = jQuery;
+    if ($('#letter-section .accordianItemContents .loader').length > 0) {
+        $.ajax({
+            url: letter_obj.ajax_url,
+            data: {action: 'show_letter_section'},
+            dataType: 'json',
+            success: function(data) {
+                if (data.status == 200) {
+                    $('#letter-section .accordianItemContents .loader').replaceWith(data.content);
+                    /*tinymce init*/
+                    tinymce.init({
+                        mode: "exact",
+                        editor_selector: "tinymce-enabled",
+                        elements: 'letter-editor',
+                        theme: "modern",
+                        skin: "lightgray",
+                        menubar: true,
+                        statusbar: true,
+                        toolbar: [
+                            "bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | undo redo | link image"
+                        ],
+                        file_picker_types: 'image',
+                        plugins: "paste image",
+                        image_title: true,
+                        paste_auto_cleanup_on_paste: true,
+                        paste_postprocess: function(pl, o) {
+                            o.node.innerHTML = o.node.innerHTML.replace(/&nbsp;+/ig, " ");
+                        }
+                    });
+                    /*tinymce init*/
+                } else {
+                    alert("Something went wrong")
+                }
+            },
+        });
+    }
+}
 
 Array.prototype.compare = function(testArr) {
     if (this.length != testArr.length)
