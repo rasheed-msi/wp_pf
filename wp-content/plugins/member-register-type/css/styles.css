@@ -1,0 +1,98 @@
+.albumItemImage a img {
+    height: 150px;
+}
+
+.dashboardTabMenu ul li {
+    list-style: none;
+    margin: 0px;
+}
+
+.albumItemImage {
+    text-align:center
+}
+
+.dashBoardAlbumTitle input {
+    text-align:center;
+    background: #EFEFEF none repeat scroll 0 0;
+    padding: 0;
+}
+
+a.buttons {
+    color: #FFF;
+}
+
+input[name=wp-submit] {
+    border: 1px solid #7AC142;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border-radius: 5px;
+
+}
+
+
+.join-link a {
+    display: block;
+
+    height: 100px;
+    width: 100px;
+    float: left;
+    padding: 40px 30px;
+    background-color: #00b9eb;
+    color: #FFF;
+    margin: 2px;
+    text-align: center;
+
+}
+
+.join-link a:hover {
+    opacity: 0.8;
+}
+
+input.error {
+    border:1px solid red;
+}
+
+.span-caption {
+    line-height: 20px;
+    min-height: 30px;
+    padding: 5px 0;
+    /* border: 0px !important; */
+    border: 1px solid #CCC;
+    
+}
+
+.dashboardTabMenu ul li a {
+    cursor: default;
+}
+
+#ajaxloader {
+    background: url("../images/ajaxloader.gif") no-repeat scroll center center rgba(255, 255, 255, .8);
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 200;
+    top: 0%;
+    left: 0%;
+}
+
+.msg-alert {
+    padding: 0 9px;
+}
+
+.msg-link {
+    color: #0073bb;
+    cursor: pointer;
+}
+
+input.ng-invalid-maxlength {
+    background-color: #ffc8c8;
+}
+
+.albumItemImage img {
+    width: 200px;
+    height: 150px;
+}
+
+.albumGroup h4 {
+    padding: 10px 9px;
+}
