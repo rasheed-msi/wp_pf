@@ -18,7 +18,6 @@ angular.module("uib/template/tabs/tabset.html", []).run(["$templateCache", funct
                 "</div>\n" +
                 "");
     }]);
-
 if (typeof edit_obj != 'undefined') {
 
     var api_url = '';
@@ -36,22 +35,7 @@ if (typeof edit_obj != 'undefined') {
     var agencySelectionPostUrl = edit_obj.agencyselection_posturl;
     var agencyDelPostUrl = edit_obj.agencydel_posturl;
 
-    angular.module("template/tabs/tabset.html", []).run(["$templateCache", function($templateCache) {
-            $templateCache.put("template/tabs/tabset.html",
-                    "<div>\n" +
-                    "  <ul class=\"nav nav-{{type || 'tabs'}}\" ng-class=\"{'nav-stacked': vertical, 'nav-justified': justified}\" ng-transclude></ul>\n" +
-                    "  <div class=\"tab-content vfsdgfdgdfg\">\n" +
-                    "    <div class=\"tab-pane\" \n" +
-                    "         ng-repeat=\"tab in tabs\" \n" +
-                    "         ng-class=\"{active: tab.active}\"\n" +
-                    "         uib-tab-content-transclude=\"tab\">\n" +
-                    "    </div>\n" +
-                    "  </div>\n" +
-                    "</div>\n" +
-                    "");
-        }]);
     var app = angular.module('ui.bootstrap.demo', ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap', 'ui.mask']);
-
     app.config(['$qProvider', function($qProvider) {
             $qProvider.errorOnUnhandledRejections(false);
         }]);
@@ -235,17 +219,16 @@ if (typeof edit_obj != 'undefined') {
 
                 }
 
-                var account = $scope.account, dt = $scope.dt, dt2 = $scope.dt2;
-                $scope.masterAbout = {dt: dt, dt2: dt2, account: account};
-                console.log($scope.masterAbout, 'get');
-//                console.log($scope, "about controller");
+                $scope.masterAbout = {dt: angular.copy($scope.dt), dt2: angular.copy($scope.dt2), account: angular.copy($scope.account)};
+
             });
 
             $scope.resetAbout = function() {
-                console.log($scope.masterAbout);
+                $scope.$parent.formStatus = false;
                 $scope.aboutus.$setPristine();
-                $scope.dt = $scope.masterAbout.dt;
-                $scope.dt2 = $scope.masterAbout.dt2;
+                $scope.aboutus.$setUntouched();
+                $scope.dt = angular.copy($scope.masterAbout.dt);
+                $scope.dt2 = angular.copy($scope.masterAbout.dt2);
                 $scope.account = angular.copy($scope.masterAbout.account);
             }
 
@@ -296,10 +279,10 @@ if (typeof edit_obj != 'undefined') {
                 var req = {
                     method: 'POST',
                     url: aboutusPostUrl,
-                    headers: {
-                        'Authorization': 'OAuth2.0',
-                        'access_token': access_token
-                    },
+//                    headers: {
+//                        'Authorization': 'OAuth2.0',
+//                        'access_token': access_token
+//                    },
                     data: {'access_token': access_token, 'data': $scope.account}
                 }
 
@@ -309,6 +292,7 @@ if (typeof edit_obj != 'undefined') {
 //
 //                    })
                         $scope.$parent.newFn(2);
+                        $scope.masterAbout = {dt: angular.copy($scope.dt), dt2: angular.copy($scope.dt2), account: angular.copy($scope.account)};
                         $scope.disabled = false;
                     }
 
@@ -327,6 +311,7 @@ if (typeof edit_obj != 'undefined') {
         }]);
 
     app.controller('contactusCntrl', ['$scope', '$http', function($scope, $http, $window) {
+            $scope.masterContact = {};
             $http.get(contactUsGetUrl).then(function(response) {
                 var respData = response.data.data;
                 if (respData.StreetAddress) {
@@ -358,10 +343,10 @@ if (typeof edit_obj != 'undefined') {
                     var req = {
                         method: 'POST',
                         url: getStatesUrl,
-                        headers: {
-                            'Authorization': 'OAuth2.0',
-                            'access_token': access_token
-                        },
+//                        headers: {
+//                            'Authorization': 'OAuth2.0',
+//                            'access_token': access_token
+//                        },
                         data: {'access_token': access_token, 'data': $scope.account}
                     }
                     $scope.account.State = '';
@@ -377,6 +362,8 @@ if (typeof edit_obj != 'undefined') {
 
                     });
                 }
+
+                $scope.masterContact = {account: angular.copy($scope.account), stateShow: angular.copy($scope.stateShow), defaultContacts_form: angular.copy($scope.DefaultContacts_form)};
 
 
             });
@@ -433,15 +420,25 @@ if (typeof edit_obj != 'undefined') {
 //                        })
                         $scope.$parent.newFn(2);
                         $scope.disabled = false;
-
+                        $scope.masterContact = {account: angular.copy($scope.account), stateShow: angular.copy($scope.stateShow), defaultContacts_form: angular.copy($scope.DefaultContacts_form)};
                     }
 
                 })
             };
 
+            $scope.resetContact = function() {
+                $scope.$parent.formStatus = false;
+                $scope.contactinfo.$setPristine();
+                $scope.contactinfo.$setUntouched();
+                $scope.stateShow = angular.copy($scope.masterContact.dt);
+                $scope.DefaultContacts_form = angular.copy($scope.masterContact.dt2);
+                $scope.account = angular.copy($scope.masterContact.account);
+            }
+
         }]);
 
     app.controller('childPrefCntrl', ['$scope', '$http', function($scope, $http, $window) {
+            $scope.masterChildPref = {};
             $http.get(childPrefGetUrl).then(function(response) {
                 $scope.$on('$locationChangeStart', function(event) {
                     var answer = confirm("Are you sure you want to leave this page?")
@@ -559,6 +556,7 @@ if (typeof edit_obj != 'undefined') {
                     }
                 }
 
+                $scope.masterChildPref = {account: angular.copy($scope.account)};
 
             });
             //write function to save the form field values
@@ -582,10 +580,10 @@ if (typeof edit_obj != 'undefined') {
                 var req = {
                     method: 'POST',
                     url: childPrefPostUrl,
-                    headers: {
-                        'Authorization': 'OAuth2.0',
-                        'access_token': access_token
-                    },
+//                    headers: {
+//                        'Authorization': 'OAuth2.0',
+//                        'access_token': access_token
+//                    },
                     data: {'access_token': access_token, 'data': $scope.account}
                 };
                 var res = $http(req).then(function(response) {
@@ -595,15 +593,25 @@ if (typeof edit_obj != 'undefined') {
 //                    })
                         $scope.$parent.newFn(2);
                         $scope.disabled = false;
+
+                        $scope.masterChildPref = {account: angular.copy($scope.account)};
                     }
 
                 });
+            };
+
+            $scope.resetChildPref = function() {
+                $scope.$parent.formStatus = false;
+                $scope.aboutchild.$setPristine();
+                $scope.aboutchild.$setUntouched();
+                $scope.account = angular.copy($scope.masterChildPref.account);
             }
 
 
         }]);
 
     app.controller('agencySelectionCntrl', ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal, $window) {
+            $scope.masterAgencyList = {};
             $scope.agencyList = [];
             $scope.selectedAgencies = [];
             $scope.showAgencyBlock = false;
@@ -614,6 +622,8 @@ if (typeof edit_obj != 'undefined') {
                 $scope.userId = response.data.userId;
                 $scope.selectedAgencies = response.data.data_options;
                 $scope.showAgencyBlock = true;
+
+                $scope.masterAgencyList = {agencyList: angular.copy($scope.agencyList), userId: angular.copy($scope.userId), selectedAgencies: angular.copy($scope.selectedAgencies), showAgencyBlock: angular.copy($scope.selectedAgencies)};
             });
 
             $scope.agencyCheck = function() {
@@ -686,10 +696,10 @@ if (typeof edit_obj != 'undefined') {
                 var req = {
                     method: 'POST',
                     url: agencySelectionPostUrl,
-                    headers: {
-                        'Authorization': 'OAuth2.0',
-                        'access_token': access_token
-                    },
+//                    headers: {
+//                        'Authorization': 'OAuth2.0',
+//                        'access_token': access_token
+//                    },
                     data: {'access_token': access_token, 'data': {agencyList: $scope.selectedAgencies, userId: $scope.userId}}
                 }
 
@@ -702,8 +712,20 @@ if (typeof edit_obj != 'undefined') {
 
                         $scope.$parent.newFn(2);
                         $scope.disabled = false;
+
+                        $scope.masterAgencyList = {agencyList: angular.copy($scope.agencyList), userId: angular.copy($scope.userId), selectedAgencies: angular.copy($scope.selectedAgencies), showAgencyBlock: angular.copy($scope.selectedAgencies)};
                     }
                 });
+            };
+
+            $scope.resetAgencyList = function() {
+                $scope.$parent.formStatus = false;
+                $scope.agencyselection.$setPristine();
+                $scope.agencyselection.$setUntouched();
+                $scope.agencyList = angular.copy($scope.masterAgencyList.agencyList);
+                $scope.userId = angular.copy($scope.masterAgencyList.userId);
+                $scope.selectedAgencies = angular.copy($scope.masterAgencyList.selectedAgencies);
+                $scope.showAgencyBlock = angular.copy($scope.masterAgencyList.showAgencyBlock);
             };
         }]);
 

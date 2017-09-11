@@ -20,7 +20,7 @@ class JournalUI {
         wp_enqueue_style('pf-journal', get_template_directory_uri() . '/includes/pf-journal/css/pf-journal.css', array('pf-float-label'), '5.8.3');
         wp_enqueue_script('tinymce_js', includes_url('js/tinymce/') . 'wp-tinymce.php', array('jquery'), false, true);
         wp_enqueue_script('pf-isotop', get_template_directory_uri() . '/includes/common/js/isotope.pkgd.min.js', array('jquery'), '1.1.8', true);
-        wp_register_script('pf-journal', get_template_directory_uri() . '/includes/pf-journal/js/pf-journal.js', array('jquery', 'tinymce_js', 'pf-isotop'), '1.1.10', true);
+        wp_register_script('pf-journal', get_template_directory_uri() . '/includes/pf-journal/js/pf-journal.js', array('jquery', 'tinymce_js', 'pf-isotop'), '1.1.11', true);
         wp_localize_script('pf-journal', 'journal_obj', array('ajax_url' => admin_url('admin-ajax.php')));
         wp_enqueue_script('pf-journal');
     }
@@ -121,7 +121,7 @@ class JournalUI {
                             <a class="edit-journal" title="<?php _e('Edit this journal', ''); ?>" id="edit-post-<?php the_ID(); ?>"><i class="fa fa-pencil"></i></a>
                             <a class="delete-journal" title="<?php _e('Delete this journal', ''); ?>" id="delete-post-<?php the_ID(); ?>"><i class="fa fa-trash"></i></a>
                         </div>
-                        <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-<?php the_ID(); ?>"><?php the_title(); ?></span><span class="pull-right postDate"><?php echo get_the_date('F d, Y'); ?></span></div>
+                        <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-<?php the_ID(); ?>"><?php the_title(); ?></span><span class="pull-right postDate"><?php echo get_the_modified_date('F d, Y'); ?></span></div>
                         <div class="articleItemContents noPad" id="post-content-<?php the_ID(); ?>">
                             <?php the_content(); ?>
                         </div>

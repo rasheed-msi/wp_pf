@@ -24,7 +24,7 @@ function pf_edit_profile_scripts() {
         wp_enqueue_script('pf-edit-angular-1.6.1-mask', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/mask.js');
         wp_enqueue_script('pf-edit-ui-bootstrap', get_template_directory_uri() . '/includes/pf-edit-profile/assets/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap.min.js');
         wp_enqueue_script('pf-edit-ui-bootstrap-tpls', get_template_directory_uri() . '/includes/pf-edit-profile/assets/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js');
-        wp_register_script('pf-edit-script', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/editProfile.js', array(), '4.8.18');
+        wp_register_script('pf-edit-script', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/editProfile.js', array(), '4.8.22');
         wp_localize_script('pf-edit-script', 'edit_obj', array(
             'userId' => get_current_user_id(), 'aboutus_geturl' => rest_url('/pf/api/v1/aboutus'), 'contactus_geturl' => rest_url('/pf/api/v1/contactus'),
             'childpref_geturl' => rest_url('/pf/api/v1/childpreference'), 'aboutus_posturl' => rest_url('/pf/api/v1/saboutus'), 'contactus_posturl' => rest_url('/pf/api/v1/scontactus'),

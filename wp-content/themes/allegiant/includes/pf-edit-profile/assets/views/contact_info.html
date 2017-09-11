@@ -13,7 +13,8 @@
 
                 <div class="col-sm-3">
 		    <div style="float: right">
-                        <input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "contactinfo.$setPristine();" class="cancel_btn" ng-disabled="disabled" id="cancel" />&nbsp;&nbsp;
+                        <input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "resetContact();" class="cancel_btn" ng-disabled="disabled" id="cancel" />&nbsp;&nbsp;
+                        <!--<input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "contactinfo.$setPristine();" class="cancel_btn" ng-disabled="disabled" id="cancel" />&nbsp;&nbsp;-->
                         <input value="SAVE" type="submit" class="save_btn" ng-if="show" ng-disabled="disabled" id="save"/></div>
         </div>
     </div>
@@ -139,7 +140,8 @@
 <div class ="row margins">
         <div class="col-sm-12">
                     <div style="float: right">
-			<input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "contactinfo.$setPristine();" class="cancel_btn" id="cancel_bottom" ng-disabled="disabled"/>&nbsp;&nbsp;
+                        <input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "resetContact();" class="cancel_btn" ng-disabled="disabled" id="cancel_bottom" />&nbsp;&nbsp;
+			<!--<input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "contactinfo.$setPristine();" class="cancel_btn" id="cancel_bottom" ng-disabled="disabled"/>&nbsp;&nbsp;-->
                         <input value="SAVE" type="submit" class="save_btn" ng-if="show" id="save_bottom" ng-disabled="disabled"/>
                     </div>
         </div>

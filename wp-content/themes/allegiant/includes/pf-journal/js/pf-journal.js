@@ -95,13 +95,15 @@ jQuery(function($) {
                         if (journalAction == 'update') {
                             $('#post-title-' + journalID).text(journalTitle);
                             $('#post-content-' + journalID).html(jornalContent);
-                            $('#post-content-' + journalID).next('span.postDate').text(formatDate(new Date()));
+                            $('#post-title-' + journalID).next('span.postDate').text(formatDate(new Date()));
                         } else {
                             var addJournal = '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 articleColumn articlePost author-journal-container journal-' + data.data.ID + '">\n\
-                                    <a class="buttons text-center edit-journal" title="Edit this journal" id="edit-post-' + data.data.ID + '"><i class="fa fa-pencil"></i></a>\n\
-                                    <a class="buttons text-center delete-journal" title="Delete this journal" id="delete-post-' + data.data.ID + '"><i class="fa fa-trash"></i></a>\n\
                                     <div class="articleItem">\n\
-                                        <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-' + data.data.ID + '">' + data.data.post_title + '</span><span class="pull-right postDate">' + data.data.post_date + '</span></div>\n\
+                                        <div class="articleItemButtons clearfix text-right">\n\
+                                            <a class="edit-journal" title="Edit this journal" id="edit-post-' + data.data.ID + '"><i class="fa fa-pencil"></i></a>\n\
+                                            <a class="delete-journal" title="Delete this journal" id="delete-post-' + data.data.ID + '"><i class="fa fa-trash"></i></a>\n\
+                                        </div>\n\
+                                        <div class="articleItemHead clearfix noBg"><span class="pull-left " id="post-title-' + data.data.ID + '">' + data.data.post_title + '</span><span class="pull-right postDate">' + formatDate(new Date(data.data.post_modified)) + '</span></div>\n\
                                         <div class="articleItemContents noPad" id="post-content-' + data.data.ID + '">\n\
                                             ' + data.data.post_content + '\n\
                                         </div>\n\
@@ -238,5 +240,5 @@ function formatDate(date) {
     var monthIndex = date.getMonth();
     var year = date.getFullYear();
 
-    return monthNames[monthIndex] + ' ' +day + ', ' +  year;
+    return monthNames[monthIndex] + ' ' + day + ', ' + year;
 }

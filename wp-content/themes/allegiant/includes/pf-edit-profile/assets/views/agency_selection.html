@@ -48,7 +48,8 @@
         <div class ="row" style="margin-top: 10px; margin-bottom:25px">
             <div class="col-sm-12">
                 <div style="float: right">
-                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" ng-disabled="disabled" id="cancel3"/>&nbsp;&nbsp;
+                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="resetAgencyList();" class="cancel_btn" ng-disabled="disabled" id="cancel3"/>&nbsp;&nbsp;
+                    <!--<input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" ng-disabled="disabled" id="cancel3"/>&nbsp;&nbsp;-->
                     <input ng-if="show" type="submit" value="SAVE"  class="save_btn" ng-disabled="disabled" id="save3"/></div>
             </div>
         </div>
@@ -101,7 +102,8 @@
         <div class ="row" style="margin-top: 25px; margin-bottom:15px">
             <div class="col-sm-12">
                 <div style="float: right">
-                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" id="cancel_bottom3" ng-disabled="disabled"/>&nbsp;&nbsp;
+                    <input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="resetAgencyList();" class="cancel_btn" id="cancel_bottom3" ng-disabled="disabled"/>&nbsp;&nbsp;
+                    <!--<input ng-if="show" value="CANCEL" type="BUTTON" ng-click ="agencyselection.$setPristine();" class="cancel_btn" id="cancel_bottom3" ng-disabled="disabled"/>&nbsp;&nbsp;-->
                     <input type="submit" ng-if="show" value="SAVE"  class="save_btn" id="save_bottom3" ng-disabled="disabled"/>
                 </div>
             </div>
