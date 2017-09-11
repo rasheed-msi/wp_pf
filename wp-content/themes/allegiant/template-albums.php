@@ -8,8 +8,6 @@ get_header();
 
 <section class="container"  ng-app="appParentfinder">
 
-
-
     <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
 
         <div id="ajaxloader" ng-show="showAjaxLoader"></div>
@@ -24,7 +22,7 @@ get_header();
                             <h4>{{heading}}</h4>
                             <p>Need some help? Read the documentation or watch a video</p>
                         </div>
-                        <div class="dashboardTabsHeaderButton" ng-click="executeBackButton()">
+                        <div class="dashboardTabsHeaderButton" ng-show="showBackButton" ng-click="executeBackButton()">
                             <a href="#" class="btn buttons clearfix"><i class="fa fa-angle-left"></i><span>Back</span></a>
                         </div>
                     </div>

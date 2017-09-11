@@ -111,6 +111,7 @@ class MrtUser {
             $user = new WP_User($this->user_id);
             $user->remove_role('subscriber');
             $user->add_role($data['user_type']);
+            add_user_meta($this->user_id, 'mrt_user_role_register', $data['user_type']);
         }
 
         if (isset($data['user_type']) && $data['user_type'] == 'adoption_agency') {

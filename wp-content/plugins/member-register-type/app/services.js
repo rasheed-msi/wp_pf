@@ -52,6 +52,7 @@ app.service("AlbumService", function (WebService) {
         selectAllLabel: "SELECT ALL",
         count: 0,
         refresh: true,
+        downloadRefresh: true,
     }
 
     this.getItems = function () {
@@ -186,13 +187,23 @@ app.service("PageService", function () {
     }
 
     this.addVisit = function (page) {
-        if (!this.backHref) {
-            this.visit.push(page);
-        } else {
-            // Visit the page by back button
+        var index = this.visit.length - 1;
+        if(typeof this.visit[index] != 'undefined' && this.visit[index] == page){
+            // same page
+        } else if(this.backHref){
             this.visit.pop();
             this.backHref = false;
+        } else {
+            this.visit.push(page);
         }
+        
+//        if (!this.backHref) {
+//            this.visit.push(page);
+//        } else {
+//            // Visit the page by back button
+//            this.visit.pop();
+//            this.backHref = false;
+//        }
     };
     this.getPreviousPage = function () {
         var index = this.visit.length - 2 // second last index 

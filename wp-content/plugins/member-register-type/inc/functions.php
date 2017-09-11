@@ -34,14 +34,15 @@ function mrt_display_user_register() {
         $return['form_html'] = $formhtmljq->create_form($form);
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 2) {
 
-        
-        
         $return['heading'] = 'Adoptive Agency';
         $return['form_type'] = 'adoptive_agency';
-        $return['form_html'] = $formhtmljq->create_form($gform->set_form(AppForm::adoption_agency_register(), (isset($_POST['user_type']))? $_POST : []));
+
+        $register_form_value = (isset($_POST['user_type'])) ? $_POST : [];
+
+        $return['form_html'] = $formhtmljq->create_form($gform->set_form(AppForm::adoption_agency_register($register_form_value), $register_form_value));
     } elseif (isset($_GET['rft']) && $_GET['rft'] == 3) {
 
-        $post = (isset($_POST['user_type']))? $_POST : [];
+        $post = (isset($_POST['user_type'])) ? $_POST : [];
         $form = $gform->set_form(AppForm::birth_mother_register(), $post);
         $return['heading'] = 'Birth Mother';
         $return['form_html'] = $formhtmljq->create_form($form);
@@ -84,10 +85,10 @@ function mrt_display_user_contact() {
     $gform = new Gform();
     $formhtmljq = new FormHtmlJq();
     $mrtuser = new MrtUser;
-    
-    $form_data = (isset($mrtuser->contact->data))? $mrtuser->contact->data : [];
-    $country_selected = (isset($mrtuser->contact->data['Country']))? ['country_id' => $mrtuser->contact->data['Country']] : [];
-        
+
+    $form_data = (isset($mrtuser->contact->data)) ? $mrtuser->contact->data : [];
+    $country_selected = (isset($mrtuser->contact->data['Country'])) ? ['country_id' => $mrtuser->contact->data['Country']] : [];
+
     $form = $gform->set_form(AppForm::general_user_contact($country_selected), $form_data);
     $return['form_html'] = $formhtmljq->create_form($form);
     return $return;
@@ -97,7 +98,7 @@ function mrt_display_user_couple() {
     $gform = new Gform();
     $formhtmljq = new FormHtmlJq();
     $mrtuser = new MrtUser;
-    $form_data = ($mrtuser->set_couple())? $mrtuser->couple->data : [];
+    $form_data = ($mrtuser->set_couple()) ? $mrtuser->couple->data : [];
     $form = $gform->set_form(AppForm::adoptive_family_couple(), $form_data);
     $return['form_html'] = $formhtmljq->create_form($form);
     return $return;
@@ -117,7 +118,6 @@ function mrt_get_customposts($post_type, $display_count = -1) {
     $the_query = new WP_Query($args);
     return $the_query;
 }
-
 
 function mrt_body_style() {
     $title = trim(get_the_title());

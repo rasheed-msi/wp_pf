@@ -290,7 +290,7 @@ class AppForm {
         $form['fields']['action']['value'] = 'edit_contact';
 
         if (isset($param['country_id'])) {
-            $states = Dot::get_states($param['country_id']);
+            $states = State::get_states($param['country_id']);
             $results = Dot::set_array_key_value($states, 'state_id', 'State');
             $form['fields']['State']['options'] = $results;
         }
@@ -320,7 +320,7 @@ class AppForm {
         return $form;
     }
 
-    public static function adoption_agency_register() {
+    public static function adoption_agency_register($param = null) {
         $form = [
             'form_name' => 'adoption_agency_register',
             'submit' => false,
@@ -355,6 +355,12 @@ class AppForm {
 
         $form['fields'] = self::get_required_fields($form['fields']);
         $form['fields'] = self::set_all_required($form['fields']);
+        
+        if (isset($param['Country'])) {
+            $states = State::get_states($param['Country']);
+            $results = Dot::set_array_key_value($states, 'state_id', 'State');
+            $form['fields']['State']['options'] = $results;
+        }
         return $form;
     }
 

@@ -46,7 +46,7 @@ class State {
 
         foreach ($files as $file) {
             $download_file = file_get_contents($file);
-            $zip->addFromString(basename($file), $download_file);
+            $zip->addFromString(rand(1000, 9999) . basename($file), $download_file);
         }
 
         $zip->close();
