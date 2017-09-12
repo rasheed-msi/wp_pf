@@ -86,6 +86,11 @@ if (typeof edit_obj != 'undefined') {
                     title: "Agency Selection",
                     templateUrl: template_root_path + 'assets/views/agency_selection.html',
                     isLoaded: false
+                },
+                {
+                    title: "Change Password",
+                    templateUrl: template_root_path + 'assets/views/change_password.html',
+                    isLoaded: false
                 }
             ];
             //show unsaved Data and show saved successfully message
@@ -741,4 +746,139 @@ if (typeof edit_obj != 'undefined') {
             };
         }]);
 
+
+    app.controller('changePasswordCntrl', ['$scope', '$http', 'pfChangePassword', function($scope, $http, pfChangePassword, $window) {
+
+            $scope.$watch('user_password', function(pass) {
+                $scope.passwordStrength = pfChangePassword.getStrength(pass);
+                if ($scope.isPasswordWeak()) {
+                    $scope.changepassword.$setValidity('strength', false);
+                } else {
+                    $scope.changepassword.$setValidity('strength', true);
+                }
+            });
+
+
+            $scope.isPasswordWeak = function() {
+                return $scope.passwordStrength < 40;
+            }
+
+            $scope.isPasswordOk = function() {
+                return $scope.passwordStrength >= 40 && $scope.passwordStrength <= 70;
+            }
+
+            $scope.isPasswordStrong = function() {
+                return $scope.passwordStrength > 70;
+            }
+
+            $scope.isInputValid = function(input) {
+                return input.$dirty && input.$valid;
+            }
+
+            $scope.isInputInvalid = function(input) {
+                return input.$dirty && input.$invalid;
+            }
+
+
+//            if(!$scope.changepassword.$valid) {
+//                
+//            }
+            
+            //write function to save the form field values
+            $scope.submit = function() {
+                $scope.disabled = true;
+                var myEl = angular.element(document.querySelector('#cancel4'));
+                myEl.removeClass('cancel_btn');
+                myEl.addClass('cancel_btn_disabled');
+                var myE2 = angular.element(document.querySelector('#save4'));
+                myE2.removeClass('save_btn');
+                myE2.addClass('save_btn_disabled');
+                var myEl = angular.element(document.querySelector('#cancel_bottom4'));
+                myEl.removeClass('cancel_btn');
+                myEl.addClass('cancel_btn_disabled');
+                var myE2 = angular.element(document.querySelector('#save_bottom4'));
+                myE2.removeClass('save_btn');
+                myE2.addClass('save_btn_disabled');
+                $scope.$parent.formStatus = false;
+                $scope.aboutchild.$setPristine();
+                var req = {
+                    method: 'POST',
+                    url: changePwdPostUrl,
+                    data: {'access_token': access_token, 'data': $scope}
+                };
+                var res = $http(req).then(function(response) {
+                    if (response.data.code == "200") {
+                        $scope.$parent.newFn(2);
+                        $scope.disabled = false;
+                    }
+                });
+            };
+
+            $scope.resetChangePassword = function() {
+                $scope.$parent.formStatus = false;
+                $scope.changepassword.$setPristine();
+                $scope.changepassword.$setUntouched();
+                $scope.user_password = '';
+                $scope.confirm_password = '';
+                $scope.current_password = '';
+            }
+        }]);
+
+
+    app.factory('pfChangePassword', function() {
+
+        function getStrength(pass) {
+            var score = 0;
+            if (!pass)
+                return score;
+
+            // award every unique letter until 5 repetitions
+            var letters = new Object();
+            for (var i = 0; i < pass.length; i++) {
+                letters[pass[i]] = (letters[pass[i]] || 0) + 1;
+                score += 5.0 / letters[pass[i]];
+            }
+
+            // bonus points for mixing it up
+            var variations = {
+                digits: /\d/.test(pass),
+                lower: /[a-z]/.test(pass),
+                upper: /[A-Z]/.test(pass),
+                nonWords: /\W/.test(pass),
+            }
+
+            var variationCount = 0;
+            for (var check in variations) {
+                variationCount += (variations[check] == true) ? 1 : 0;
+            }
+            score += (variationCount - 1) * 10;
+
+            if (score > 100)
+                score = 100;
+
+            return parseInt(score);
+        }
+
+
+        return {
+            getStrength: function(pass) {
+                return getStrength(pass);
+            }
+        }
+
+    });
+
+    app.directive('pwCheck', [function() {
+            return {
+                require: 'ngModel',
+                link: function(scope, elem, attrs, ctrl) {
+                    var firstPassword = '#' + attrs.pwCheck;
+                    elem.add(firstPassword).on('keyup', function() {
+                        scope.$apply(function() {
+                            ctrl.$setValidity('pwmatch', elem.val() === jQuery(firstPassword).val() || (elem.val() === ''));
+                        });
+                    });
+                }
+            }
+        }]);
 }
