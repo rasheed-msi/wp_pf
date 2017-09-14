@@ -151,6 +151,15 @@ class PFEditApi {
                     'permission_callback' => [$this, 'perm_callback'],
                 //'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
                 ]
+            ],
+            'change_pwd' => [
+                'route' => '/change_pwd',
+                'parm' => [
+                    'methods' => WP_REST_Server::CREATABLE,
+                    'callback' => [$this, 'pfedChangePwdFunc'],
+                    'permission_callback' => [$this, 'perm_callback'],
+                //'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
+                ]
             ]
         ];
     }
@@ -815,6 +824,27 @@ class PFEditApi {
             return new WP_REST_Response(array('code' => 200, 'message' => 'Profile Updated'), 200);
         } else {
             return new WP_REST_Response(array('code' => $exc->getCode(), 'message' => $exc->getTraceAsString()), $exc->getCode());
+        }
+    }
+
+    function pfedChangePwdFunc($request) {
+        $params = $request->get_params();
+        $postData = $params['data'];
+
+        global $user_ID, $userdata;
+        $this->user_ID = $postData['id'];
+        //user details
+        $this->userdata = !empty($userdata) ? $userdata : get_userdata($this->user_ID);
+
+        if ($this->userdata && wp_check_password($postData['current_pwd'], $this->userdata->data->user_pass, $this->user_ID)) {
+            if ($postData['user_pwd'] === $postData['confirm_pwd']) {
+                //wp_set_password($postData['user_pwd'], $this->user_ID);
+                return new WP_REST_Response(array('code' => 200, 'message' => 'Password changed successfully'), 200);
+            } else {
+                return new WP_REST_Response(array('code' => 200, 'message' => 'Password not matching'), 200);
+            }
+        } else {
+            return new WP_REST_Response(array('code' => 200, 'message' => 'Current password not correct'), 200);
         }
     }
 

@@ -34,6 +34,7 @@ if (typeof edit_obj != 'undefined') {
     var agencySelectionGetUrl = edit_obj.agencyselection_geturl + "/" + edit_obj.userId;
     var agencySelectionPostUrl = edit_obj.agencyselection_posturl;
     var agencyDelPostUrl = edit_obj.agencydel_posturl;
+    var changePwdPostUrl = edit_obj.change_pwd_posturl;
 
     var app = angular.module('ui.bootstrap.demo', ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap', 'ui.mask']);
     app.config(['$qProvider', function($qProvider) {
@@ -64,6 +65,7 @@ if (typeof edit_obj != 'undefined') {
                 var agencySelectionGetUrl = edit_obj.agencyselection_geturl + "/" + edit_obj.userId;
                 var agencySelectionPostUrl = edit_obj.agencyselection_posturl;
                 var agencyDelPostUrl = edit_obj.agencydel_posturl;
+                var changePwdPostUrl = edit_obj.change_pwd_posturl;
             });
 
             $scope.model.tabs = [
@@ -96,8 +98,6 @@ if (typeof edit_obj != 'undefined') {
             //show unsaved Data and show saved successfully message
             $scope.newFn = function(status) {
                 $scope.formStatus = status;
-                $scope.show = false;
-                $scope.saved = false;
                 if ($scope.formStatus === true) {
                     $scope.formStatus = status;
                     $scope.show = true;
@@ -106,7 +106,8 @@ if (typeof edit_obj != 'undefined') {
                     $scope.show = false;
                     $scope.saved = true;
                 } else {
-
+                    $scope.show = false;
+                    $scope.saved = false;
                 }
             };
             //$scope.tabContent = $scope.model.tabs[1].templateUrl;
@@ -621,6 +622,7 @@ if (typeof edit_obj != 'undefined') {
             $scope.selectedAgencies = [];
             $scope.showAgencyBlock = false;
             $scope.resultsHidden = false;
+            $scope.agencyAddAction = false;
             $scope.userId = 0;
             $http.get(agencySelectionGetUrl).then(function(response) {
                 $scope.agencyList = response.data.agencyList;
@@ -631,7 +633,16 @@ if (typeof edit_obj != 'undefined') {
                 $scope.masterAgencyList = {agencyList: angular.copy($scope.agencyList), userId: angular.copy($scope.userId), selectedAgencies: angular.copy($scope.selectedAgencies), showAgencyBlock: angular.copy($scope.selectedAgencies)};
             });
 
-            $scope.agencyCheck = function() {
+            $scope.agencyCheck = function(agencyList) {
+                var showAddBtn = false;
+                angular.forEach($scope.agencyList, function(value, key) {
+                    if (typeof value.selected != 'undefined' && value.selected == true) {
+                         showAddBtn = true;
+                        return;
+                    } 
+                });
+                                
+                $scope.agencyAddAction = showAddBtn;
             }
 
             $scope.addAgencies = function() {
@@ -645,6 +656,7 @@ if (typeof edit_obj != 'undefined') {
                     }
                 });
                 $scope.agencyList = agencyList;
+                $scope.agencyAddAction = false;
             };
 
             $scope.deleteAgency = function(selectedAgency) {
@@ -692,10 +704,10 @@ if (typeof edit_obj != 'undefined') {
 
             };
 
-            $scope.keyUpfn = function() {
-                $scope.$parent.formStatus = true;
-                $scope.$parent.show = true;
-            };
+//            $scope.keyUpfn = function() {
+//                $scope.$parent.formStatus = true;
+//                $scope.$parent.t = true;
+//            };
             $scope.submit = function() {
 
                 var req = {
@@ -724,7 +736,8 @@ if (typeof edit_obj != 'undefined') {
             };
 
             $scope.resetAgencyList = function() {
-                $scope.$parent.formStatus = false;
+                $scope.$parent.newFn(2)
+                $scope.disabled = false;
                 $scope.agencyselection.$setPristine();
                 $scope.agencyselection.$setUntouched();
                 $scope.agencyList = angular.copy($scope.masterAgencyList.agencyList);
@@ -748,13 +761,26 @@ if (typeof edit_obj != 'undefined') {
 
 
     app.controller('changePasswordCntrl', ['$scope', '$http', 'pfChangePassword', function($scope, $http, pfChangePassword, $window) {
-
             $scope.$watch('user_password', function(pass) {
                 $scope.passwordStrength = pfChangePassword.getStrength(pass);
                 if ($scope.isPasswordWeak()) {
-                    $scope.changepassword.$setValidity('strength', false);
+                    $scope.changepassword.user_password.$setValidity('strength', false);
                 } else {
-                    $scope.changepassword.$setValidity('strength', true);
+                    $scope.changepassword.user_password.$setValidity('strength', true);
+                }
+            });
+
+            $scope.$watchCollection('[current_password, user_password, confirm_password]', function(newValues) {
+                var checkCurrPwdValid = $scope.changepassword.current_password.$valid,
+                        checkPwdValid = $scope.changepassword.user_password.$valid,
+                        checkConfPwdValid = typeof newValues[2] !== 'undefined' && newValues[2] !== '' && newValues[2] === newValues[1];
+
+//                console.log("curr", checkCurrPwdValid, "user", checkPwdValid, "conf", checkConfPwdValid);
+                if (checkCurrPwdValid && checkPwdValid && checkConfPwdValid) {
+                    $scope.newFn(true);
+                    $scope.disabled = false;
+                } else {
+                    $scope.newFn(false);
                 }
             });
 
@@ -779,11 +805,6 @@ if (typeof edit_obj != 'undefined') {
                 return input.$dirty && input.$invalid;
             }
 
-
-//            if(!$scope.changepassword.$valid) {
-//                
-//            }
-            
             //write function to save the form field values
             $scope.submit = function() {
                 $scope.disabled = true;
@@ -800,16 +821,17 @@ if (typeof edit_obj != 'undefined') {
                 myE2.removeClass('save_btn');
                 myE2.addClass('save_btn_disabled');
                 $scope.$parent.formStatus = false;
-                $scope.aboutchild.$setPristine();
+                $scope.changepassword.$setPristine();
                 var req = {
                     method: 'POST',
                     url: changePwdPostUrl,
-                    data: {'access_token': access_token, 'data': $scope}
+                    data: {'access_token': access_token, 'data': {id: edit_obj.userId, confirm_pwd: $scope.confirm_password, user_pwd: $scope.user_password, current_pwd: $scope.current_password, }}
                 };
                 var res = $http(req).then(function(response) {
                     if (response.data.code == "200") {
                         $scope.$parent.newFn(2);
                         $scope.disabled = false;
+                        alert(response.data.message);
                     }
                 });
             };

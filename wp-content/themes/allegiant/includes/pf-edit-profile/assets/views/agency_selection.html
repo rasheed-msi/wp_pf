@@ -43,7 +43,7 @@
     .input-group.add-on{ padding: 0 0 25px 25px;}
 
 </style>
-<div class="container-fluid" ng-controller="agencySelectionCntrl"  ng-click="$parent.newFn(agencyselection.$dirty, 1)">
+<div class="container-fluid" ng-controller="agencySelectionCntrl">   <!--ng-click="$parent.newFn(agencyselection.$dirty, 1)"-->
     <form class="form"  name="agencyselection" ng-submit="submit()">
         <div class ="row" style="margin-top: 10px; margin-bottom:25px">
             <div class="col-sm-12">
@@ -76,8 +76,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-sm-4 text-center" ng-show="resultsHidden">
-                    <button type="button" class="btn btn-primary btn-lg" style="vertical-align: middle" ng-click="addAgencies();">Add</button>
+                <div class="col-sm-4 text-center" ng-show="agencyAddAction">
+                    <button type="button" class="btn btn-primary btn-lg" style="vertical-align: middle" ng-click="addAgencies();$parent.newFn(agencyselection.$dirty, 1)">Add</button>
                 </div>
             </div>
             <div class="col-sm-4">
@@ -91,7 +91,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="checkbox">
-                                <label><input type="checkbox" id="sadopt_{{selectedAgency.agencyId}}" ng-model="selectedAgency.isContact" ng-true-value="'1'" ng-false-value="'0'">Contact</label>
+                                <label><input type="checkbox" id="sadopt_{{selectedAgency.agencyId}}" ng-model="selectedAgency.isContact" ng-true-value="'1'" ng-false-value="'0'" ng-click="$parent.newFn(agencyselection.$dirty, 1)">Contact</label>
                             </div>
                         </div>
                     </div>

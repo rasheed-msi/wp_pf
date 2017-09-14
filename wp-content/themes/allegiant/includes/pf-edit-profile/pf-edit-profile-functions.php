@@ -14,7 +14,6 @@ function pf_edit_profile_scripts() {
 //        wp_enqueue_style('pf-edit-bootstrap', get_template_directory_uri() . '/includes/pf-edit-profile/assets/bootstrap/css/bootstrap.css', array());
 //        wp_enqueue_style('pf-edit-demo', get_template_directory_uri() . '/includes/pf-edit-profile/assets/css/demo.css', array());
 //        wp_enqueue_style('pf-edit-custom', get_template_directory_uri() . '/includes/pf-edit-profile/assets/css/custom.css', array(), '1.2.5');
-
         //register & call js files from pf edit profile component
         wp_enqueue_script('jquery');
         wp_enqueue_script('pf-edit-angular-1.6.1', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/angularjs/1.6.1/angular.js');
@@ -30,6 +29,7 @@ function pf_edit_profile_scripts() {
             'childpref_geturl' => rest_url('/pf/api/v1/childpreference'), 'aboutus_posturl' => rest_url('/pf/api/v1/saboutus'), 'contactus_posturl' => rest_url('/pf/api/v1/scontactus'),
             'childpref_posturl' => rest_url('/pf/api/v1/schildpreference'), 'getstates_url' => rest_url('/pf/api/v1/states'), 'template_root_path' => get_template_directory_uri() . '/includes/pf-edit-profile/',
             'agencyselection_geturl' => rest_url('/pf/api/v1/agencylist'), 'agencyselection_posturl' => rest_url('/pf/api/v1/sagencylist'), 'agencydel_posturl' => rest_url('/pf/api/v1/dagencylist'),
+            'change_pwd_posturl' => rest_url('/pf/api/v1/change_pwd')
         ));
         wp_enqueue_script('pf-edit-script', null, null, '4.8.10');
     }
