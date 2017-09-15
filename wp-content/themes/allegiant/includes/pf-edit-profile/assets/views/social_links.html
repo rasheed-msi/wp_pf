@@ -1,0 +1,56 @@
+<div ng-controller="socialLinkCntrl"> <!--ng-click="$parent.newFn(changepassword.$dirty, 2)"-->
+    <form class="form" name="socialnetworks" ng-submit="socialnetworks.$valid && submit()">
+        <div class="container-fluid" style="margin-left: 10px;">
+            <div class ="row" style="margin-top: 10px;">
+                <div class="col-sm-12">
+                    <div style="float: right">
+                        <input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "resetChangePassword();" class="cancel_btn" ng-disabled="disabled" id="cancel4" />&nbsp;&nbsp;
+                        <input ng-if="show" value="SAVE" type="submit" class="save_btn" ng-disabled="disabled" id="save4"/></div>
+                </div>
+            </div>
+
+            <div class ="row">
+                <div id="pf-social-link" class="container">
+                    <a href="#" title="click to add your Facebook url" class="button facebook">
+                        <span><i class="fa fa-facebook"></i></span>
+                        <p>Facebook</p>
+                    </a>
+                    <a href="#" title="click to add your Twitter url" class="button twitter">
+                        <span><i class="fa fa-twitter"></i></span>
+                        <p>Twitter</p>
+                    </a>
+                    <a href="#" title="click to add your Google + url" class="button google-plus">
+                        <span><i class="fa fa-google-plus"></i></span>
+                        <p>Google +</p>
+                    </a>
+                    <a href="#" title="click to add your Blogger url" class="button blogger">
+                        <span><i class="fa fa-blogger"></i></span>
+                        <p>blogger</p>
+                    </a>
+                    <a href="#" title="click to add your Pinterest url" class="button pinterest">
+                        <span><i class="fa fa-pinterest"></i></span>
+                        <p>pinterest</p>
+                    </a>
+                    <a href="#" title="click to add your Instagram url" class="button instagram">
+                        <span><i class="fa fa-instagram"></i></span>
+                        <p>instagram</p>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row " ng-if="">
+                
+            </div>
+
+            <div class ="row ">
+                <div class="col-sm-12">
+                    <div style="float: right">
+                        <input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "resetChangePassword();" class="cancel_btn" ng-disabled="disabled" id="cancel_bottom4" />&nbsp;&nbsp;
+                        <!--<input ng-if="show" value="CANCEL" type="BUTTON" ng-click = "contactinfo.$setPristine();" class="cancel_btn" id="cancel_bottom" ng-disabled="disabled"/>&nbsp;&nbsp;-->
+                        <input ng-if="show"  value="SAVE" type="submit" class="save_btn" id="save_bottom4" ng-disabled="disabled"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

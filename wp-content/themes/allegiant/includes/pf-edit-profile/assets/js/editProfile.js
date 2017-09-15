@@ -93,7 +93,13 @@ if (typeof edit_obj != 'undefined') {
                     title: "Change Password",
                     templateUrl: template_root_path + 'assets/views/change_password.html',
                     isLoaded: false
+                },
+                {
+                    title: "Social Networks",
+                    templateUrl: template_root_path + 'assets/views/social_links.html',
+                    isLoaded: false
                 }
+
             ];
             //show unsaved Data and show saved successfully message
             $scope.newFn = function(status) {
@@ -637,11 +643,11 @@ if (typeof edit_obj != 'undefined') {
                 var showAddBtn = false;
                 angular.forEach($scope.agencyList, function(value, key) {
                     if (typeof value.selected != 'undefined' && value.selected == true) {
-                         showAddBtn = true;
+                        showAddBtn = true;
                         return;
-                    } 
+                    }
                 });
-                                
+
                 $scope.agencyAddAction = showAddBtn;
             }
 
@@ -903,4 +909,8 @@ if (typeof edit_obj != 'undefined') {
                 }
             }
         }]);
+
+    app.controller('socialLinkCntrl', ['$scope', '$http', function($scope, $http, $window) {
+
+    }]);
 }

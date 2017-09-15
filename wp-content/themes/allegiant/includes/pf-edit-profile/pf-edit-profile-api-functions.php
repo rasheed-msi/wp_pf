@@ -160,6 +160,24 @@ class PFEditApi {
                     'permission_callback' => [$this, 'perm_callback'],
                 //'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
                 ]
+            ],
+            'social_links' => [
+                'route' => '/social_links',
+                'parm' => [
+                    'methods' => WP_REST_Server::CREATABLE,
+                    'callback' => [$this, 'pfedSocialLinks'],
+                    'permission_callback' => [$this, 'perm_callback'],
+                //'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
+                ]
+            ],
+            'social_links' => [
+                'route' => '/ssocial_links',
+                'parm' => [
+                    'methods' => WP_REST_Server::CREATABLE,
+                    'callback' => [$this, 'pfedsSocialLinks'],
+                    'permission_callback' => [$this, 'perm_callback'],
+                //'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
+                ]
             ]
         ];
     }
@@ -846,6 +864,56 @@ class PFEditApi {
         } else {
             return new WP_REST_Response(array('code' => 200, 'message' => 'Current password not correct'), 200);
         }
+    }
+
+    function pfedSocialLinks($request) {
+        $params = $request->get_params();
+        $postData = $params['data'];
+        $this->user_ID = $postData['id'];
+
+        //select social links from profiles //tbl_profile_info
+        //$socialLinks = $this->wpdb->get_row($this->wpdb->prepare("SELECT facebook, twitter, google, pintrest, instagram, blogger from $this->tbl_profile_info where wp_user_id = %d", array($this->user_ID)), ARRAY_A);
+        $socialLinks = array('facebook' => 'http://www.facebook.com/test', 'twitter' => 'http://www.twitter.com/test', 'google' => 'http://www.google.com/test', 'pintrest' => 'http://www.pintrest.com/test', 'instagram' => 'http://www.instagram.com/test', 'blogger' => 'http://www.blogger.com/test');
+        return new WP_REST_Response(array('data' => array('social_links' => $socialLinks, 'userId' => $this->user_ID)), 200);
+    }
+
+    function pfedsSocialLinks($request) {
+
+        $params = $request->get_params();
+        $postData = $params['data'];
+        $this->user_ID = $postData['id'];
+        $socialItems = $postData['social_links'];
+        $verifiedItems = array();
+        $notVerifiedItems = array();
+        foreach ($postData as $socialItem) {
+            if ($this->webItemExists($socialItem['url'])) {
+                array_push($verifiedItems, $socialItem);
+            } else {
+                array_push($notVerifiedItems, $socialItem);
+            }
+        }
+
+        if (!empty($verifiedItems)) {
+            
+        }
+    }
+
+    /**
+     * Check if an item exists out there in the "ether".
+     *
+     * @param string $url - preferably a fully qualified URL
+     * @return boolean - true if it is out there somewhere
+     */
+    function webItemExists($url) {
+        if (($url == '') || ($url == null)) {
+            return false;
+        }
+        $response = wp_remote_head($url, array('timeout' => 5));
+        $accepted_status_codes = array(200, 301, 302);
+        if (!is_wp_error($response) && in_array(wp_remote_retrieve_response_code($response), $accepted_status_codes)) {
+            return true;
+        }
+        return false;
     }
 
 }

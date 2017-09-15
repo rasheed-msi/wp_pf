@@ -11,9 +11,9 @@ function pf_edit_profile_scripts() {
 
     if (is_page(69)) {
         //register & call stylesheets from pf edit profile component
-//        wp_enqueue_style('pf-edit-bootstrap', get_template_directory_uri() . '/includes/pf-edit-profile/assets/bootstrap/css/bootstrap.css', array());
+        wp_enqueue_style('pf-edit-bootstrap', get_template_directory_uri() . '/includes/pf-edit-profile/assets/bootstrap/css/bootstrap.css', array());
 //        wp_enqueue_style('pf-edit-demo', get_template_directory_uri() . '/includes/pf-edit-profile/assets/css/demo.css', array());
-//        wp_enqueue_style('pf-edit-custom', get_template_directory_uri() . '/includes/pf-edit-profile/assets/css/custom.css', array(), '1.2.5');
+        wp_enqueue_style('pf-edit-custom', get_template_directory_uri() . '/includes/pf-edit-profile/assets/css/custom.css', array(), '1.2.5');
         //register & call js files from pf edit profile component
         wp_enqueue_script('jquery');
         wp_enqueue_script('pf-edit-angular-1.6.1', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/angularjs/1.6.1/angular.js');
