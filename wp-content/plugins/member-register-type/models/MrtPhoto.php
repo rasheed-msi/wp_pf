@@ -65,7 +65,12 @@ class MrtPhoto extends MrtDbbase {
         );
 
         $records = $this->get_photo_views($photos);
-        return $records;
+        $new_records = [];
+        
+        foreach ($records as $key => $value) {
+            $new_records[] = $value;
+        }
+        return $new_records;
     }
     
     public function getset_items($ids = null, $where_key = null) {

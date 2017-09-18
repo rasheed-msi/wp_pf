@@ -1,4 +1,17 @@
-app.controller('albumController', function ($http, $window, $scope, AppService, PhotoService, AlbumService, WebService, PageService) {
+app.controller('albumController', function (
+        $scope,
+        $http,
+        $window,
+        $interval,
+        UserService,
+        AppService,
+        PhotoService,
+        AlbumService,
+        WebService,
+        PageService,
+        PhotoCommentService,
+        FilestackAlbumProcessingService
+        ) {
 
     $scope.pages = {
         album: true,
@@ -11,14 +24,25 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
     $scope.photos = [];
 
     $scope.showAjaxLoader = false;
-    $scope.setAjaxLoader = function () {
-        $scope.showAjaxLoader = ($scope.showAjaxLoader) ? false : true;
+    $scope.setAjaxLoader = function (setval) {
+        if(typeof setval == 'undefined'){
+            $scope.showAjaxLoader = ($scope.showAjaxLoader) ? false : true;
+        }else{
+            $scope.showAjaxLoader =  setval;
+        }
+        
     }
+
+    UserService.current().then(function (response) {
+        $scope.currentUser = response;
+    });
+
 
     $scope.albumSettings = angular.copy(AlbumService.settings);
     $scope.photoSettings = angular.copy(PhotoService.settings);
     $scope.appSettings = angular.copy(AppService.settings);
     $scope.downloadSettings = angular.copy(AppService.download);
+    $scope.photoCommentSettings = angular.copy(PhotoCommentService.settings);
 
 
 
@@ -28,6 +52,8 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
 
         $scope.pages = PageService.showPage('album', $scope.pages);
         $scope.showBackButton = PageService.showBackButton;
+        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
+
 
         if ($scope.albumSettings.refresh) {
             $scope.albumSettings.refresh = false;
@@ -60,12 +86,8 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
     // Init ...
     $scope.showAlbum();
 
-
     // Title Edit
-
     $scope.editAlbumTitle = function (model, showInput) {
-
-
 
         if (showInput) {
             // show text box
@@ -115,6 +137,8 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
                 caption: $scope.newAlbum.caption,
             }).then(function (response) {
                 $scope.albumSettings.refresh = true;
+                $scope.albumSettings.downloadRefresh = true;
+
                 $scope.showAlbum();
                 $scope.newAlbum = {};
 
@@ -155,6 +179,7 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
             $scope.albums = AppService.collectiveRemove($scope.albums, 'pf_album_id', id);
         });
         $scope.setAlbumCount();
+        $scope.albumSettings.downloadRefresh = true;
     }
 
 
@@ -188,28 +213,63 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
 
     $scope.showPhoto = function (data) {
         $scope.pages = PageService.showPage('photo', $scope.pages);
+        $scope.showBackButton = PageService.showBackButton;
         $scope.photos = [];
         $scope.heading = data.caption;
         $scope.lastModel = data;
         $scope.selectedAlbumId = data.pf_album_id;
-
+        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
 
         $scope.setAjaxLoader();
+
+        $scope.loadPhotos(data);
+
+
+
+    }
+
+
+    $scope.loadPhotos = function (data) {
+        FilestackAlbumProcessingService.getItems(data).then(function (response) {
+            $scope.photoSettings.photoLoader = AppService.arrayFill(response.length);
+        });
+
         PhotoService.getItems(data).then(function (response) {
-            $scope.setAjaxLoader();
             $scope.photos = response;
+            $scope.setAjaxLoader(false);
         });
     }
 
+    $scope.onClickNewPhoto = function () {
+        
+        $scope.photoSettings.preloadIntervalHandle = $interval(function () {
+            console.log("test x");
+            $scope.loadPhotos($scope.lastModel);
+        }, 10000);
+        
+    }
+
     $scope.showPhotoSingle = function (model) {
+        
         $scope.pages = PageService.showPage('photoSingle', $scope.pages);
-
-
+        $scope.showBackButton = PageService.showBackButton;
+        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
+        
         $scope.photo = [];
         $scope.heading = model.Title;
 
         PhotoService.getItem(model).then(function (response) {
             $scope.photo = response;
+        });
+
+        $scope.photoCommentSettings.selectedPhoto = model.pf_photo_id;
+        var data = {
+            pf_photo_id: model.pf_photo_id
+        };
+
+        PhotoCommentService.getItems(data).then(function (response) {
+            $scope.photoCommentSettings.comments = response;
+
         });
     }
 
@@ -291,14 +351,18 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
         $scope.photoSettings.selectListCount = $scope.photoSettings.selectList.length;
     }
 
-    $scope.enterPressedPhoto = function ($event, type, album) {
+    $scope.enterPressedPhoto = function ($event, type, model) {
 
         var keyCode = $event.which || $event.keyCode;
         if (keyCode === 13) {
             if (type == 'newphoto') {
                 $scope.addPhoto();
             } else if (type == 'photo') {
-                $scope.editPhotoTitle(album, false)
+                $scope.editPhotoTitle(model, false);
+            } else if (type == 'photoComment') {
+                console.log("Comment Enter pressed");
+                console.log(model);
+                $scope.addPhotoComment(model);
             }
         }
     }
@@ -317,6 +381,7 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
 
 
         });
+        $scope.albumSettings.downloadRefresh = true;
     }
 
     $scope.downloadPhotos = function () {
@@ -332,46 +397,85 @@ app.controller('albumController', function ($http, $window, $scope, AppService, 
         $scope.setAjaxLoader();
         AlbumService.download(data).then(function (response) {
             $scope.photoSettings.selectList = [];
+            $scope.photoSettings.selectListCount = 0;
             $scope.setAjaxLoader();
             $window.open(response.zip_url, '_blank');
         });
 
     }
-    
+
     $scope.showDownload = function () {
         $scope.setAlbumCount();
         $scope.pages = PageService.showPage('download', $scope.pages);
+        $scope.showBackButton = PageService.showBackButton;
+        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
+
         $scope.downloadSettings.isActive = true;
         $scope.downloadSettings.showAlert = true;
         $scope.albumSettings.selectList = [];
 
+        if ($scope.albumSettings.downloadRefresh) {
+            $scope.setAjaxLoader();
+            AlbumService.getItems().then(function (response) {
 
-        AlbumService.getItems().then(function (response) {
-            $scope.downloadAlbums = [];
-            angular.forEach(response, function (item, key) {
+                $scope.setAjaxLoader();
+                $scope.downloadAlbums = [];
 
-                var obj = {};
-                obj.caption = item.caption;
-                
-                var data = {
-                    pf_album_id: item.pf_album_id,
-                    pf_photo_id: item.pf_photo_id
-                };
-                
-                PhotoService.getItems(data).then(function (response) {
-                    obj.photos = response;
-                    if(Object.keys(obj.photos).length > 0){
-                        $scope.downloadAlbums.push(obj);
+                angular.forEach(response, function (item, key) {
+
+                    if ($scope.albumSettings.count == key + 1) {
+                        $scope.albumSettings.downloadRefresh = false;
                     }
+
+                    var obj = {};
+                    obj.caption = item.caption;
+
+                    var data = {
+                        pf_album_id: item.pf_album_id,
+                        pf_photo_id: item.pf_photo_id
+                    };
+
+                    PhotoService.getItems(data).then(function (response) {
+                        obj.photos = response;
+                        if (Object.keys(obj.photos).length > 0) {
+                            $scope.downloadAlbums.push(obj);
+                        }
+                    });
+
                 });
 
             });
+        }
 
-
-
-        });
 
     }
+
+    $scope.addPhotoComment = function (model) {
+
+        var data = {
+            content: model.content,
+            pf_photo_id: $scope.photoCommentSettings.selectedPhoto,
+            user_id: $scope.currentUser.user_id,
+            display_name: $scope.currentUser.profile.display_name,
+            avatar: $scope.currentUser.profile.avatar,
+        };
+
+
+
+        console.log(data);
+
+        $scope.photoCommentSettings.comments = $scope.photoCommentSettings.comments.mrtprepend(data);
+        model.content = "";
+        PhotoCommentService.create(data).then(function (response) {
+            console.log(response);
+        });
+    }
+
+    $scope.showCommentTime = function (time) {
+        console.log(time);
+    }
+
+
 
 });
 
@@ -400,4 +504,7 @@ app.controller('dashboardController', function ($scope, UserService, $sce) {
     });
 
 });
+
+
+
 

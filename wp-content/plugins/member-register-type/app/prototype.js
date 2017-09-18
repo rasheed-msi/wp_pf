@@ -19,3 +19,10 @@ Array.prototype.collectiveRemove = function (key, value) {
     return keep;
 };
 
+
+
+Array.prototype.mrtprepend = function(value) {
+  var newArray = this.slice();
+  newArray.unshift(value);
+  return newArray;
+}

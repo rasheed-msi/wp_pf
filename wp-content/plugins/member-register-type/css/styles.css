@@ -58,7 +58,7 @@ input.error {
     padding: 5px 0;
     /* border: 0px !important; */
     border: 1px solid #CCC;
-    
+
 }
 
 .dashboardTabMenu ul li a {
@@ -95,4 +95,26 @@ input.ng-invalid-maxlength {
 
 .albumGroup h4 {
     padding: 10px 9px;
+}
+
+.preloader-image {
+    background: url("../images/ajaxloader.gif") no-repeat scroll center center rgba(255, 255, 255, .8);
+    width: 220px;
+    height: 140px;
+}
+
+
+.comment-content {
+    padding: 0px;
+}
+
+.commentsContentBox p.comment-name {
+    float: right;
+    font-size: 12px;
+    padding: 0 5px;
+    border: 0px;
+}
+.comment-time {
+    padding: 0px;
+    float: right;
 }

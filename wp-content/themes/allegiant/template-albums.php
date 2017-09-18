@@ -8,8 +8,6 @@ get_header();
 
 <section class="container"  ng-app="appParentfinder">
 
-
-
     <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
 
         <div id="ajaxloader" ng-show="showAjaxLoader"></div>
@@ -24,7 +22,8 @@ get_header();
                             <h4>{{heading}}</h4>
                             <p>Need some help? Read the documentation or watch a video</p>
                         </div>
-                        <div class="dashboardTabsHeaderButton" ng-if="backButton" ng-click="executeBackButton(backButton)">
+
+                        <div class="dashboardTabsHeaderButton" ng-show="showBackButton" ng-click="executeBackButton()">
                             <a href="#" class="btn buttons clearfix"><i class="fa fa-angle-left"></i><span>Back</span></a>
                         </div>
                     </div>
@@ -65,6 +64,27 @@ get_header();
                             </div>
 
                             <div ng-if="pages.photo">
+
+
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="x in photoSettings.photoLoader">
+                                    <div class="albumItem">
+                                        <div class="albumItemImage">
+                                            <figure><span class="preloader-image"></span></figure>
+                                        </div>
+                                        <div class="dashBoardAlbumContents">
+                                            <div class="dashBoardAlbumTitle text-center verticalAlign">
+                                                <form name="formPhoto">
+                                                    <span class="flexFullChild"></span>
+                                                </form>
+                                            </div>
+                                            <div class="ashBoardAlbumContentBottom">
+                                                <div class="albumWidgets text-center"><span class="albumCounts green">0</span><span class="albumCounts yellow"><i class="fa fa-image"></i></span></div>
+                                                <div class="albumWidgets text-center albumFor">image quality <span class="albumForLabel web">web</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="photo in photos" ng-class="{selected: hasInPhotoSelectList(photo)}">
                                     <div class="albumItem">
                                         <div class="albumItemImage">
@@ -87,11 +107,64 @@ get_header();
                             </div>
 
                             <div ng-if="pages.photoSingle">
-                                <div class="col-lg-12">
-                                    <img src="{{photo.webview}}" alt="">
+
+
+                                <div class="commentsContent">
+                                    <figure>
+                                        <img src="{{photo.webview}}" alt="">
+                                    </figure>
+
+                                    <div class="commentsContentBox">
+                                        <form name="photoComment">
+                                            <input name="content" ng-model="comment.content" class="form-control" placeholder="Type a message here" type="text" ng-keypress="enterPressedPhoto($event, 'photoComment', comment)">
+                                        </form>
+                                    </div>
+
+                                    <div class="commentsContentBox" ng-repeat="comment in photoCommentSettings.comments">
+                                        <p class="comment-content">{{comment.content}}</p>
+                                        <p class="comment-name">{{comment.display_name}}</p>
+                                        <p class="comment-name">{{comment.created_at| commentTime}}</p>
+                                    </div>
+
+
                                 </div>
                             </div>
-                           
+
+                            <div ng-if="pages.download">
+                                <div ng-show="downloadSettings.showAlert">
+                                    <p class="msg-alert">You can select multiple photos from different albums</p>
+                                    <p class="msg-alert">Number of photos Selected: {{photoSettings.selectListCount}}</p>
+                                    <p class="msg-alert msg-link" ng-click="downloadPhotos()" ng-show="photoSettings.selectListCount">Download selected photos</p>
+                                </div>
+
+                                <div ng-repeat="album in downloadAlbums">
+
+                                    <div class="clearfix"></div>
+                                    <h4>{{album.caption}}</h4>
+
+
+
+                                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="photo in album.photos" ng-class="{selected: hasInPhotoSelectList(photo)}">
+                                        <div class="albumItem">
+                                            <div class="albumItemImage">
+                                                <figure ng-click="changePhotoSelectList(photo)"><img ng-src="{{photo.thumb}}" alt=""></figure>
+                                            </div>
+                                            <div class="dashBoardAlbumContents">
+                                                <div class="dashBoardAlbumTitle text-center verticalAlign">
+                                                    <form name="formPhoto">
+                                                        <span class="flexFullChild">{{photo.Title}}</span>
+                                                    </form>
+                                                </div>
+                                                <div class="ashBoardAlbumContentBottom">
+                                                    <div class="albumWidgets text-center"><span class="albumCounts green">{{photo.Size}}</span><span class="albumCounts yellow"><i class="fa fa-image"></i></span></div>
+                                                    <div class="albumWidgets text-center albumFor">image quality <span class="albumForLabel web">web</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
 
 
                         </div>

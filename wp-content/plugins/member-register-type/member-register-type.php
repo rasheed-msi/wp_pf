@@ -26,7 +26,7 @@ define('MRT_DIR_ALBUMS_UPLOADS', MRT_DIR_UPLOADS . '/albums');
 define('MRT_URL_AVATHAR_UPLOADS', MRT_URL_UPLOADS . '/avatar');
 define('MRT_DIR_AVATHAR_UPLOADS', MRT_DIR_UPLOADS . '/avatar');
 define('MRT_URL_IMAGE_UPLOADS', MRT_URL_UPLOADS . '/images');
-define('MRT_URL_IMAGE_PROCESSING', MRT_PLUGIN_URL . '/images/processing.gif');
+define('MRT_URL_IMAGE_PROCESSING', MRT_PLUGIN_URL . 'images/processing.gif');
 
 /**
  * MRT_URL_PHOTOS => MRT_URL_ALBUMS_UPLOADS
@@ -40,7 +40,8 @@ define('MRT_URL_VIDEO', MRT_PARENTFINDER . '/flash/modules/video/files');
 define('MRT_URL_DEFAULT_PHOTOS_THUMB', 'http://via.placeholder.com/220X150');
 define('MRT_URL_DEFAULT_PHOTOS_AVATHAR', 'http://via.placeholder.com/220X150');
 define('MRT_URL_YOUTUBE_EMBED', 'https://www.youtube.com/embed');
-define('MRT_URL_S3BUCKET', 'https://s3.amazonaws.com/cairs');
+//define('MRT_URL_S3BUCKET', 'https://s3.amazonaws.com/cairs'); // LIVE
+define('MRT_URL_S3BUCKET', 'https://s3-us-west-2.amazonaws.com/s3.childconnect.com');
 
 include_once MRT_PLUGIN_PATH . 'helpers/Stock.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Dot.php';

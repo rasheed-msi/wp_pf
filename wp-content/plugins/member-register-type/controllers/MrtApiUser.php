@@ -23,6 +23,11 @@ class MrtApiUser extends WP_REST_Controller {
             'methods' => WP_REST_Server::READABLE,
             'callback' => array($this, 'current'),
         ));
+        
+        register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'read'), array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => array($this, 'read'),
+        ));
 
         register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'login'), array(
             'methods' => WP_REST_Server::CREATABLE,
@@ -46,6 +51,13 @@ class MrtApiUser extends WP_REST_Controller {
         ));
     }
 
+    function read($request) {
+        $params = $request->get_params();
+        $mrt_user = new MrtUser($params['id']);
+        $data['profile'] = $mrt_user->profile->data;
+        return new WP_REST_Response($data, 200);
+    }
+    
     function current($request) {
         // $params = $request->get_params();
         $data['user'] = $this->auth->validate_token();

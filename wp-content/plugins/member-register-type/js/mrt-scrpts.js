@@ -111,10 +111,10 @@ jQuery(function ($) {
         }).then(function (result) {
             result.filesUploaded.forEach
             $.each(result.filesUploaded, function(index, value){
-                value.album_id = albumid;
+                value.pf_album_id = albumid;
                 console.log(value);
                 $.ajax({
-                    url: appConst.apiRequest + '/filestack-album-processing',
+                    url: appConst.apiRequest + '/' + value.pf_album_id + '/filestack-album-processing',
                     method: 'POST',
                     dataType: 'json',
                     data: value,

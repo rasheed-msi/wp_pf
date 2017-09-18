@@ -34,7 +34,7 @@ function test_page() {
         $test->setYoutubeLinkOne();
     }
 
-    $route = new MrtRoute;
+    $test->route_test();
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');
@@ -115,11 +115,11 @@ function page_filter_user() {
     <?php
 }
 
+add_action('admin_menu', 'mrt_admin_menu_item');
+
 function mrt_admin_menu_item() {
     add_menu_page('Agencies', 'Agencies', 'manage_options', 'mrt-agencies', 'mrt_admin_page_agencies');
 }
-
-add_action('admin_menu', 'mrt_admin_menu_item');
 
 function mrt_admin_page_agencies() {
     MrtView::render('admin/agency');
@@ -159,12 +159,14 @@ function mrt_custom_authentication($username) {
     setcookie('MrtToken', $token, time() + (3600 * 24), '/');
 }
 
-function your_function() {
+add_action('wp_logout', 'mrt_logout');
+
+function mrt_logout() {
     setcookie('MrtToken', $token, time() - (3600 * 24), '/');
     wp_cache_flush();
 }
 
-add_action('wp_logout', 'your_function');
+add_action('wp', 'mrt_auth_page');
 
 function mrt_auth_page() {
 
@@ -195,14 +197,9 @@ function mrt_auth_page() {
     }
 }
 
-add_action('wp', 'mrt_auth_page');
-
 add_filter('tml_action_links', 'mrt_tml_action_links', 10, 2);
 
 function mrt_tml_action_links($action_links, $args) {
-
-
-
 
     foreach ($action_links as $key => $value) {
         if ($value['title'] == 'Register') {
@@ -214,6 +211,8 @@ function mrt_tml_action_links($action_links, $args) {
     return $action_links;
 }
 
+add_filter('wsl_render_auth_widget_alter_authenticate_url', 'mrt_wsl_render_auth_widget_alter_authenticate_url', 10, 2);
+
 function mrt_wsl_render_auth_widget_alter_authenticate_url($authenticate_url) {
     if (isset($_GET['rft'])) {
         // $authenticate_url = $authenticate_url . '&rft=' . $_GET['rft'];
@@ -222,7 +221,7 @@ function mrt_wsl_render_auth_widget_alter_authenticate_url($authenticate_url) {
     return $authenticate_url;
 }
 
-add_filter('wsl_render_auth_widget_alter_authenticate_url', 'mrt_wsl_render_auth_widget_alter_authenticate_url', 10, 2);
+add_filter('wsl_hook_process_login_alter_wp_insert_user_data', 'mrt_wsl_alter_insert_user_data', 10, 2);
 
 function mrt_wsl_alter_insert_user_data($userdata) {
 
@@ -250,7 +249,7 @@ function mrt_wsl_alter_insert_user_data($userdata) {
     return $userdata;
 }
 
-add_filter('wsl_hook_process_login_alter_wp_insert_user_data', 'mrt_wsl_alter_insert_user_data', 10, 2);
+add_filter('wsl_hook_process_login_after_wp_insert_user', 'mrt_after_wp_insert_user', 10, 2);
 
 function mrt_after_wp_insert_user($user_id) {
 
@@ -263,4 +262,11 @@ function mrt_after_wp_insert_user($user_id) {
     $mrtuser->create_profile($data);
 }
 
-add_filter('wsl_hook_process_login_after_wp_insert_user', 'mrt_after_wp_insert_user', 10, 2);
+add_action('tml_new_user_activated', 'mrt_tml_new_user_activated');
+
+function mrt_tml_new_user_activated($user_id) {
+    $u = new WP_User($user_id);
+    $u->remove_role(get_option('default_role'));
+    $role = get_user_meta($user_id, 'mrt_user_role_register', true);
+    $u->add_role($role);
+}
