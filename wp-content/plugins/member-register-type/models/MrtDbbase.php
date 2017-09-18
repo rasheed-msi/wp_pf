@@ -104,15 +104,15 @@ class MrtDbbase {
     }
 
     public function bulk_delete($where_key = null, $where_value) {
-        
+
         if (!is_array($where_value)) {
             return false;
         }
-        
+
         if (is_null($where_key)) {
             $where_key = $this->pkey;
         }
-        
+
         $str = implode(', ', $where_value);
         $this->link->query("DELETE FROM $this->table WHERE $where_key IN ($str)");
     }

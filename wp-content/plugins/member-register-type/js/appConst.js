@@ -10,7 +10,7 @@ if (location.host == 'localhost') {
 appConst.apiRequest = appConst.base_url + "/wp-json/mrt/v1";
 // appConst.fileStackClient = 'Aym4Su0dJRFaqnWPrLu0Az'; // Test account
 appConst.fileStackClient = 'A9Ul90L7XRqWxNswfaGOGz'; 
-appConst.s3Domain = 'wppf';
+appConst.s3Domain = 'testwppf';
 appConst.mrtToken = mrt_readCookie('MrtToken');
 
 function mrt_readCookie(name) {

@@ -1,6 +1,6 @@
 <?php
 
-class MrtApiFilestackAlbumProcessing extends WP_REST_Controller {
+class MrtApiPhotoComments extends WP_REST_Controller {
 
     protected $rest_base;
     protected $auth;
@@ -8,15 +8,13 @@ class MrtApiFilestackAlbumProcessing extends WP_REST_Controller {
     protected $mrt_album;
     protected $mrt_photo;
     protected $mrt_file_stack;
+    protected $mrt_photo_comments;
 
     function __construct() {
-        $this->rest_base = 'filestack_album_processing';
+        $this->rest_base = 'photo_comment';
         $this->auth = new MrtAuth;
         $this->route = new MrtRoute;
-        $this->mrt_album = new MrtAlbum;
-        $this->mrt_photo = new MrtPhoto;
-        $this->mrt_file_stack = new MrtFileStack;
-        $this->mrt_filestack_album_processing = new MrtFilestackAlbumProcessing;
+        $this->mrt_photo_comment = new MrtPhotoComment;
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
@@ -63,22 +61,18 @@ class MrtApiFilestackAlbumProcessing extends WP_REST_Controller {
             return false;
         }
 
-        if (!isset($input['album_id'])) {
-            return false;
-        }
-        
         return true;
     }
 
     public function get_item($request) {
         $input = $request->get_params();
-        $records = $this->mrt_filestack_album_processing->get($input['id']);
+        $records = $this->mrt_photo_comment->get($request['id']);
         return new WP_REST_Response($records, 200);
     }
 
     public function get_items($request) {
         $input = $request->get_params();
-        $records = $this->mrt_filestack_album_processing->all($input['album_id'], 'pf_album_id');
+        $records = $this->mrt_photo_comment->all($request['photo_id']);
         return new WP_REST_Response($records, 200);
     }
 
@@ -91,31 +85,24 @@ class MrtApiFilestackAlbumProcessing extends WP_REST_Controller {
         $validate = $this->validate($input);
 
         if ($validate['status']) {
-            $response[] = $this->mrt_filestack_album_processing->insert($validate['input']);
+            $response[] = $this->mrt_photo_comment->insert($validate['input']);
         }
 
         return new WP_REST_Response($response, 200);
     }
 
-    public function update_item($request) {
-        
-    }
-
-    public function delete_item($request) {
-        
-    }
-
-    public function validate($input) {
+    public function validate($input, $type = 'create') {
 
         $message = [];
         $errors = 0;
 
-        if (empty($input['pf_album_id'])) {
-            $message['pf_album_id'] = 'Album not found';
+        if (empty($input['photo_id'])) {
+            $message['album_id'] = 'Photo not found';
             ++$errors;
         }
-        if (empty($input['url'])) {
-            $message['url'] = 'URL not found';
+
+        if (empty($input['content'])) {
+            $message['content'] = 'Content not found';
             ++$errors;
         }
 
@@ -126,25 +113,16 @@ class MrtApiFilestackAlbumProcessing extends WP_REST_Controller {
             $input['user_id'] = $this->user->ID;
         }
 
-        if (empty($input['key'])) {
-            $message['cloud_filename'] = 'cloud filename not found';
-            ++$errors;
-        } else {
-            $input['cloud_filename'] = $input['key'];
+        if ($type == 'create') {
+            if (isset($input['created'])) {
+                $input['created_at'] = date('Y-m-d H:i:s');
+                $input['updated_at'] = date('Y-m-d H:i:s');
+            }
+        } elseif ($type == 'update') {
+            if (isset($input['updated_at'])) {
+                $input['updated_at'] = date('Y-m-d H:i:s');
+            }
         }
-
-        if (empty($input['size'])) {
-            $message['size'] = 'size not found';
-            ++$errors;
-        } else {
-            $input['size'] = $input['size'];
-        }
-
-        if (isset($input['created'])) {
-            $input['created'] = date('Y-m-d H:i:s');
-        }
-
-        $input['status'] = 'pending';
 
         return [
             'status' => ($errors > 0) ? false : true,
@@ -153,6 +131,35 @@ class MrtApiFilestackAlbumProcessing extends WP_REST_Controller {
         ];
     }
 
+    public function update_item($request) {
+        
+        $input = $request->get_params();
+        
+        $this->mrt_photo_comment = MrtPhotoComment::find($input['id']);
+        $validate = $this->validate($input, 'update');
+        
+        if ($validate['status']) {
+            $count = $this->mrt_photo_comment->update($validate['input']);
+            return new WP_REST_Response(['count' => $count], 200);
+        } else {
+            return new WP_REST_Response(['message' => $validate['message']], 400);
+        }
+        
+        return new WP_REST_Response(null, 401);
+    }
+    
+    function delete_item($request) {
+        $input = $request->get_params();
+        $this->mrt_photo_comment = MrtAlbum::find($input);
+
+        if (isset($this->mrt_photo_comment->id)) {
+            $this->mrt_photo_comment->delete();
+            return new WP_REST_Response([], 200);
+        }
+
+        return new WP_REST_Response(null, 401);
+    }
+
 }
 
-$d = new MrtApiFilestackAlbumProcessing();
+$d = new MrtApiPhotoComments();

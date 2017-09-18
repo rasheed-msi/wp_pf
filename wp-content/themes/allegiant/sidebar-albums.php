@@ -64,7 +64,7 @@
         </li>
         <li class="file-uploader" data-userid="<?php echo get_current_user_id(); ?>" data-albumid="{{selectedAlbumId}}">
             <a class="flexbox verticalAlign">
-                <div class="tabMenuItems flexbox verticalAlign">
+                <div class="tabMenuItems flexbox verticalAlign" ng-click="onClickNewPhoto()">
                     <span><i class="fa fa-plus-circle"></i> New</span>
                 </div>
             </a>

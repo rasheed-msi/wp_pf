@@ -204,6 +204,12 @@ class MrtApiTest {
         exit();
     }
 
+    public function route_test() {
+        $this->route = new MrtRoute;
+        $this->rest_base = 'photo_comment';
+        echo $this->route->base($this->rest_base, 'index');
+        print_r($this->route->order);
+    }
     
 
 }

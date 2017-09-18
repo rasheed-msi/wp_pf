@@ -54,7 +54,15 @@ class MrtProfile extends MrtDbbase {
             $obj->data['marital_status'] = (is_null($obj->data['spouse_first_name'])) ? 'single' : 'couple';
             $display_name_append = (isset($obj->data['spouse_first_name']) && $obj->data['spouse_first_name'] != '') ? ' & ' . $obj->data['spouse_first_name'] : '';
             $obj->data['display_name'] = $obj->data['first_name'] . $display_name_append;
-            $obj->data['avatar'] = MRT_URL_AVATHAR . '/' . $obj->data['avatar'] . '.jpg';
+
+            // Avathar
+            $sql = "SELECT cloud_filename FROM pf_parent_filestack_photos WHERE user_id = {$obj->data['wp_user_id']} AND view_type = 'thumb'";
+            $avathar = $obj->link->get_var($sql);
+            if ($avathar != '') {
+                $obj->data['avatar'] = MRT_URL_S3BUCKET . '/' . $avathar;
+            } else {
+                $obj->data['avatar'] = MRT_URL_AVATHAR . '/' . $obj->data['avatar'] . '.jpg';
+            }
         }
         return $obj;
     }

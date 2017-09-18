@@ -9,6 +9,7 @@ class MrtRoute {
         'id' => '(?P<id>\d+)',
         'user_id' => '(?P<user_id>\d+)',
         'album_id' => '(?P<album_id>\d+)',
+        'photo_id' => '(?P<photo_id>\d+)',
         'agency_id' => '(?P<agency_id>\d+)',
         'status_id' => '(?P<status_id>\d+)',
     ];
@@ -27,8 +28,12 @@ class MrtRoute {
                 'item' => "{$this->pattern['album_id']}/photos",
                 'download_items' => "download-photos",
             ],
+            'photo_comment' => [
+                'item' => "{$this->pattern['photo_id']}/photo-comment",
+            ],
             'users' => [
-                'current' => "current",
+                'item' => 'users',
+                'current' => 'current',
                 'dashboard' => "dashboard",
                 'logout' => "logout",
                 'login' => "login",
@@ -39,7 +44,7 @@ class MrtRoute {
                 'states' => "states/{$this->pattern['id']}",
             ],
             'filestack_album_processing' => [
-                'item' => 'filestack-album-processing'
+                'item' => "{$this->pattern['album_id']}/filestack-album-processing"
             ],
         ];
 

@@ -21,6 +21,12 @@ app.service("AppService", function () {
     this.settings = {
         maxCaptionLength: 23,
     }
+    
+    this.arrayFill = function(count){
+        var a = [];
+        for (var i = 0; i < count; i++) a[i] = i;
+        return a;
+    }
 });
 
 
@@ -110,6 +116,8 @@ app.service("PhotoService", function (WebService) {
         selectList: [],
         selectAllLabel: "SELECT ALL",
         selectListCount: 0,
+        photoLoader: 0,
+        preloadIntervalHandle: 0,
     }
 
     this.getItems = function (data) {
@@ -156,6 +164,7 @@ app.service("PhotoService", function (WebService) {
             url: appConst.apiRequest + '/' + data.pf_album_id + '/photos/download-photos',
         });
     }
+    
 });
 
 app.service("UserService", function (WebService) {
@@ -166,9 +175,16 @@ app.service("UserService", function (WebService) {
             method: 'GET',
             url: appConst.apiRequest + '/users/dashboard',
         });
-
+    };
+    
+    this.current = function () {
+        return WebService.request({
+            method: 'GET',
+            url: appConst.apiRequest + '/users/current',
+        });
     }
 });
+
 app.service("PageService", function () {
 
     this.visit = [];
@@ -215,3 +231,105 @@ app.service("PageService", function () {
 
 });
 
+app.service("PhotoCommentService", function (WebService) {
+
+    this.settings = {
+        selectedPhoto: '',
+        comments: [],
+        htmlAddBox: false,
+        htmlTitleInput: false,
+        selectList: [],
+        selectAllLabel: "SELECT ALL",
+        selectListCount: 0,
+    }
+
+    this.getItems = function (data) {
+        return WebService.request({
+            method: 'GET',
+            url: appConst.apiRequest + '/' + data.pf_photo_id + '/photo-comment',
+        });
+    }
+
+    this.getItem = function (data) {
+        return WebService.request({
+            method: 'GET',
+            url: appConst.apiRequest + '/' + data.pf_photo_id + '/photo-comment/' + data.id,
+        });
+    }
+
+    this.create = function (data) {
+        return WebService.request({
+            method: 'POST',
+            url: appConst.apiRequest + '/' + data.pf_photo_id + '/photo-comment',
+            data: data
+        });
+    }
+
+    this.update = function (data) {
+        return WebService.request({
+            method: 'POST',
+            url: appConst.apiRequest + '/' + data.pf_photo_id + '/photo-comment/' + data.id,
+            data: data
+        });
+    }
+
+    this.delete = function (data) {
+        return WebService.request({
+            method: 'DELETE',
+            url: appConst.apiRequest + '/' + data.pf_photo_id + '/photo-comment/' + data.id,
+        });
+    }
+
+});
+
+app.service("FilestackAlbumProcessingService", function (WebService) {
+
+    this.settings = {}
+
+    this.getItems = function (data) {
+        return WebService.request({
+            method: 'GET',
+            url: appConst.apiRequest + '/' + data.pf_album_id + '/filestack-album-processing',
+        });
+    }
+
+    this.getItem = function (data) {
+        return WebService.request({
+            method: 'GET',
+            url: appConst.apiRequest + '/' + data.pf_album_id + '/filestack-album-processing/' + data.pf_photo_id,
+        });
+    }
+
+    this.create = function (data) {
+        return WebService.request({
+            method: 'POST',
+            url: appConst.apiRequest + '/' + data.pf_album_id + '/filestack-album-processing',
+            data: data
+        });
+    }
+
+    this.update = function (data) {
+        return WebService.request({
+            method: 'POST',
+            url: appConst.apiRequest + '/' + data.pf_album_id + '/filestack-album-processing/' + data.pf_photo_id,
+            data: data
+        });
+    }
+
+    this.delete = function (data) {
+        return WebService.request({
+            method: 'DELETE',
+            url: appConst.apiRequest + '/' + data.pf_album_id + '/filestack-album-processing/' + data.pf_photo_id,
+        });
+    }
+
+});
+
+app.filter('commentTime', function() {
+    return function(x) {
+        if(typeof x == "undefined"){
+            return 'just now';
+        }
+        return x + " now";
+    };
+});
