@@ -97,7 +97,17 @@ class MrtApiPhotos extends WP_REST_Controller {
     }
 
     public function get_items($request) {
-        $records = $this->mrt_photo->all($request['album_id']);
+        
+        $input = $request->get_params();
+        
+        if (isset($input['processing'])) {
+            $records['photos'] = $this->mrt_photo->all($input['album_id']);
+            $mrt_filestack_album_processing = new MrtFilestackAlbumProcessing();
+            $records['processing_img_count'] = count($mrt_filestack_album_processing->all($input['album_id'], 'pf_album_id'));
+        }else{
+            $records = $this->mrt_photo->all($input['album_id']);
+        }
+        
         return new WP_REST_Response($records, 200);
     }
 
@@ -189,12 +199,7 @@ class MrtApiPhotos extends WP_REST_Controller {
         } else {
             $input['user_id'] = $this->user->ID;
         }
-
-        if (empty($input['Title'])) {
-            $message['Title'] = 'Please enter a title';
-            ++$errors;
-        }
-
+        
         if (empty($input['photo_Date'])) {
             $input['photo_Date'] = time();
         }

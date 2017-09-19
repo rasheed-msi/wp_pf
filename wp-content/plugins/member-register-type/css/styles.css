@@ -118,3 +118,14 @@ input.ng-invalid-maxlength {
     padding: 0px;
     float: right;
 }
+
+.movealbumlist ul li {
+    border: 1px solid #ccc;
+    list-style: none;
+    margin: 10px 0;
+    padding: 13px 10px;
+}
+
+.movealbumlist ul li.selected {
+    background-color: #BDDB9E;
+}
