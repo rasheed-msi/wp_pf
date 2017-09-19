@@ -14,6 +14,7 @@ app.controller('albumController', function (
         ) {
 
     $scope.pages = {
+        move: false,
         album: true,
         photo: false,
         photoSingle: false,
@@ -25,26 +26,22 @@ app.controller('albumController', function (
 
     $scope.showAjaxLoader = false;
     $scope.setAjaxLoader = function (setval) {
-        if(typeof setval == 'undefined'){
+        if (typeof setval == 'undefined') {
             $scope.showAjaxLoader = ($scope.showAjaxLoader) ? false : true;
-        }else{
-            $scope.showAjaxLoader =  setval;
+        } else {
+            $scope.showAjaxLoader = setval;
         }
-        
     }
 
     UserService.current().then(function (response) {
         $scope.currentUser = response;
     });
 
-
     $scope.albumSettings = angular.copy(AlbumService.settings);
     $scope.photoSettings = angular.copy(PhotoService.settings);
     $scope.appSettings = angular.copy(AppService.settings);
     $scope.downloadSettings = angular.copy(AppService.download);
     $scope.photoCommentSettings = angular.copy(PhotoCommentService.settings);
-
-
 
     $scope.showAlbum = function () {
 
@@ -180,6 +177,7 @@ app.controller('albumController', function (
         });
         $scope.setAlbumCount();
         $scope.albumSettings.downloadRefresh = true;
+        
     }
 
 
@@ -219,42 +217,39 @@ app.controller('albumController', function (
         $scope.lastModel = data;
         $scope.selectedAlbumId = data.pf_album_id;
         $interval.cancel($scope.photoSettings.preloadIntervalHandle);
-
-        $scope.setAjaxLoader();
-
+        $scope.setAjaxLoader(true);
         $scope.loadPhotos(data);
-
-
 
     }
 
 
     $scope.loadPhotos = function (data) {
-        FilestackAlbumProcessingService.getItems(data).then(function (response) {
-            $scope.photoSettings.photoLoader = AppService.arrayFill(response.length);
-        });
+
+        data.processing = 1;
 
         PhotoService.getItems(data).then(function (response) {
-            $scope.photos = response;
+
+            $scope.photoSettings.photoLoader = AppService.arrayFill(response.processing_img_count);
+            $scope.photos = response.photos;
+
             $scope.setAjaxLoader(false);
         });
     }
 
     $scope.onClickNewPhoto = function () {
-        
+
         $scope.photoSettings.preloadIntervalHandle = $interval(function () {
-            console.log("test x");
             $scope.loadPhotos($scope.lastModel);
         }, 10000);
-        
+
     }
 
     $scope.showPhotoSingle = function (model) {
-        
+
         $scope.pages = PageService.showPage('photoSingle', $scope.pages);
         $scope.showBackButton = PageService.showBackButton;
         $interval.cancel($scope.photoSettings.preloadIntervalHandle);
-        
+
         $scope.photo = [];
         $scope.heading = model.Title;
 
@@ -377,11 +372,13 @@ app.controller('albumController', function (
                 pf_album_id: $scope.selectedAlbumId,
                 pf_photo_id: id,
             };
+            
             PhotoService.delete(data).then(function (response) {});
-
+            $scope.photoSettings.selectList.remove(id);
 
         });
         $scope.albumSettings.downloadRefresh = true;
+        $scope.photoSettings.selectListCount = $scope.photoSettings.selectList.length;
     }
 
     $scope.downloadPhotos = function () {
@@ -460,14 +457,10 @@ app.controller('albumController', function (
             avatar: $scope.currentUser.profile.avatar,
         };
 
-
-
-        console.log(data);
-
         $scope.photoCommentSettings.comments = $scope.photoCommentSettings.comments.mrtprepend(data);
         model.content = "";
         PhotoCommentService.create(data).then(function (response) {
-            console.log(response);
+//            console.log(response);
         });
     }
 
@@ -475,7 +468,47 @@ app.controller('albumController', function (
         console.log(time);
     }
 
+    $scope.showMovePhotoAlbum = function () {
+        $scope.heading = "Move photos"
+        $scope.pages = PageService.showPage('move', $scope.pages);
+        $scope.showBackButton = PageService.showBackButton;
+        $scope.movePhotoAlbum = angular.copy($scope.albums);
+        $scope.movePhotoAlbum = $scope.movePhotoAlbum.collectiveRemove('pf_album_id', $scope.selectedAlbumId);
+        $scope.albumSettings.moveAlbum = (typeof $scope.movePhotoAlbum[0]['pf_album_id'] != 'undefined')? $scope.movePhotoAlbum[0]['pf_album_id'] : 0;
+    }
 
+    $scope.changeMoveAlbum = function (album) {
+        $scope.albumSettings.moveAlbum = album.pf_album_id;
+    }
+
+    $scope.isMoveAlbum = function (album) {
+        return $scope.albumSettings.moveAlbum == album.pf_album_id;
+    }
+
+    $scope.toMoveAlbum = function () {
+
+        var i = 0;
+
+        $scope.setAjaxLoader();
+        angular.forEach($scope.photoSettings.selectList, function (id, key) {
+
+            var data = {
+                pf_album_id: $scope.albumSettings.moveAlbum,
+                pf_photo_id: id,
+            };
+
+            PhotoService.update(data).then(function (response) {
+                ++i;
+                if (i == $scope.photoSettings.selectListCount) {
+                    $scope.albumSettings.refresh = true;
+                    $scope.executeBackButton();
+                }
+            });
+
+
+
+        });
+    }
 
 });
 

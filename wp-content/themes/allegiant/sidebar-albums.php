@@ -31,6 +31,7 @@
                 </div>
             </a>
         </li>
+
         <li ng-click="showDownload()">
             <a class="flexbox verticalAlign">
                 <div class="tabMenuItems flexbox verticalAlign">
@@ -38,19 +39,20 @@
                 </div>
             </a>
         </li>
+
         <!--
         <li>
-                                <a href="#" class="flexbox verticalAlign">
-                                    <div class="tabMenuItems flexbox verticalAlign">
-                                        <span><i class="fa fa-gear"></i> Options</span>
-                                    </div>
-                                </a>
-                                <ul class="tabSubMenu">
-                                    <li><a href="#tabSub1" aria-controls="tabSub1" role="tab" data-toggle="tab">Who can view</a></li>
-                                    <li><a href="#tabSub2" aria-controls="tabSub2" role="tab" data-toggle="tab">Print pictures</a></li>
-                                    <li><a href="#tabSub3" aria-controls="tabSub3" role="tab" data-toggle="tab">Lorem ipsum</a></li>
-                                </ul>
-                            </li>
+            <a href="#" class="flexbox verticalAlign">
+                <div class="tabMenuItems flexbox verticalAlign">
+                    <span><i class="fa fa-gear"></i> Options</span>
+                </div>
+            </a>
+            <ul class="tabSubMenu">
+                <li><a href="#tabSub1" aria-controls="tabSub1" role="tab" data-toggle="tab">Who can view</a></li>
+                <li><a href="#tabSub2" aria-controls="tabSub2" role="tab" data-toggle="tab">Print pictures</a></li>
+                <li><a href="#tabSub3" aria-controls="tabSub3" role="tab" data-toggle="tab">Lorem ipsum</a></li>
+            </ul>
+        </li>
         -->
     </ul>
 
@@ -69,13 +71,14 @@
                 </div>
             </a>
         </li>
-        <!--                <li>
-                                <a href="#tab3" class="flexbox verticalAlign" aria-controls="tab3" role="tab" data-toggle="tab">
-                                    <div class="tabMenuItems flexbox verticalAlign">
-                                        <span><i class="fa fa-arrows"></i> Move</span>
-                                    </div>
-                                </a>
-                            </li>-->
+        
+        <li ng-if="albumSettings.count" ng-click="showMovePhotoAlbum()">
+            <a class="flexbox verticalAlign">
+                <div class="tabMenuItems flexbox verticalAlign">
+                    <span><i class="fa fa-arrows"></i> Move</span>
+                </div>
+            </a>
+        </li>
 
         <li ng-click="bulkDeletePhoto()">
             <a class="flexbox verticalAlign">
@@ -93,6 +96,14 @@
             </a>
         </li>
 
+<!--                <li>
+                    <a class="flexbox verticalAlign">
+                        <div class="tabMenuItems flexbox verticalAlign">
+                            <span><i class="fa fa-check-circle"></i> Move</span>
+                        </div>
+                    </a>
+                </li>-->
+
         <li ng-click="downloadPhotos()">
             <a class="flexbox verticalAlign">
                 <div class="tabMenuItems flexbox verticalAlign">
@@ -103,6 +114,24 @@
 
     </ul>
 
+    <ul ng-if="pages.move">
+        <li ng-click="showAlbum()">
+            <a class="flexbox verticalAlign">
+                <div class="tabMenuItems">
+                    <span><i class="fa fa-image"></i> Albums</span>
+                </div>
+            </a>
+        </li>
+        <li ng-click="showMovePhotoAlbum()" class="active">
+            <a class="flexbox verticalAlign">
+                <div class="tabMenuItems flexbox verticalAlign">
+                    <span><i class="fa fa-arrows"></i> Move</span>
+                </div>
+            </a>
+        </li>
+    </ul>
+    
+    
     <ul ng-if="pages.photo && downloadSettings.isActive">
         <li>
             <a href="#tab1" class="flexbox verticalAlign" aria-controls="tab1" role="tab" data-toggle="tab">

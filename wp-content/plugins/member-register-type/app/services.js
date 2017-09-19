@@ -59,6 +59,7 @@ app.service("AlbumService", function (WebService) {
         count: 0,
         refresh: true,
         downloadRefresh: true,
+        moveAlbum: 0,
     }
 
     this.getItems = function () {
@@ -121,10 +122,18 @@ app.service("PhotoService", function (WebService) {
     }
 
     this.getItems = function (data) {
-        return WebService.request({
-            method: 'GET',
-            url: appConst.apiRequest + '/' + data.pf_album_id + '/photos',
-        });
+
+        if (typeof data.processing == 'undefined') {
+            return WebService.request({
+                method: 'GET',
+                url: appConst.apiRequest + '/' + data.pf_album_id + '/photos',
+            });
+        } else {
+            return WebService.request({
+                method: 'GET',
+                url: appConst.apiRequest + '/' + data.pf_album_id + '/photos?processing=1',
+            });
+        }
     }
 
     this.getItem = function (data) {

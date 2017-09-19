@@ -106,6 +106,13 @@ get_header();
                                 </div>
                             </div>
 
+                            <div ng-if="pages.move" class="movealbumlist">
+                                <ul >
+                                    <li ng-repeat="album in movePhotoAlbum" ng-click="changeMoveAlbum(album)" ng-class="{selected: isMoveAlbum(album)}">{{album.caption}}</li>
+                                </ul>
+                                <button ng-click="toMoveAlbum()" class="btn buttons clearfix">Move</button>
+                            </div>
+                            
                             <div ng-if="pages.photoSingle">
 
 
@@ -123,7 +130,7 @@ get_header();
                                     <div class="commentsContentBox" ng-repeat="comment in photoCommentSettings.comments">
                                         <p class="comment-content">{{comment.content}}</p>
                                         <p class="comment-name">{{comment.display_name}}</p>
-                                        <p class="comment-name">{{comment.created_at| commentTime}}</p>
+                                        <p class="comment-name">{{comment.created_at | date:'medium'}}</p>
                                     </div>
 
 

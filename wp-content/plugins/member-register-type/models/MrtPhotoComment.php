@@ -4,7 +4,7 @@ class MrtPhotoComment extends MrtDbbase {
 
     public $link;
     public $table = 'pf_photo_comments';
-    public $pkey = 'id';
+    public $pkey = 'pf_photo_cmt_id';
     public $id;
     public $fields = [
         'content',
@@ -37,7 +37,7 @@ class MrtPhotoComment extends MrtDbbase {
         
         return $this->link->get_results(
                 "SELECT "
-                . "DISTINCT c.id, "
+                . "DISTINCT c.pf_photo_cmt_id, "
                 . "c.*, "
                 . "CONCAT(p.first_name, ' ', p.spouse_first_name) AS display_name, "
                 . "CONCAT('" . MRT_URL_AVATHAR . "/', p.avatar, '.jpg') AS avatar "
