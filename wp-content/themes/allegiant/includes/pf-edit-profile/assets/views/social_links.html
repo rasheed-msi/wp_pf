@@ -1,3 +1,6 @@
+<style>
+    .paddings{padding:35px;}
+</style>
 <div ng-controller="socialLinkCntrl"> <!--ng-click="$parent.newFn(changepassword.$dirty, 2)"-->
     <form class="form" name="socialnetworks" ng-submit="socialnetworks.$valid && submit()">
         <div class="container-fluid" style="margin-left: 10px;">
@@ -10,36 +13,66 @@
             </div>
 
             <div class ="row">
-                <div id="pf-social-link" class="container">
-                    <a href="#" title="click to add your Facebook url" class="button facebook">
-                        <span><i class="fa fa-facebook"></i></span>
-                        <p>Facebook</p>
-                    </a>
-                    <a href="#" title="click to add your Twitter url" class="button twitter">
-                        <span><i class="fa fa-twitter"></i></span>
-                        <p>Twitter</p>
-                    </a>
-                    <a href="#" title="click to add your Google + url" class="button google-plus">
-                        <span><i class="fa fa-google-plus"></i></span>
-                        <p>Google +</p>
-                    </a>
-                    <a href="#" title="click to add your Blogger url" class="button blogger">
-                        <span><i class="fa fa-blogger"></i></span>
-                        <p>blogger</p>
-                    </a>
-                    <a href="#" title="click to add your Pinterest url" class="button pinterest">
-                        <span><i class="fa fa-pinterest"></i></span>
-                        <p>pinterest</p>
-                    </a>
-                    <a href="#" title="click to add your Instagram url" class="button instagram">
-                        <span><i class="fa fa-instagram"></i></span>
-                        <p>instagram</p>
+                <div id="pf-social-link">
+                    <a ng-repeat="sociallink in socialLinks" 
+                       href="#" 
+                       ng-attr-title="click to add/edit your {{sociallink.text}} url" 
+                       class="button {{sociallink.slug}}"
+                       ng-click="showSocialForm(sociallink);"
+                       >
+                        <span><i class="fa fa-{{sociallink.slug}}"></i></span>
+                        <p>{{sociallink.text}}</p>
                     </a>
                 </div>
             </div>
-            
-            <div class="row " ng-if="">
-                
+
+            <div class="row paddings" >
+                <div  ng-repeat="sociallink in socialLinks" class="col {{sociallink.slug}}-group">
+                    <div class="col-sm-12 col-md-offset-2 col-md-8" ng-if="sociallink.show">
+                        <label for="{{sociallink.slug}}">{{sociallink.text}} URL:</label>
+                        <input type="text" 
+                               name="{{sociallink.slug}}" 
+                               id="{{sociallink.slug}}"  
+                               placeholder=":Your {{sociallink.text}} link here please" 
+                               ng-model="sociallink.url"/>
+                    </div>
+                </div>
+                <!--                <div class="col fb-group">
+                                    <div class="col-sm-12 col-md-offset-2 col-md-8" ng-if="fbshow">
+                                        <label for="fb_link">Facebook URL:</label>
+                                        <input type="text" name="fb_link" id="fb_link"  placeholder=":Your Facebook link here please">
+                                    </div>
+                                </div>
+                                <div class="col twitter-group" ng-if="fbshow">
+                                    <div class="col-sm-12 col-md-offset-2 col-md-8">
+                                        <label for="twitter_link">Twitter URL:</label>
+                                        <input type="text" name="twitter_link" id="twitter_link"  placeholder=":Your Twitter link here please">
+                                    </div>
+                                </div>
+                                <div class="col g-group" ng-if="gshow">
+                                    <div class="col-sm-12 col-md-offset-2 col-md-8">
+                                        <label for="g_link">Google+ URL:</label>
+                                        <input type="text" name="g_link" id="g_link"  placeholder=":Your Google+ link here please">
+                                    </div>
+                                </div>
+                                <div class="col blogger-group" ng-if="bloggershow">
+                                    <div class="col-sm-12 col-md-offset-2 col-md-8">
+                                        <label for="blogger_link">Blogger URL:</label>
+                                        <input type="text" name="blogger_link" id="blogger_link"  placeholder=":Your Blogger link here please">
+                                    </div>
+                                </div>
+                                <div class="col pin-group" ng-if="pinshow">
+                                    <div class="col-sm-12 col-md-offset-2 col-md-8">
+                                        <label for="pin_link">Pinterest URL:</label>
+                                        <input type="text" name="pin_link" id="pin_link"  placeholder=":Your Pinterest link here please">
+                                    </div>
+                                </div>
+                                <div class="col insta-group" ng-if="instashow">
+                                    <div class="col-sm-12 col-md-offset-2 col-md-8">
+                                        <label for="insta_link">Instagram URL:</label>
+                                        <input type="text" name="insta_link" id="insta_link"  placeholder=":Your Instagram link here please">
+                                    </div>
+                                </div>-->
             </div>
 
             <div class ="row ">

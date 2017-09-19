@@ -911,6 +911,24 @@ if (typeof edit_obj != 'undefined') {
         }]);
 
     app.controller('socialLinkCntrl', ['$scope', '$http', function($scope, $http, $window) {
+            $scope.socialLinks =
+                    [{"text": "Facebook", "url": "facebook.com", "slug": "facebook"},
+                        {"text": "Twitter", "url": "twitter.com", "slug": "twitter"},
+                        {"text": "Google", "url": "google.com", "slug": "google"},
+                        {"text": "Blogger", "url": "blogger.com", "slug": "blogger"},
+                        {"text": "pinterest", "url": "pinterest.com", "slug": "pinterest"},
+                        {"text": "Instagram", "url": "instagram.com", "slug": "instagram"}];
 
-    }]);
+            $scope.showSocialForm = function(socialLink) {
+                angular.forEach($scope.socialLinks, function(value, key) {
+                    if (value.slug === socialLink.slug) {
+                        $scope.socialLinks[key].show = true;
+                    } else {
+                        $scope.socialLinks[key].show = false;
+                    }
+                });
+            }
+
+
+        }]);
 }
