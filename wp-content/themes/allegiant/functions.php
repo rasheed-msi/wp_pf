@@ -31,6 +31,8 @@ require get_template_directory() . '/core/welcome-screen/welcome-page-setup.php'
 require get_template_directory() . '/includes/pf-gen-inc.php';
 
 //pf edit profile
+
+require get_template_directory() . '/includes/pf-edit-profile/pf-profile-admin-conf.php';
 require get_template_directory() . '/includes/pf-edit-profile/pf-edit-profile-functions.php';
 require get_template_directory() . '/includes/pf-edit-profile/pf-edit-profile-api-functions.php';
 

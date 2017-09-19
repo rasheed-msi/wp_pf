@@ -164,21 +164,39 @@ class PFEditApi {
             'social_links' => [
                 'route' => '/social_links',
                 'parm' => [
-                    'methods' => WP_REST_Server::CREATABLE,
+                    'methods' => WP_REST_Server::READABLE,
                     'callback' => [$this, 'pfedSocialLinks'],
                     'permission_callback' => [$this, 'perm_callback'],
                 //'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
                 ]
             ],
-            'social_links' => [
+            'ssocial_links' => [
                 'route' => '/ssocial_links',
                 'parm' => [
                     'methods' => WP_REST_Server::CREATABLE,
                     'callback' => [$this, 'pfedsSocialLinks'],
                     'permission_callback' => [$this, 'perm_callback'],
+                    'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
+                ]
+            ],
+            'banner_get' => [
+                'route' => '/banner_get',
+                'parm' => [
+                    'methods' => WP_REST_Server::READABLE,
+                    'callback' => [$this, 'pfedBannerGet'],
+                    'permission_callback' => [$this, 'perm_callback'],
                 //'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
                 ]
-            ]
+            ],
+            'banner_post' => [
+                'route' => '/banner_post',
+                'parm' => [
+                    'methods' => WP_REST_Server::CREATABLE,
+                    'callback' => [$this, 'pfedBannerPost'],
+                    'permission_callback' => [$this, 'perm_callback'],
+                //'args' => [ 'id' => ['validate_callback' => 'is_numeric']],
+                ]
+            ],
         ];
     }
 
@@ -312,7 +330,7 @@ class PFEditApi {
     /** Contact Start * */
     function getContactInfo() {
         $contactInfo = $this->wpdb->get_row("SELECT u.user_email ,c.* FROM " . $this->wpdb->users . " u LEFT JOIN  " . $this->tbl_contact_details . " c ON c.user_id = u.ID WHERE u.ID=" . $this->user_ID);
-//echo $this->wpdb->last_query;exit;
+        //echo $this->wpdb->last_query;exit;
         $data = array();
         $data['user_id'] = $this->user_ID;
         $data['City'] = $contactInfo->City;
@@ -856,7 +874,7 @@ class PFEditApi {
 
         if ($this->userdata && wp_check_password($postData['current_pwd'], $this->userdata->data->user_pass, $this->user_ID)) {
             if ($postData['user_pwd'] === $postData['confirm_pwd']) {
-                //wp_set_password($postData['user_pwd'], $this->user_ID);
+                wp_set_password($postData['user_pwd'], $this->user_ID);
                 return new WP_REST_Response(array('code' => 200, 'message' => 'Password changed successfully'), 200);
             } else {
                 return new WP_REST_Response(array('code' => 200, 'message' => 'Password not matching'), 200);
@@ -914,6 +932,16 @@ class PFEditApi {
             return true;
         }
         return false;
+    }
+
+    function pfedBannerGet($request) {
+        $params = $request->get_params();
+        $postData = $params['data'];
+    }
+
+    function pfedBannerPost($request) {
+        $params = $request->get_params();
+        $postData = $params['data'];
     }
 
 }

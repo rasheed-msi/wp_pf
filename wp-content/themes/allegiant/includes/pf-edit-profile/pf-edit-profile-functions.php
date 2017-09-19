@@ -1,5 +1,4 @@
 <?php
-
 define('PFCLIENTID', 'GXvOWazQ3lA6YSaFji');
 define('PFCLIENTSECRET', 'GXvOWazQ3lA.6/YSaFji');
 define('PFAPIURL', 'https://ctpf01.parentfinder.com/api_oauth/');
@@ -13,7 +12,7 @@ function pf_edit_profile_scripts() {
         //register & call stylesheets from pf edit profile component
         wp_enqueue_style('pf-edit-bootstrap', get_template_directory_uri() . '/includes/pf-edit-profile/assets/bootstrap/css/bootstrap.css', array());
 //        wp_enqueue_style('pf-edit-demo', get_template_directory_uri() . '/includes/pf-edit-profile/assets/css/demo.css', array());
-        wp_enqueue_style('pf-edit-custom', get_template_directory_uri() . '/includes/pf-edit-profile/assets/css/custom.css', array(), '1.2.5');
+        wp_enqueue_style('pf-edit-custom', get_template_directory_uri() . '/includes/pf-edit-profile/assets/css/custom.css', array(), '1.2.7');
         //register & call js files from pf edit profile component
         wp_enqueue_script('jquery');
         wp_enqueue_script('pf-edit-angular-1.6.1', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/angularjs/1.6.1/angular.js');
@@ -23,13 +22,15 @@ function pf_edit_profile_scripts() {
         wp_enqueue_script('pf-edit-angular-1.6.1-mask', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/mask.js');
         wp_enqueue_script('pf-edit-ui-bootstrap', get_template_directory_uri() . '/includes/pf-edit-profile/assets/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap.min.js');
         wp_enqueue_script('pf-edit-ui-bootstrap-tpls', get_template_directory_uri() . '/includes/pf-edit-profile/assets/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js');
-        wp_register_script('pf-edit-script', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/editProfile.js', array(), '4.8.22');
+        wp_register_script('pf-edit-script', get_template_directory_uri() . '/includes/pf-edit-profile/assets/js/editProfile.js', array(), '4.8.24');
         wp_localize_script('pf-edit-script', 'edit_obj', array(
             'userId' => get_current_user_id(), 'aboutus_geturl' => rest_url('/pf/api/v1/aboutus'), 'contactus_geturl' => rest_url('/pf/api/v1/contactus'),
             'childpref_geturl' => rest_url('/pf/api/v1/childpreference'), 'aboutus_posturl' => rest_url('/pf/api/v1/saboutus'), 'contactus_posturl' => rest_url('/pf/api/v1/scontactus'),
             'childpref_posturl' => rest_url('/pf/api/v1/schildpreference'), 'getstates_url' => rest_url('/pf/api/v1/states'), 'template_root_path' => get_template_directory_uri() . '/includes/pf-edit-profile/',
             'agencyselection_geturl' => rest_url('/pf/api/v1/agencylist'), 'agencyselection_posturl' => rest_url('/pf/api/v1/sagencylist'), 'agencydel_posturl' => rest_url('/pf/api/v1/dagencylist'),
-            'change_pwd_posturl' => rest_url('/pf/api/v1/change_pwd')
+            'change_pwd_posturl' => rest_url('/pf/api/v1/change_pwd'), 'socialnetwork_geturl' => rest_url('/pf/api/v1/social_links'),
+            'socialnetwork_posturl' => rest_url('/pf/api/v1/ssocial_links'), 'banner_geturl' => rest_url('/pf/api/v1/banner_get'),
+            'banner_posturl' => rest_url('/pf/api/v1/banner_post')
         ));
         wp_enqueue_script('pf-edit-script', null, null, '4.8.10');
     }
@@ -100,3 +101,7 @@ function pf_unset_user_sessions() {
 }
 
 add_action('wp_logout', 'pf_unset_user_sessions');
+
+
+
+
