@@ -70,3 +70,5 @@ class PFProfileAdminConf {
         }
     }
 }
+
+new PFProfileAdminConf;
