@@ -23,7 +23,7 @@ class MrtApiUser extends WP_REST_Controller {
             'methods' => WP_REST_Server::READABLE,
             'callback' => array($this, 'current'),
         ));
-        
+
         register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'read'), array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => array($this, 'read'),
@@ -39,9 +39,14 @@ class MrtApiUser extends WP_REST_Controller {
             'callback' => array($this, 'logout'),
         ));
 
-        register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'dashboard'), array(
+        register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'about'), array(
             'methods' => WP_REST_Server::READABLE,
-            'callback' => array($this, 'dashboard'),
+            'callback' => array($this, 'about'),
+            'permission_callback' => array($this, 'dashboard_permissions_check')
+        ));
+        register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'vitals'), array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => array($this, 'vitals'),
             'permission_callback' => array($this, 'dashboard_permissions_check')
         ));
 
@@ -57,7 +62,7 @@ class MrtApiUser extends WP_REST_Controller {
         $data['profile'] = $mrt_user->profile->data;
         return new WP_REST_Response($data, 200);
     }
-    
+
     function current($request) {
         // $params = $request->get_params();
         $data['user'] = $this->auth->validate_token();
@@ -67,7 +72,7 @@ class MrtApiUser extends WP_REST_Controller {
         $data['profile'] = $mrt_user->profile->data;
         return new WP_REST_Response($data, 200);
     }
-    
+
     function dashboard_permissions_check($request) {
         $input = $request->get_params();
         $this->user = $this->auth->validate_token();
@@ -75,11 +80,30 @@ class MrtApiUser extends WP_REST_Controller {
         if (!$this->user) {
             return false;
         }
-        
+
         return true;
     }
 
-    function dashboard($request) {
+    function vitals($request) {
+        $input = $request->get_params();
+        $data = [];
+
+        $this->mrt_user = new MrtUser($this->user->ID);
+        $this->mrt_user->profile->set_info();
+        $this->mrt_user->set_preferences();
+
+        if (isset($input['html'])) {
+            $data['html'] = Temp::vitals($this->mrt_user->profile->data, $this->mrt_user->profile->info, $this->mrt_user->preferences);
+        } else {
+            $data['profile'] = $this->mrt_user->profile->data;
+            $data['info'] = $this->mrt_user->profile->info;
+            $data['preferences'] = $this->mrt_user->preferences;
+        }
+
+        return new WP_REST_Response($data, 200);
+    }
+
+    function about($request) {
 
         $this->mrt_user = new MrtUser($this->user->ID);
         $this->mrt_video = new MrtVideo($this->user->ID);
@@ -90,12 +114,10 @@ class MrtApiUser extends WP_REST_Controller {
         $data['profile'] = $this->mrt_user->profile->data;
         $data['info'] = $this->mrt_user->profile->info;
         $data['preferences'] = $this->mrt_user->preferences;
-        
-        $data['info']['about'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
-        
+
         $video = $this->mrt_video->getDashboardVideo($this->user->ID);
         $data['info']['YoutubeLink'] = $video['YoutubeLink'];
-        
+
         if ($video['YoutubeLink']) {
             $data['info']['video_url'] = MRT_URL_YOUTUBE_EMBED . '/' . $video['video'];
         } else {

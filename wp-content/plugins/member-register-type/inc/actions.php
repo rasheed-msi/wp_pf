@@ -237,7 +237,6 @@ function mrt_wsl_alter_insert_user_data($userdata) {
         return $userdata;
     }
 
-
     if ($query['rft'] == 1) {
         $userdata['role'] = 'adoptive_family';
     } elseif ($query['rft'] == 2) {

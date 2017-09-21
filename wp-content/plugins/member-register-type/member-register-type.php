@@ -72,7 +72,7 @@ include_once MRT_PLUGIN_PATH . 'inc/page-redirect.php';
 add_action('wp_enqueue_scripts', 'mrt_add_user_scripts', 20);
 
 function mrt_add_user_scripts() {
-    wp_enqueue_style('mrt-styles', MRT_PLUGIN_URL . 'css/styles.css');
+    wp_enqueue_style('mrt-styles', MRT_PLUGIN_URL . 'css/styles.css', [], null);
     wp_enqueue_style('mrt-data-table-style', 'https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css');
     // wp_enqueue_style('mrt-jquery-ui-style', '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
     wp_enqueue_script('mrt-data-table-scripts', 'https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js', array('jquery'), '1.0.0', true);
@@ -80,17 +80,19 @@ function mrt_add_user_scripts() {
     wp_enqueue_script('mrt-filestack-scripts', 'https://static.filestackapi.com/v3/filestack.js', array('jquery'), '1.0.0', true);
 
     wp_enqueue_script('mrt-scripts', MRT_PLUGIN_URL . 'js/mrt-scrpts.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('mrt-ng-prototype', MRT_PLUGIN_URL . 'app/prototype.js', array('jquery'), '1.0.0', true);
     // wp_enqueue_script('mrt-jquery-ui-scripts', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), null, true);
     
     //App
-    wp_enqueue_script('angularjs', MRT_PLUGIN_URL . 'app/angular.min.js', array('jquery'), '1.0.0', true);
-    wp_enqueue_script('mrt-ng-prototype', MRT_PLUGIN_URL . 'app/prototype.js', array('jquery'), '1.0.0', true);
-    wp_enqueue_script('mrt-ng-app', MRT_PLUGIN_URL . 'app/app.js', array('jquery'), '1.0.0', true);
-    wp_enqueue_script('mrt-ng-directive', MRT_PLUGIN_URL . 'app/directive.js', array('jquery'), '1.0.0', true);
-    wp_enqueue_script('mrt-ng-services', MRT_PLUGIN_URL . 'app/services.js', array('jquery'), '1.0.0', true);
-    wp_enqueue_script('mrt-ng-controllers', MRT_PLUGIN_URL . 'app/controllers.js', array('jquery'), '1.0.0', true);
-    
-    
+    $page_title = trim(get_the_title());
+    $pages_angularjs = ['Albums'];
+    if(in_array($page_title, $pages_angularjs)) {
+        wp_enqueue_script('angularjs', MRT_PLUGIN_URL . 'app/angular.min.js', array('jquery'), '1.0.0', true);
+        wp_enqueue_script('mrt-ng-app', MRT_PLUGIN_URL . 'app/app.js', array('jquery'), '1.0.0', true);
+        wp_enqueue_script('mrt-ng-directive', MRT_PLUGIN_URL . 'app/directive.js', array('jquery'), '1.0.0', true);
+        wp_enqueue_script('mrt-ng-services', MRT_PLUGIN_URL . 'app/services.js', array('jquery'), '1.0.0', true);
+        wp_enqueue_script('mrt-ng-controllers', MRT_PLUGIN_URL . 'app/controllers.js', array('jquery'), '1.0.0', true);
+    }
 }
 
 function mrt_admin_scripts() {

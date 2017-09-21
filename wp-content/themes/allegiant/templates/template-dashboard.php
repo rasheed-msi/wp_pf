@@ -5,20 +5,18 @@
  */
 get_header();
 ?>
-<section class="container" ng-app="appParentfinder">
+<section class="container">
     <!--Profile Start-->
-    <div class="profile" style="margin-top:25px;" ng-controller="dashboardController">
-
+    <div class="profile" style="margin-top:25px;">
+        
         <div class="profileSection profileIntro clearfix">
             <div class="row profileRow">
                 <div class="col-lg-4 col-md-4 profileColumn clearfix">
-                    <div class="pull-left profileImage">
-                        <img src="{{profile.avatar}}">
-                    </div>
+                    <div class="pull-left profileImage"></div>
                 </div>
                 <div class="col-lg-8 col-md-8 profileColumn clearfix">
-                    <h3 class="profileHeadding">{{profile.display_name}}</h3>
-                    <p ng-bind-html="intro"></p>
+                    <h3 class="profileHeadding"></h3>
+                    <p class="intro"></p>
                 </div>
             </div>
         </div>
@@ -29,7 +27,7 @@ get_header();
                 <div class="seeMore text-right"><a href="<?php echo site_url() . '/albums' ?>">see more photos</a></div>
             </div>
             <div class="profileMediaVideoWrap">
-                <div class="profileMediaVideo"  ng-bind-html="videoDashboard"></div>
+                <div class="profileMediaVideo"></div>
                 <div class="seeMore text-right"><a href="#">see more videos</a></div>
             </div>
         </div>

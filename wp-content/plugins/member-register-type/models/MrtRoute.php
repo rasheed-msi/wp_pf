@@ -34,7 +34,8 @@ class MrtRoute {
             'users' => [
                 'item' => 'users',
                 'current' => 'current',
-                'dashboard' => "dashboard",
+                'about' => "about",
+                'vitals' => "vitals",
                 'logout' => "logout",
                 'login' => "login",
                 'token' => "token/{$this->pattern['id']}",

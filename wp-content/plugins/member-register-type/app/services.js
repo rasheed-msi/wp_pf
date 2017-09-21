@@ -342,3 +342,12 @@ app.filter('commentTime', function() {
         return x + " now";
     };
 });
+
+app.filter('titleHyphen', function() {
+    return function(x) {
+        if(typeof x == "undefined" || x.length == 0){
+            return '-';
+        }
+        return x;
+    };
+});

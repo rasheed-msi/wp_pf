@@ -6,7 +6,7 @@
 get_header();
 ?>
 
-<section class="container"  ng-app="appParentfinder">
+<section class="container" ng-app="appParentfinder">
 
     <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
 
@@ -159,7 +159,7 @@ get_header();
                                             <div class="dashBoardAlbumContents">
                                                 <div class="dashBoardAlbumTitle text-center verticalAlign">
                                                     <form name="formPhoto">
-                                                        <span class="flexFullChild">{{photo.Title}}</span>
+                                                        <span class="flexFullChild">{{ photo.Title | titleHyphen }}</span>
                                                     </form>
                                                 </div>
                                                 <div class="ashBoardAlbumContentBottom">

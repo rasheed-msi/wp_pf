@@ -59,7 +59,7 @@ class State {
 //        readfile($tmp_file);
 //        unlink($tmp_file);
     }
-    
+
     public static function hasrole($capability, $param = null, $condition = 'AND') {
 
         if ($capability == null) {
@@ -70,7 +70,6 @@ class State {
             $current_user_id = get_current_user_id();
             $mrt_user = new MrtUser($current_user_id);
             $role = $mrt_user->user_role;
-            
         } else {
             $role = 'public';
             $current_user_id = 0;
@@ -124,6 +123,16 @@ class State {
 
 
         return false;
+    }
+
+    public static function get_array_comma_separated($array, $arkey) {
+        $display_list = [];
+        foreach ($array as $key => $value) {
+            if ((isset($value[$arkey]) && trim($value[$arkey]) != '')) {
+                $display_list[] = $value[$arkey];
+            }
+        }
+        return implode(', ', $display_list);
     }
 
 }

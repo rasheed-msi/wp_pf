@@ -98,7 +98,7 @@ input.ng-invalid-maxlength {
 }
 
 .preloader-image {
-    background: url("../images/ajaxloader.gif") no-repeat scroll center center rgba(255, 255, 255, .8);
+    background: url("../images/ajaxloader.gif") no-repeat scroll center center rgba(255, 255, 255, .9);
     width: 220px;
     height: 140px;
 }

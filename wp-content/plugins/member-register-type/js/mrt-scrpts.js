@@ -63,25 +63,25 @@ jQuery(function ($) {
         var email = $(this).val();
         $("[name='user_login']").val(email);
     });
-    
+
     $("[name='bemail']").keyup(function () {
         var email = $(this).val();
         $("[name='username']").val(email);
     });
-    
+
     $("[name='agency_email']").keyup(function () {
         var email = $(this).val();
         $("[name='user_email']").val(email);
         $("[name='user_login']").val(email);
     });
-    
+
     $("[name='user_email']").keyup(function () {
         var email = $(this).val();
         $("[name='user_login']").val(email);
     });
 
 
-    $("body").on("click", ".file-uploader",function () {
+    $("body").on("click", ".file-uploader", function () {
         console.log("clicked");
 
         var userid = $(this).data('userid');
@@ -91,7 +91,6 @@ jQuery(function ($) {
 
         client.pick({
             accept: 'image/*',
-            
             // fromSources: ['local_file_system', 'facebook', 'flickr', 'instagram', 'picasa'],
             fromSources: ['local_file_system'],
             maxFiles: 50,
@@ -110,9 +109,8 @@ jQuery(function ($) {
             }
         }).then(function (result) {
             result.filesUploaded.forEach
-            $.each(result.filesUploaded, function(index, value){
+            $.each(result.filesUploaded, function (index, value) {
                 value.pf_album_id = albumid;
-                console.log(value);
                 $.ajax({
                     url: appConst.apiRequest + '/' + value.pf_album_id + '/filestack-album-processing',
                     method: 'POST',
@@ -124,6 +122,8 @@ jQuery(function ($) {
                 }).success(function (response) {
                     console.log(response);
                 });
+
+
             });
         });
     });
@@ -146,14 +146,62 @@ jQuery(function ($) {
 //            }
 //        }).success(function (response) {
 //            localStorage.setItem("Token", response.token);
-//            window.location.href = appConst.base_url + '/dashboard';
+//            window.location.href = appConst.base_url + '/about';
 //        });
 //        
 //        
 //
 //    });
 
-    
+    $.ajax({
+        url: appConst.apiRequest + '/users/about',
+        method: 'GET',
+        dataType: 'json',
+        headers: {
+            Token: appConst.mrtToken
+        }
+    }).success(function (response) {
+        var profile = response.profile;
+        var info = response.info;
+        var preferences = response.preferences;
+
+        if (response.info.YoutubeLink == 1) {
+            var videoHtml = ' <iframe width="100%" height="100%" src="' + info.video_url + '"></iframe>';
+        } else {
+            var videoHtml = '<video width="100%" height="100%" controls>'
+                    + '<source src="' + info.video_url + '" type="video/mp4">'
+                    + '</video>';
+        }
+
+        $(".profileHeadding").text(profile.display_name);
+        $(".profileImage").html("<img src=" + profile.avatar + ">");
+        $(".profileMediaVideo").html(videoHtml);
+        $(".intro").html(preferences.intro);
+    });
+
+
+    var prefrences = true;
+    $(".vitals .accordianItemHeader").click(function () {
+
+        if (prefrences) {
+
+            $(".vitals .loader").show();
+
+            $.ajax({
+                url: appConst.apiRequest + '/users/vitals?html=1',
+                method: 'GET',
+                dataType: 'json',
+                headers: {
+                    Token: appConst.mrtToken
+                }
+            }).success(function (response) {
+                prefrences = false;
+                $(".vitals .loader").hide();
+                $(".vitals .articles").html(response.html);
+            });
+
+        }
+    });
 
 });
 
