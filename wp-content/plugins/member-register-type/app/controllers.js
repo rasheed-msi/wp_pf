@@ -215,6 +215,7 @@ app.controller('albumController', function (
         $scope.photos = [];
         $scope.heading = data.caption;
         $scope.lastModel = data;
+        $scope.setAllowAlbumViewText($scope.lastModel.AllowAlbumView);
         $scope.selectedAlbumId = data.pf_album_id;
         $interval.cancel($scope.photoSettings.preloadIntervalHandle);
         $scope.setAjaxLoader(true);
@@ -230,7 +231,7 @@ app.controller('albumController', function (
 
             $scope.photoSettings.photoLoader = AppService.arrayFill(response.processing_img_count);
             $scope.photos = response.photos;
-            
+
             $scope.setAjaxLoader(false);
         });
     }
@@ -491,7 +492,7 @@ app.controller('albumController', function (
 
         var i = 0;
         $scope.setAjaxLoader();
-        
+
         angular.forEach($scope.photoSettings.selectList, function (id, key) {
 
             var data = {
@@ -507,10 +508,30 @@ app.controller('albumController', function (
                     $scope.executeBackButton();
                 }
             });
-            
+
+        });
+    }
+
+
+    $scope.changeWhoCanView = function () {
+        console.log($scope.lastModel.AllowAlbumView);
+        if($scope.lastModel.AllowAlbumView == $scope.albumSettings.statusIdEveryone){
+            $scope.lastModel.AllowAlbumView = $scope.albumSettings.statusIdMember;
+        }else{
+            $scope.lastModel.AllowAlbumView = $scope.albumSettings.statusIdEveryone;
+        }
+        
+        $scope.setAllowAlbumViewText($scope.lastModel.AllowAlbumView);
+        var data = {AllowAlbumView: $scope.lastModel.AllowAlbumView, pf_album_id: $scope.lastModel.pf_album_id};
+        AlbumService.update(data).then(function (response) {
+            console.log(response);
         });
     }
     
+    $scope.setAllowAlbumViewText = function(status){
+        $scope.albumSettings.allowAlbumViewText = (status == $scope.albumSettings.statusIdEveryone)? "EVERYONE (ON)" : "EVERYONE (OFF)";
+    }
+
 });
 
 

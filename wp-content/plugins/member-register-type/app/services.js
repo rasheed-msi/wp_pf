@@ -60,6 +60,9 @@ app.service("AlbumService", function (WebService) {
         refresh: true,
         downloadRefresh: true,
         moveAlbum: 0,
+        statusIdEveryone: 3,
+        statusIdMember: 2,
+        allowAlbumViewText: "EVERYONE (ON)",
     }
 
     this.getItems = function () {
@@ -119,6 +122,7 @@ app.service("PhotoService", function (WebService) {
         selectListCount: 0,
         photoLoader: 0,
         preloadIntervalHandle: 0,
+        
     }
 
     this.getItems = function (data) {
