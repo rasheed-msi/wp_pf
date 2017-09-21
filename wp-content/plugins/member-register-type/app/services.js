@@ -174,6 +174,16 @@ app.service("PhotoService", function (WebService) {
         });
     }
     
+    this.filestackUpload = function (data) {
+        return WebService.request({
+            method: 'POST',
+            data: data,
+            url: appConst.base_url + '/filestack/wp-filestack.php',
+        });
+    }
+    
+    
+    
 });
 
 app.service("UserService", function (WebService) {

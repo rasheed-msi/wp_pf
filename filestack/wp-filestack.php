@@ -2,13 +2,17 @@
 
 require_once('../wp-load.php');
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 class ImgFileStackManager {
 
     private $image_dimensions = null;
     private $convert_url = null;
+    private $input = [];
 
     function __construct() {
-        
+
         $this->image_dimensions = [
             'album' => [
                 'original' => [],
@@ -32,51 +36,62 @@ class ImgFileStackManager {
 
     public function get_params() {
         Dot::log("wp-filestack");
-        return $_POST;
     }
 
     public function process() {
 
-        $input = $this->get_params();
+
+        //Dot::clear_log();
+
+        $this->input = $_POST;
+        //$this->input = $this->sample_input();
+
+        Dot::log($_REQUEST);
+        Dot::log($this->input);
         
-        $create_img = $this->image_dimensions[$input['mode']];
-        
+
+        $create_img = $this->image_dimensions[$this->input['mode']];
+
         $data = [
-            'pf_album_id' => $input['pf_album_id'],
+            'pf_album_id' => $this->input['pf_album_id'],
             'user_id' => $this->mrt_user->user_id,
-            'Title' => $input['Title'],
-            'Size' => $input['originalFile']['size'],
+            'Size' => $this->input['originalFile']['size'],
         ];
 
         $this->photo_id = $this->mrt_photo->insert($data);
 
+
+        Dot::log("New photo id {$this->photo_id}");
+
+        $response = [];
         foreach ($create_img as $key => $value) {
             if ($key == 'original') {
                 $data = [
                     'pf_photo_id' => $this->photo_id,
-                    'cloud_filename' => $input['key'],
-                    'user_id' => $this->mrt_user->user_id,
-                    'title' => $input['title'],
-                    'cloud_path' => $input['url'],
+                    'cloud_filename' => $this->input['key'],
+                    'user_id' => $this->mrt_user->user_id,                    
+                    'cloud_path' => $this->input['url'],
                     'view_type' => $key,
                     'last_updated' => date('Y-m-d H:i:s'),
                 ];
                 $this->mrt_file_stack->insert($data);
             } else {
-                $path = $this->s3Domain . '/' . $this->mrt_user->user_id . '/' . $input['mode'] .  '/' . $input['pf_album_id'] . '/' . $key . '/';
+                $path = $this->s3Domain . '/' . $this->mrt_user->user_id . '/' . $this->input['mode'] . '/' . $this->input['pf_album_id'] . '/' . $key . '/';
                 $transformed = $this->transformImage($path, $value['width'], $value['height']);
                 $data = [
                     'pf_photo_id' => $this->photo_id,
-                    'cloud_filename' => $transformed['key'],
+                    'cloud_filename' => $transformed['cloud_filename'],
                     'user_id' => $this->mrt_user->user_id,
-                    'title' => $input['title'],
-                    'cloud_path' => $transformed['url'],
-                    'view_type' => $value['view_type'],
+                    'cloud_path' => $transformed['cloud_path'],
+                    'view_type' => $key,
                     'last_updated' => date('Y-m-d H:i:s'),
                 ];
                 $this->mrt_file_stack->insert($data);
             }
+            $response[$key] = $data;
         }
+       
+        die(json_encode($response));
     }
 
     public function transformImage($path, $width, $height) {
@@ -96,7 +111,7 @@ class ImgFileStackManager {
 
         if (!empty($resize_options)) {
             $resize_option = join(",", $resize_options);
-            $replacePath = ",path:\"" . $path . "\"/" . $input['url'];
+            $replacePath = ",path:\"" . $path . "\"/" . $this->input['url'];
             $convert_url_base = str_replace('[PATH_FILE]', $replacePath, $this->convert_url);
             $resize = "resize=$resize_option";
             $resize_url = str_replace('[RESIZE]', $resize, $convert_url_base);
@@ -113,7 +128,7 @@ class ImgFileStackManager {
                     'cloud_filename' => $thumb['key'],
                     'cloud_path' => $thumb_url,
                     'title' => $handle,
-                    'view_type' => $view_type,
+                    
                     'last_updated' => Date('Y-m-d h:i:s')
                 );
             }
@@ -121,6 +136,28 @@ class ImgFileStackManager {
             return $data;
         }
         return null;
+    }
+
+    public function sample_input() {
+        return Array(
+            'filename' => '08bfef43c342258272a26e55260d80a8.jpg',
+            'handle' => 'TxhK5OIARP2YdVv0Rag2',
+            'mimetype' => 'image/jpeg',
+            'originalPath' => '08bfef43c342258272a26e55260d80a8.jpg',
+            'size' => '386869',
+            'source' => 'local_file_system',
+            'url' => 'https://cdn.filestackcontent.com/TxhK5OIARP2YdVv0Rag2',
+            'originalFile' => [
+                'name' => '08bfef43c342258272a26e55260d80a8.jpg',
+                'type' => 'image/jpeg',
+                'size' => '386869',
+            ],
+            'status' => 'Stored',
+            'key' => 'testwppf/27779/album/53800/original/W15IqJiKTe2YyHJMzAr3_08bfef43c342258272a26e55260d80a8.jpg',
+            'container' => 's3.childconnect.com',
+            'pf_album_id' => '53800',
+            'mode' => 'album',
+        );
     }
 
 }

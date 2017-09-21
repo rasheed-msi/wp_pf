@@ -81,7 +81,7 @@ jQuery(function ($) {
     });
 
 
-    $("body").on("click", ".file-uploader", function () {
+    $("body").on("click", ".file-uploader-test", function () {
         console.log("clicked");
 
         var userid = $(this).data('userid');
@@ -108,11 +108,14 @@ jQuery(function ($) {
                 console.log(error);
             }
         }).then(function (result) {
-            result.filesUploaded.forEach
+            
             $.each(result.filesUploaded, function (index, value) {
                 value.pf_album_id = albumid;
+                
+                //wp-filestack
+                value.mode = 'album';
                 $.ajax({
-                    url: appConst.apiRequest + '/' + value.pf_album_id + '/filestack-album-processing',
+                    url: appConst.base_url + '/filestack/wp-filestack.php',
                     method: 'POST',
                     dataType: 'json',
                     data: value,
@@ -122,6 +125,19 @@ jQuery(function ($) {
                 }).success(function (response) {
                     console.log(response);
                 });
+                
+                // marking processing images
+//                $.ajax({
+//                    url: appConst.apiRequest + '/' + value.pf_album_id + '/filestack-album-processing',
+//                    method: 'POST',
+//                    dataType: 'json',
+//                    data: value,
+//                    headers: {
+//                        Token: appConst.mrtToken
+//                    }
+//                }).success(function (response) {
+//                    console.log(response);
+//                });
 
 
             });
