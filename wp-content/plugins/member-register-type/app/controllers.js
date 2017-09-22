@@ -215,6 +215,7 @@ app.controller('albumController', function (
         $scope.photos = [];
         $scope.heading = data.caption;
         $scope.lastModel = data;
+        $scope.setAllowAlbumViewText($scope.lastModel.AllowAlbumView);
         $scope.selectedAlbumId = data.pf_album_id;
         console.log($scope.selectedAlbumId);
         $interval.cancel($scope.photoSettings.preloadIntervalHandle);
@@ -231,7 +232,8 @@ app.controller('albumController', function (
 
             $scope.photoSettings.photoLoader = AppService.arrayFill(response.processing_img_count);
             $scope.photos = response.photos;
-            console.log($scope.photos);
+
+
 
             $scope.setAjaxLoader(false);
         });
@@ -258,7 +260,7 @@ app.controller('albumController', function (
                 // console.log(JSON.stringify(progressEvent.totalProgressPercent))
             },
             onFileUploadFailed: function (file, error) {
-               // console.log(error);
+                // console.log(error);
             }
         }).then(function (result) {
 
@@ -268,7 +270,7 @@ app.controller('albumController', function (
                 console.log(value);
                 PhotoService.filestackUpload(value).then(function (response) {
                     var newPhoto = {
-                        pf_photo_id: 86164,
+                        pf_photo_id: response.pf_photo_id,
                         Title: "",
                         thumb: response.thumb.cloud_path,
                     };
@@ -548,7 +550,27 @@ app.controller('albumController', function (
                 }
             });
 
+
         });
+    }
+
+    $scope.changeWhoCanView = function () {
+        console.log($scope.lastModel.AllowAlbumView);
+        if ($scope.lastModel.AllowAlbumView == $scope.albumSettings.statusIdEveryone) {
+            $scope.lastModel.AllowAlbumView = $scope.albumSettings.statusIdMember;
+        } else {
+            $scope.lastModel.AllowAlbumView = $scope.albumSettings.statusIdEveryone;
+        }
+
+        $scope.setAllowAlbumViewText($scope.lastModel.AllowAlbumView);
+        var data = {AllowAlbumView: $scope.lastModel.AllowAlbumView, pf_album_id: $scope.lastModel.pf_album_id};
+        AlbumService.update(data).then(function (response) {
+            console.log(response);
+        });
+    }
+
+    $scope.setAllowAlbumViewText = function (status) {
+        $scope.albumSettings.allowAlbumViewText = (status == $scope.albumSettings.statusIdEveryone) ? "EVERYONE (ON)" : "EVERYONE (OFF)";
     }
 
 });
