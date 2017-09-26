@@ -49,7 +49,7 @@ app.controller('albumController', function (
 
         $scope.pages = PageService.showPage('album', $scope.pages);
         $scope.showBackButton = PageService.showBackButton;
-        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
+//        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
 
 
         if ($scope.albumSettings.refresh) {
@@ -189,7 +189,6 @@ app.controller('albumController', function (
      * 
      * Select & deselect items
      */
-
     $scope.selectAllAlbum = function () {
         if ($scope.albumSettings.selectAllLabel == "DESELECT ALL") {
             $scope.albumSettings.selectList = [];
@@ -218,7 +217,7 @@ app.controller('albumController', function (
         $scope.setAllowAlbumViewText($scope.lastModel.AllowAlbumView);
         $scope.selectedAlbumId = data.pf_album_id;
         console.log($scope.selectedAlbumId);
-        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
+//        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
         $scope.setAjaxLoader(true);
         $scope.loadPhotos(data);
     }
@@ -269,10 +268,12 @@ app.controller('albumController', function (
                 
                 PhotoService.create(value).then(function (response) {
                     var newPhoto = {
+                        pf_album_id: value.pf_album_id,
                         pf_photo_id: response.thumb.pf_photo_id,
                         Title: "",
                         thumb: response.thumb.cloud_path,
                     };
+                    
                     $scope.photos = $scope.photos.mrtprepend(newPhoto);
                     $scope.photoSettings.photoLoader = AppService.arrayFill(--i);
                 });
@@ -290,7 +291,7 @@ app.controller('albumController', function (
 
         $scope.pages = PageService.showPage('photoSingle', $scope.pages);
         $scope.showBackButton = PageService.showBackButton;
-        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
+//        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
 
         $scope.photo = [];
         $scope.heading = model.Title;
@@ -447,7 +448,7 @@ app.controller('albumController', function (
         $scope.setAlbumCount();
         $scope.pages = PageService.showPage('download', $scope.pages);
         $scope.showBackButton = PageService.showBackButton;
-        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
+//        $interval.cancel($scope.photoSettings.preloadIntervalHandle);
 
         $scope.downloadSettings.isActive = true;
         $scope.downloadSettings.showAlert = true;
