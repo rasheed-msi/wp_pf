@@ -3,7 +3,7 @@
 /*
   Plugin Name: Member Register Type
   Plugin URI:
-  Description: Register User in different type
+  Description: User registration and
   Author: Dinoop
   Author URI:
   Terms and Conditions:
@@ -40,15 +40,29 @@ define('MRT_URL_VIDEO', MRT_PARENTFINDER . '/flash/modules/video/files');
 define('MRT_URL_DEFAULT_PHOTOS_THUMB', 'http://via.placeholder.com/220X150');
 define('MRT_URL_DEFAULT_PHOTOS_AVATHAR', 'http://via.placeholder.com/220X150');
 define('MRT_URL_YOUTUBE_EMBED', 'https://www.youtube.com/embed');
+
+/**
+ * 
+ * 
+ * Filestack
+ */
 //define('MRT_URL_S3BUCKET', 'https://s3.amazonaws.com/cairs'); // LIVE
 define('MRT_URL_S3BUCKET', 'https://s3-us-west-2.amazonaws.com/s3.childconnect.com');
+define('MRT_S3DOMAIN', 'testwppf');
+define('MRT_FILESTACK_APIKEY', 'A9Ul90L7XRqWxNswfaGOGz');
 
+/**
+ * 
+ * 
+ * Helpers
+ */
 include_once MRT_PLUGIN_PATH . 'helpers/Stock.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Dot.php';
 include_once MRT_PLUGIN_PATH . 'helpers/AppForm.php';
 include_once MRT_PLUGIN_PATH . 'helpers/State.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Temp.php';
 include_once MRT_PLUGIN_PATH . 'helpers/MrtPrint.php';
+include_once MRT_PLUGIN_PATH . 'helpers/MrtFileStackUpload.php';
 include_once MRT_PLUGIN_PATH . 'models/MrtDbbase.php';
 
 // include models

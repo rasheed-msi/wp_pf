@@ -243,17 +243,11 @@ app.controller('albumController', function (
 
         var client = filestack.init(appConst.fileStackClient);
 
-
         client.pick({
             accept: 'image/*',
             // fromSources: ['local_file_system', 'facebook', 'flickr', 'instagram', 'picasa'],
             fromSources: ['local_file_system'],
             maxFiles: 50,
-            storeTo: {
-                //path: '/' + appConst.s3Domain + '/' + $scope.currentUser.user_id + '/album/' + $scope.selectedAlbumId + '/original/',
-                location: 'S3',
-                access: 'public'
-            },
             uploadInBackground: false,
             disableTransformer: true,
             onFileUploadProgress: function (file, progressEvent) {
@@ -264,19 +258,26 @@ app.controller('albumController', function (
             }
         }).then(function (result) {
 
+            var i = result.filesUploaded.length;
+            
+            $scope.photoSettings.photoLoader = AppService.arrayFill(i);
+            
             angular.forEach(result.filesUploaded, function (value, index) {
+                
                 value.pf_album_id = $scope.selectedAlbumId;
                 value.mode = 'album';
-                console.log(value);
-                PhotoService.filestackUpload(value).then(function (response) {
+                
+                PhotoService.create(value).then(function (response) {
                     var newPhoto = {
-                        pf_photo_id: response.pf_photo_id,
+                        pf_photo_id: response.thumb.pf_photo_id,
                         Title: "",
                         thumb: response.thumb.cloud_path,
                     };
-                    $scope.photos.mrtprepend(newPhoto);
+                    $scope.photos = $scope.photos.mrtprepend(newPhoto);
+                    $scope.photoSettings.photoLoader = AppService.arrayFill(--i);
                 });
             });
+            
         });
 
 //        $scope.photoSettings.preloadIntervalHandle = $interval(function () {

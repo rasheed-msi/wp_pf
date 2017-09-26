@@ -115,7 +115,7 @@
         <li ng-click="changeWhoCanView()">
             <a class="flexbox verticalAlign">
                 <div class="tabMenuItems flexbox verticalAlign">
-                    <span><i class="fa fa-download"></i> {{albumSettings.allowAlbumViewText}}</span>
+                    <span><i class="fa fa-eye"></i> {{albumSettings.allowAlbumViewText}}</span>
                 </div>
             </a>
         </li>
