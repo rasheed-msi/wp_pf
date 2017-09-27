@@ -129,3 +129,14 @@ input.ng-invalid-maxlength {
 .movealbumlist ul li.selected {
     background-color: #BDDB9E;
 }
+
+
+.editButtton  {
+    background-color: #EDEDED;
+}
+
+.preloader-image-avatar {
+    background: url("../images/ajaxloader.gif") no-repeat scroll center center rgba(255, 255, 255, .9);
+    width: 300px;
+    height: 230px;
+}

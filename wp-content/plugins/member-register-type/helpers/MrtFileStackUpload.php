@@ -19,12 +19,24 @@ class MrtFileStackUpload {
                     'width' => 500,
                     'height' => 600
                 ]
-            ]
+            ],
+            'avatar' => [
+                'original' => [],
+                'thumb' => [
+                    'width' => 300,
+                    'height' => 230
+                ],
+                'webview' => [
+                    'width' => 600,
+                    'height' => 460
+                ]
+            ],
         ];
-        
+
         $this->convert_url = "https://process.filestackapi.com/" . MRT_FILESTACK_APIKEY . "/[RESIZE]/store=location:S3,access:public[PATH_FILE]";
         $this->mrt_user = new MrtUser(get_current_user_id());
         $this->mrt_file_stack = new MrtFileStack;
+        
         $this->mrt_photo = new MrtPhoto;
     }
 
@@ -32,10 +44,50 @@ class MrtFileStackUpload {
 
         $this->input = $input;
         //$this->input = $this->sample_input();
+        
+        if($this->input['mode'] == 'album'){
+            return $this->process_album();
+        }elseif($this->input['mode'] == 'avatar'){
+            return $this->process_avatar();
+        }
+        
+    }
+    
+    public function process_avatar() {
+        
+        $this->mrt_parent_filestack_photo = new MrtParentFilestackPhoto;
+        
+        $create_img = $this->image_dimensions[$this->input['mode']];
 
-        Dot::log("test 01");
-        Dot::log($this->input);
+        $response = [];
+        foreach ($create_img as $key => $value) {
+            if ($key == 'original') {
+                $data = [
+                    'cloud_filename' => $this->input['key'],
+                    'user_id' => $this->mrt_user->user_id,
+                    //'title' => '',
+                    'cloud_path' => $this->input['url'],
+                    'view_type' => $key,
+                ];
+                $this->mrt_parent_filestack_photo->insert($data);
+            } else {
+                $path = MRT_S3DOMAIN . '/' . $this->mrt_user->user_id . '/' . $this->input['mode'] . '/' . $this->input['pf_album_id'] . '/' . $key . '/';
+                $transformed = $this->transformImage($path, $value['width'], $value['height']);
+                $data = [
+                    'cloud_filename' => $transformed['cloud_filename'],
+                    'user_id' => $this->mrt_user->user_id,
+                    'cloud_path' => $transformed['cloud_path'],
+                    'view_type' => $key,
+                ];
+                $this->mrt_parent_filestack_photo->insert($data);
+            }
+            $response[$key] = $data;
+        }
 
+        return $response;
+    }
+    
+    public function process_album() {
         $create_img = $this->image_dimensions[$this->input['mode']];
 
         $data = [
@@ -46,8 +98,6 @@ class MrtFileStackUpload {
 
         $this->photo_id = $this->mrt_photo->insert($data);
 
-
-        Dot::log("New photo id {$this->photo_id}");
 
         $response = [];
         foreach ($create_img as $key => $value) {

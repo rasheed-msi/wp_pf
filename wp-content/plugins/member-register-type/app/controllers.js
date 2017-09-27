@@ -104,9 +104,7 @@ app.controller('albumController', function (
             } else {
                 model.caption = $scope.dupCaption;
             }
-
         }
-
 
     }
 
@@ -121,7 +119,6 @@ app.controller('albumController', function (
             }
         }
     }
-
 
     /**
      * 
@@ -142,7 +139,6 @@ app.controller('albumController', function (
             });
         }
     }
-
 
     $scope.changeAlbumSelectList = function (model) {
 

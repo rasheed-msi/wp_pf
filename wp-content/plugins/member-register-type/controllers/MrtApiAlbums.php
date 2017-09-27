@@ -14,6 +14,7 @@ class MrtApiAlbums extends WP_REST_Controller {
         $this->rest_base = 'albums';
         $this->auth = new MrtAuth;
         $this->route = new MrtRoute;
+        $this->mrt_role = new MrtRole;
         $this->mrt_album = new MrtAlbum;
         $this->mrt_photo = new MrtPhoto;
         add_action('rest_api_init', [$this, 'register_routes']);
@@ -57,41 +58,56 @@ class MrtApiAlbums extends WP_REST_Controller {
             'callback' => array($this, 'bulk_delete_items'),
             'permission_callback' => array($this, 'items_permissions_check'),
         ));
-        
+
         register_rest_route($this->route->namespace, $this->route->base($this->rest_base, 'download_items'), array(
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => array($this, 'download_items'),
-                
         ));
     }
 
     public function items_permissions_check($request) {
 
-        $input = $request->get_params();
+        $this->input = $request->get_params();
         $this->user = $this->auth->validate_token();
 
         if (!$this->user) {
             return false;
         }
 
-        if (isset($input['id'])) {
-            if (!$this->mrt_album->is_user_album($this->user->ID, $input['id'])) {
-                return false;
-            }
+        if (
+                isset($this->input['id']) &&
+                !$this->mrt_album->is_user_album($this->user->ID, $this->input['id']) &&
+                (isset($this->input['user']) && !$this->mrt_role->hasrole('user_edit_dashboard', $this->input['user']))
+        ) {
+            return false;
+        }
+
+
+        if (isset($this->input['user']) && !$this->mrt_role->hasrole('user_edit_dashboard', $this->input['user'])) {
+            return false;
         }
 
         return true;
     }
 
+    public function get_item($request) {
+        $records = $this->mrt_album->get($this->input['id']);
+        return new WP_REST_Response($records, 200);
+    }
+
     public function get_items($request) {
 
-        $records = $this->mrt_album->all($this->user->ID);
+        if (isset($this->input['user'])) {
+            $records = $this->mrt_album->all($this->input['user']);
+            return new WP_REST_Response($records, 200);
+        }
 
+        $records = $this->mrt_album->all($this->user->ID);
         return new WP_REST_Response($records, 200);
     }
 
     public function create_item($request) {
-        $this->input = $request->get_params();
+
         $validate = $this->validate();
 
         if ($validate['status']) {
@@ -104,21 +120,14 @@ class MrtApiAlbums extends WP_REST_Controller {
         return new WP_REST_Response(null, 401);
     }
 
-    public function get_item($request) {
-        $records = $this->mrt_album->get($request['id']);
-
-        return new WP_REST_Response($records, 200);
-    }
-
     public function update_item($request) {
 
-        $this->input = $request->get_params();
         $this->mrt_album = MrtAlbum::find($this->input['id']);
         $validate = $this->validate_update();
 
         if ($validate['status']) {
-            $this->mrt_album->update($validate['input']);
-            return new WP_REST_Response([], 200);
+            $response[] = $this->mrt_album->update($validate['input']);
+            return new WP_REST_Response($response, 200);
         } else {
             return new WP_REST_Response(['message' => $validate['message']], 400);
         }
@@ -134,7 +143,7 @@ class MrtApiAlbums extends WP_REST_Controller {
         if (isset($this->mrt_album->id)) {
             $this->mrt_album->delete();
             $this->mrt_photo->update(['deleteFlag' => 1], $this->mrt_album->pkey, $this->mrt_album->id);
-            
+
             return new WP_REST_Response([], 200);
         }
 
@@ -150,7 +159,9 @@ class MrtApiAlbums extends WP_REST_Controller {
 
     public function validate() {
 
-        if (empty($this->input['user_id']) && !isset($this->user->ID)) {
+        if (isset($this->input['user'])) {
+            $this->input['user_id'] = $this->input['user'];
+        } elseif (empty($this->input['user_id']) && !isset($this->user->ID)) {
             $this->message['user_id'] = 'User not found';
             ++$this->error;
             return $this->validate_response();
@@ -195,7 +206,7 @@ class MrtApiAlbums extends WP_REST_Controller {
             'input' => $this->input,
         ];
     }
-    
+
     public function download_items($request) {
 
         $input = $request->get_params();

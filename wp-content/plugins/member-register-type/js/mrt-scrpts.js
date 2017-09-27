@@ -190,7 +190,7 @@ jQuery(function ($) {
         }
 
         $(".profileHeadding").text(profile.display_name);
-        $(".profileImage").html("<img src=" + profile.avatar + ">");
+        $(".profileImage").html('<img class="change-avatar" src="' + profile.avatar + '">');
         $(".profileMediaVideo").html(videoHtml);
         $(".intro").html(preferences.intro);
     });
@@ -217,6 +217,54 @@ jQuery(function ($) {
             });
 
         }
+    });
+    
+    
+    
+    $("body").on("click", ".change-avatar", function(){
+        var client = filestack.init(appConst.fileStackClient);
+
+        client.pick({
+            accept: 'image/*',
+            // fromSources: ['local_file_system', 'facebook', 'flickr', 'instagram', 'picasa'],
+            fromSources: ['local_file_system'],
+            maxFiles: 1,
+            uploadInBackground: false,
+            disableTransformer: true,
+            onFileUploadProgress: function (file, progressEvent) {
+                // console.log(JSON.stringify(progressEvent.totalProgressPercent))
+            },
+            onFileUploadFailed: function (file, error) {
+                // console.log(error);
+            }
+        }).then(function (result) {
+            
+            $(".profileImage").html('<span class="preloader-image"></span>');
+  
+            result.filesUploaded.forEach(function (value, index) {
+                
+                value.pf_album_id = 0;
+                value.mode = 'avatar';
+                
+                $.ajax({
+                    url: appConst.apiRequest + '/' + value.pf_album_id + '/photos',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: value,
+                    headers: {
+                        Token: appConst.mrtToken
+                    }
+                }).success(function (response) {
+                    // console.log(response);
+                    $(".profileImage").html('<img class="change-avatar" src="' + response.thumb.cloud_path + '">');
+                    
+                    
+                });
+                
+                
+            });
+            
+        });
     });
 
 });

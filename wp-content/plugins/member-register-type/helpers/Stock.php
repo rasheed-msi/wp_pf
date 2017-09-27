@@ -85,6 +85,7 @@ class Stock {
                     'delete_posts',
                     'draft_to_profile',
                     'cap_adoption_agency',
+                    'user_edit_dashboard',
                 ),
             ),
             'adoptive_family' => array(
@@ -95,6 +96,7 @@ class Stock {
                     'delete_posts',
                     'view_subscriptions_nav',
                     'cap_adoptive_family',
+                    'user_edit_dashboard',
                 ),
             ),
             'birth_mother' => array(
@@ -103,6 +105,12 @@ class Stock {
                     'publish_posts',
                     'edit_posts',
                     'delete_posts',
+                ),
+            ),
+            'public' => array(
+                'name' => 'Public',
+                'capabilities' => array(
+                    
                 ),
             ),
         );

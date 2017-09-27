@@ -8,7 +8,7 @@ get_header();
 
 <section class="container" ng-app="appParentfinder">
 
-    <div class="dashboardTabs flexbox" style="margin-top:50px;" ng-controller="albumController">
+    <div class="dashboardTabs flexbox" ng-controller="albumController">
 
         <div id="ajaxloader" ng-show="showAjaxLoader"></div>
         <?php get_sidebar('albums'); ?>

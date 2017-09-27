@@ -77,8 +77,10 @@ class MrtApiPhotos extends WP_REST_Controller {
             return false;
         }
 
-        if (!$this->mrt_album->is_user_album($this->user->ID, $input['album_id'])) {
-            return false;
+        if ($input['album_id'] != 0) {
+            if (!$this->mrt_album->is_user_album($this->user->ID, $input['album_id'])) {
+                return false;
+            }
         }
 
         // Photo id

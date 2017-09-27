@@ -11,6 +11,7 @@ function mrt_rewrite_rules() {
     add_rewrite_rule('^update-user-capabilities/?$', 'index.php?pagename=mrt-page-manager&screen=update-user-capabilities', 'top');
     add_rewrite_rule('^create-table-profile/?$', 'index.php?pagename=mrt-page-manager&screen=create-table-profile', 'top');
     add_rewrite_rule('^profile/([a-z0-9_-]+)?$', 'index.php?pagename=mrt-page-manager&user_name=$matches[1]&screen=public-profile', 'top');
+    add_rewrite_rule('^about/([a-z0-9_-]+)?$', 'index.php?pagename=mrt-page-manager&nickname=$matches[1]&screen=new-public-profile', 'top');
     add_rewrite_rule('^agency-selection/?$', 'index.php?pagename=mrt-page-manager&screen=sc-agency-selection', 'top');
     // add_rewrite_rule('^unsubscribe/?$', 'index.php?pagename=mrt-page-manager&screen=unsubscribe', 'top');
 
@@ -32,6 +33,7 @@ function mrt_query_vars($qvars) {
     $qvars[] = 'screen';
     $qvars[] = 'user_id';
     $qvars[] = 'user_name';
+    $qvars[] = 'nickname';
     return $qvars;
 }
 
@@ -112,6 +114,8 @@ function mrt_page_manager_display() {
     } elseif ($screen == 'create-table-profile') {
         $dbObj = new TableDef();
         $dbObj->profile();
+    } elseif ($screen == 'new-public-profile') {
+        echo MrtView::render('user/dashboard');
     } elseif ($screen == 'public-profile') {
 
         $user_name = get_query_var('user_name');

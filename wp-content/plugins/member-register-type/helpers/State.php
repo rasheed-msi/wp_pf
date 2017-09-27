@@ -60,70 +60,7 @@ class State {
 //        unlink($tmp_file);
     }
 
-    public static function hasrole($capability, $param = null, $condition = 'AND') {
-
-        if ($capability == null) {
-            return is_user_logged_in();
-        }
-
-        if (is_user_logged_in()) {
-            $current_user_id = get_current_user_id();
-            $mrt_user = new MrtUser($current_user_id);
-            $role = $mrt_user->user_role;
-        } else {
-            $role = 'public';
-            $current_user_id = 0;
-        }
-
-        $system_roles = Stock::system_roles();
-
-        if (is_array($capability)) {
-
-            if ($condition == 'OR') {
-                foreach ($capability as $value) {
-                    if (in_array($value, $system_roles[$role]['capabilities'])) {
-                        return true;
-                    }
-                }
-            }
-
-            if ($condition == 'AND') {
-                $have = array();
-                foreach ($capability as $key => $value) {
-
-                    if (in_array($value, $system_roles[$role]['capabilities'])) {
-                        $have[] = 1;
-                    }
-                }
-
-                if (count($capability) == count($have)) {
-                    return true;
-                }
-            }
-        } else {
-
-            switch ($capability) {
-
-                // Special cases for role capability check
-                case 'user_delete':
-                case 'user_edit_role':
-                    $user_id = $param;
-                    if ($user_id != $current_user_id && in_array($capability, $system_roles[$role]['capabilities'])) {
-                        return true;
-                    }
-
-                    break;
-
-                default :
-                    if (in_array($capability, $system_roles[$role]['capabilities'])) {
-                        return true;
-                    }
-            }
-        }
-
-
-        return false;
-    }
+    
 
     public static function get_array_comma_separated($array, $arkey) {
         $display_list = [];

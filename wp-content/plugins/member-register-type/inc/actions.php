@@ -34,7 +34,7 @@ function test_page() {
         $test->setYoutubeLinkOne();
     }
 
-    
+    get_author_link( true, get_current_user_id() );
 }
 
 add_shortcode('mrt-user-dashboard', 'mrt_display_user_dashboard');

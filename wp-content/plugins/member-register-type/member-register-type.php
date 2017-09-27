@@ -3,7 +3,7 @@
 /*
   Plugin Name: Member Register Type
   Plugin URI:
-  Description: User registration and
+  Description: User registration and user albums management
   Author: Dinoop
   Author URI:
   Terms and Conditions:
@@ -38,7 +38,8 @@ define('MRT_URL_AVATHAR', MRT_PARENTFINDER . '/modules/boonex/avatar/data/favour
 define('MRT_URL_PHOTOS', MRT_PARENTFINDER . '/modules/boonex/photos/data/files');
 define('MRT_URL_VIDEO', MRT_PARENTFINDER . '/flash/modules/video/files');
 define('MRT_URL_DEFAULT_PHOTOS_THUMB', 'http://via.placeholder.com/220X150');
-define('MRT_URL_DEFAULT_PHOTOS_AVATHAR', 'http://via.placeholder.com/220X150');
+//define('MRT_URL_DEFAULT_PHOTOS_AVATHAR', 'http://via.placeholder.com/300X230');
+define('MRT_URL_DEFAULT_PHOTOS_AVATHAR', MRT_PLUGIN_URL . 'images/avatar.jpg');
 define('MRT_URL_YOUTUBE_EMBED', 'https://www.youtube.com/embed');
 
 /**
@@ -63,6 +64,7 @@ include_once MRT_PLUGIN_PATH . 'helpers/State.php';
 include_once MRT_PLUGIN_PATH . 'helpers/Temp.php';
 include_once MRT_PLUGIN_PATH . 'helpers/MrtPrint.php';
 include_once MRT_PLUGIN_PATH . 'helpers/MrtFileStackUpload.php';
+include_once MRT_PLUGIN_PATH . 'helpers/MrtRole.php';
 include_once MRT_PLUGIN_PATH . 'models/MrtDbbase.php';
 
 // include models

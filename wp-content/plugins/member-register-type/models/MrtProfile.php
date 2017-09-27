@@ -56,12 +56,13 @@ class MrtProfile extends MrtDbbase {
             $obj->data['display_name'] = $obj->data['first_name'] . $display_name_append;
 
             // Avathar
-            $sql = "SELECT cloud_filename FROM pf_parent_filestack_photos WHERE user_id = {$obj->data['wp_user_id']} AND view_type = 'thumb'";
+            $sql = "SELECT cloud_filename FROM pf_parent_filestack_photos WHERE user_id = {$obj->data['wp_user_id']} AND view_type = 'thumb' ORDER BY parent_photo_id DESC";
             $avathar = $obj->link->get_var($sql);
             if ($avathar != '') {
                 $obj->data['avatar'] = MRT_URL_S3BUCKET . '/' . $avathar;
             } else {
-                $obj->data['avatar'] = MRT_URL_AVATHAR . '/' . $obj->data['avatar'] . '.jpg';
+                $obj->data['avatar'] = MRT_URL_DEFAULT_PHOTOS_AVATHAR;
+                // $obj->data['avatar'] = MRT_URL_AVATHAR . '/' . $obj->data['avatar'] . '.jpg';
             }
         }
         return $obj;
