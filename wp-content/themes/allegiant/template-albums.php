@@ -88,7 +88,11 @@ get_header();
                                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 albumColumn" ng-repeat="photo in photos" ng-class="{selected: hasInPhotoSelectList(photo)}">
                                     <div class="albumItem">
                                         <div class="albumItemImage">
-                                            <figure ng-click="changePhotoSelectList(photo)" ng-dblclick="showPhotoSingle(photo)"><img ng-src="{{photo.thumb}}" alt=""></figure>
+                                            <figure ng-click="changePhotoSelectList(photo)" ng-dblclick="showPhotoSingle(photo)">
+                                                <img id="{{photo.pf_photo_id}}" ng-src="{{photo.thumb}}" alt="">
+<!--                                                <img id="{{photo.pf_photo_id}}" ng-src="{{photo.original}}" alt="">-->
+                                                
+                                            </figure>
                                         </div>
                                         <div class="dashBoardAlbumContents">
                                             <div class="dashBoardAlbumTitle text-center verticalAlign">
@@ -98,7 +102,7 @@ get_header();
                                                 </form>
                                             </div>
                                             <div class="ashBoardAlbumContentBottom">
-                                                <div class="albumWidgets text-center"><span class="albumCounts green">16</span><span class="albumCounts yellow"><i class="fa fa-image"></i></span></div>
+                                                <div class="albumWidgets text-center"><span class="albumCounts green">16</span><span class="albumCounts yellow" ng-click="editPhoto(photo.pf_photo_id, photo.original)"><i class="fa fa-image"></i></span></div>
                                                 <div class="albumWidgets text-center albumFor">image quality <span class="albumForLabel web">web</span></div>
                                             </div>
                                         </div>

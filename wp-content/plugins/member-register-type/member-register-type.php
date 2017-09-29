@@ -65,6 +65,7 @@ include_once MRT_PLUGIN_PATH . 'helpers/Temp.php';
 include_once MRT_PLUGIN_PATH . 'helpers/MrtPrint.php';
 include_once MRT_PLUGIN_PATH . 'helpers/MrtFileStackUpload.php';
 include_once MRT_PLUGIN_PATH . 'helpers/MrtRole.php';
+include_once MRT_PLUGIN_PATH . 'helpers/MrtTransform.php';
 include_once MRT_PLUGIN_PATH . 'models/MrtDbbase.php';
 
 // include models
@@ -103,6 +104,7 @@ function mrt_add_user_scripts() {
     $page_title = trim(get_the_title());
     $pages_angularjs = ['Albums'];
     if(in_array($page_title, $pages_angularjs)) {
+        wp_enqueue_script('cdn-creativesdk', 'http://feather.aviary.com/js/feather.js', array('jquery'), null, true);
         wp_enqueue_script('angularjs', MRT_PLUGIN_URL . 'app/angular.min.js', array('jquery'), '1.0.0', true);
         wp_enqueue_script('mrt-ng-app', MRT_PLUGIN_URL . 'app/app.js', array('jquery'), '1.0.0', true);
         wp_enqueue_script('mrt-ng-directive', MRT_PLUGIN_URL . 'app/directive.js', array('jquery'), '1.0.0', true);
@@ -114,6 +116,7 @@ function mrt_add_user_scripts() {
 function mrt_admin_scripts() {
 
     wp_enqueue_style('mrt-data-table-style', 'https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css');
+    wp_enqueue_script('mrt-app-const-scripts', MRT_PLUGIN_URL . 'js/appConst.js', array('jquery'), null, true);
     wp_enqueue_script('mrt-data-table-scripts', 'https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js', array('jquery'), '1.0.0', true);
     wp_enqueue_script('mrt-scripts', MRT_PLUGIN_URL . 'js/mrt-scrpts.js', array('jquery'), '1.0.0', true);
 }

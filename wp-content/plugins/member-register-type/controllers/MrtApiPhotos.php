@@ -145,6 +145,8 @@ class MrtApiPhotos extends WP_REST_Controller {
     }
 
     public function update_item($request) {
+        
+        Dot::log("Update album");
 
         $input = $request->get_params();
         $this->mrt_photo = MrtPhoto::find($input['id']);
@@ -157,9 +159,14 @@ class MrtApiPhotos extends WP_REST_Controller {
             $filestack_validate = $this->validate_filestack($validate['input']);
 
             if ($filestack_validate['status']) {
+                Dot::log("Filestack validation completed");
                 if (isset($filestack_validate['input']['change_photo']) && $filestack_validate['input']['change_photo'] == true) {
-                    $this->mrt_file_stack->delete('pf_photo_id', $this->mrt_photo->id);
-                    $this->mrt_file_stack->insert($filestack_validate['input']);
+//                    $this->mrt_file_stack->delete('pf_photo_id', $this->mrt_photo->id);
+//                    $this->mrt_file_stack->insert($filestack_validate['input']);
+                    $filestack = new MrtFileStackUpload();
+                    $filestack_validate['input']['mode'] = 'edit_album';
+                    $records = $filestack->process($filestack_validate['input']);
+                    return new WP_REST_Response($records, 200);
                 }
             } else {
                 return new WP_REST_Response(['message' => $filestack_validate['message']], 400);

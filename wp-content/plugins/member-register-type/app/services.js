@@ -348,6 +348,49 @@ app.service("FilestackAlbumProcessingService", function (WebService) {
 
 });
 
+app.service("AvatarService", function (WebService) {
+
+    this.settings = {}
+
+    this.getItems = function (data) {
+        return WebService.request({
+            method: 'GET',
+            url: appConst.apiRequest + '/avatar',
+        });
+    }
+
+    this.getItem = function (data) {
+        return WebService.request({
+            method: 'GET',
+            url: appConst.apiRequest + '/avatar/' + data.parent_photo_id,
+        });
+    }
+
+    this.create = function (data) {
+        return WebService.request({
+            method: 'POST',
+            url: appConst.apiRequest + '/avatar',
+            data: data
+        });
+    }
+
+    this.update = function (data) {
+        return WebService.request({
+            method: 'POST',
+            url: appConst.apiRequest + '/avatar/' + data.parent_photo_id,
+            data: data
+        });
+    }
+
+    this.delete = function (data) {
+        return WebService.request({
+            method: 'DELETE',
+            url: appConst.apiRequest + '/avatar/' + data.parent_photo_id
+        });
+    }
+
+});
+
 app.filter('commentTime', function() {
     return function(x) {
         if(typeof x == "undefined"){

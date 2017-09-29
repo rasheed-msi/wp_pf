@@ -78,15 +78,20 @@ class MrtDbbase {
             $where_value = $this->id;
         }
 
+        if (is_array($where_key)) {
+            $where_array = $where_key;
+        } else {
+            $where_array = [$where_key => $where_value];
+        }
+        
         foreach ($inputs as $key => $value) {
             if (in_array($key, $this->fields)) {
                 $update[$key] = ($value != '') ? $value : $this->get_default($key);
             }
         }
 
-
         $result = $this->link->update(
-                $this->table, $update, [$where_key => $where_value]
+                $this->table, $update, $where_array
         );
 
         return $result;

@@ -47,6 +47,8 @@ class MrtFileStackUpload {
         
         if($this->input['mode'] == 'album'){
             return $this->process_album();
+        }elseif($this->input['mode'] == 'edit_album'){
+            return $this->process_edit_album();
         }elseif($this->input['mode'] == 'avatar'){
             return $this->process_avatar();
         }
@@ -88,7 +90,7 @@ class MrtFileStackUpload {
     }
     
     public function process_album() {
-        $create_img = $this->image_dimensions[$this->input['mode']];
+        $create_img = $this->image_dimensions['album'];
 
         $data = [
             'pf_album_id' => $this->input['pf_album_id'],
@@ -123,6 +125,64 @@ class MrtFileStackUpload {
                     'last_updated' => date('Y-m-d H:i:s'),
                 ];
                 $this->mrt_file_stack->insert($data);
+            }
+            $response[$key] = $data;
+        }
+
+        return $response;
+    }
+    public function process_edit_album() {
+        
+        Dot::clear_log();
+        Dot::log("Update album");
+        
+        $create_img = $this->image_dimensions['album'];
+        
+        $this->photo_id = $this->input['pf_photo_id'];
+
+        $response = [];
+        foreach ($create_img as $key => $value) {
+            if ($key == 'original') {
+                Dot::log("Update {$key}");
+                $data = [
+                    //'cloud_filename' => $this->input['key'],
+                    'user_id' => $this->mrt_user->user_id,
+                    'cloud_path' => $this->input['url'],
+                    'view_type' => $key,
+                    'last_updated' => date('Y-m-d H:i:s'),
+                ];
+                
+                $where = [
+                    'pf_photo_id' => $this->photo_id,
+                    'view_type' => $key,
+                ];
+                
+                 $this->mrt_file_stack->update($data, $where);
+                 
+                 Dot::log($data);
+                
+            } else {
+                Dot::log("Update {$key}");
+                 
+                $path = MRT_S3DOMAIN . '/' . $this->mrt_user->user_id . '/' . $this->input['mode'] . '/' . $this->input['pf_album_id'] . '/' . $key . '/';
+                $transformed = $this->transformImage($path, $value['width'], $value['height']);
+                $data = [
+                    'cloud_filename' => $transformed['cloud_filename'],
+                    'user_id' => $this->mrt_user->user_id,
+                    'cloud_path' => $transformed['cloud_path'],
+                    'view_type' => $key,
+                    'last_updated' => date('Y-m-d H:i:s'),
+                ];
+                
+                $where = [
+                    'pf_photo_id' => $this->photo_id,
+                    'view_type' => $key,
+                ];
+                
+                Dot::log($data);
+                
+                 $this->mrt_file_stack->update($data, $where);
+                
             }
             $response[$key] = $data;
         }

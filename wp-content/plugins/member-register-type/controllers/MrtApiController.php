@@ -32,6 +32,10 @@ class MrtApiController extends WP_REST_Controller {
             'base' => '/token-user/(?P<user_id>\d+)',
             'format' => '/token-user',
         ],
+        'transform_img' => [
+            'base' => '/transform-img',
+            'format' => '/transform-img',
+        ],
     ];
     private $auth;
 
@@ -75,6 +79,7 @@ class MrtApiController extends WP_REST_Controller {
             'args' => array(
             ),
         ));
+        
         register_rest_route('mrt/v1', self::base('get_lstates'), array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => array($this, 'get_lstates'),
@@ -94,6 +99,18 @@ class MrtApiController extends WP_REST_Controller {
             'methods' => WP_REST_Server::READABLE,
             'callback' => [$this, 'get_user_token'],
         ]);
+        
+        register_rest_route($namespace, self::base('transform_img'), [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => [$this, 'transform_img'],
+        ]);
+    }
+    
+    public function transform_img($request) {
+        $input = $request->get_params();
+        $mrt_avatar = new MrtTransform();
+        $data = $mrt_avatar->process($input);
+        return new WP_REST_Response($data, 200);
     }
 
     public function get_user_token($request) {
