@@ -31,6 +31,9 @@ class MrtRoute {
             'photo_comment' => [
                 'item' => "{$this->pattern['photo_id']}/photo-comment",
             ],
+            'avatar' => [
+                'item' => 'avatar'
+            ],
             'users' => [
                 'item' => 'users',
                 'current' => 'current',

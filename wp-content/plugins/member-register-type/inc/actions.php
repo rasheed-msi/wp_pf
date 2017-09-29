@@ -14,7 +14,7 @@ function test_page() {
     }
 
     if (isset($_GET['action']) && $_GET['action'] == 'print_table_column') {
-        $col = Dot::get_columns('pf_videofiles');
+        $col = Dot::get_columns('pf_parent_filestack_photos');
         MrtPrint::array_list($col);
     }
 

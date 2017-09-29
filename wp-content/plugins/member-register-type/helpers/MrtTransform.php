@@ -1,32 +1,6 @@
 <?php
 
-require_once('../wp-load.php');
-
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-
-$filestack = [
-    'SecretKey' => 'change this',
-    'APIKey' => 'A9Ul90L7XRqWxNswfaGOGz',
-    'watermarkImages' => [],
-    'ImageDimensions' => [
-        'thumb' => [
-            'width' => 300,
-            'height' => 360
-        ],
-        'webview' => [
-            'width' => 500,
-            'height' => 600
-        ]
-    ]
-];
-
-$amazonS3 = [
-    's3BucketPath' => 'https://s3-us-west-2.amazonaws.com/s3.childconnect.com/'
-];
-
-class ImgFileStackManager {
+class MrtTransform {
 
     private $image_dimensions = null;
     private $convert_url = null;
@@ -38,84 +12,66 @@ class ImgFileStackManager {
             'album' => [
                 'original' => [],
                 'thumb' => [
-                    'width' => 300,
-                    'height' => 360
+                    'width' => 220,
+                    'height' => 150
                 ],
                 'webview' => [
                     'width' => 500,
                     'height' => 600
                 ]
-            ]
+            ],
+            'avatar' => [
+                'original' => [],
+                'thumb' => [
+                    'width' => 300,
+                    'height' => 230
+                ],
+                'webview' => [
+                    'width' => 600,
+                    'height' => 460
+                ]
+            ],
         ];
-        $this->ApiKey = 'A9Ul90L7XRqWxNswfaGOGz';
-        $this->s3Domain = 'testwppf';
-        $this->convert_url = "https://process.filestackapi.com/" . $this->ApiKey . "/[RESIZE]/store=location:S3,access:public[PATH_FILE]";
-        $this->mrt_user = new MrtUser(get_current_user_id());
-        $this->mrt_file_stack = new MrtFileStack;
-        $this->mrt_photo = new MrtPhoto;
-    }
 
-    public function get_params() {
-        Dot::log("wp-filestack");
-    }
-
-    public function process() {
-
-
-        //Dot::clear_log();
-
-        $this->input = $_POST;
-        //$this->input = $this->sample_input();
-
-        Dot::log($_REQUEST);
-        Dot::log($this->input);
+        $this->convert_url = "https://process.filestackapi.com/" . MRT_FILESTACK_APIKEY . "/[RESIZE]/store=location:S3,access:public[PATH_FILE]";
         
+    }
+
+    public function process($input) {
+
+        $this->input = $input;
+        //$this->input = $this->sample_input();
 
         $create_img = $this->image_dimensions[$this->input['mode']];
 
-        $data = [
-            'pf_album_id' => $this->input['pf_album_id'],
-            'user_id' => $this->mrt_user->user_id,
-            'Size' => $this->input['originalFile']['size'],
-        ];
-
-        $this->photo_id = $this->mrt_photo->insert($data);
-
-
-        Dot::log("New photo id {$this->photo_id}");
-
         $response = [];
         foreach ($create_img as $key => $value) {
+            
             if ($key == 'original') {
                 $data = [
-                    'pf_photo_id' => $this->photo_id,
                     'cloud_filename' => $this->input['key'],
-                    'user_id' => $this->mrt_user->user_id,                    
                     'cloud_path' => $this->input['url'],
                     'view_type' => $key,
-                    'last_updated' => date('Y-m-d H:i:s'),
                 ];
-                $this->mrt_file_stack->insert($data);
             } else {
-                $path = $this->s3Domain . '/' . $this->mrt_user->user_id . '/' . $this->input['mode'] . '/' . $this->input['pf_album_id'] . '/' . $key . '/';
-                $transformed = $this->transformImage($path, $value['width'], $value['height']);
+
+                $path = MRT_S3DOMAIN . '/' . rand(1000, 9999) . '/' . $this->input['mode'] . '/' . rand(10000, 99999) . '/' . $this->input['key'];
+                $transformed = $this->transform_image($path, $value['width'], $value['height']);
+                
                 $data = [
-                    'pf_photo_id' => $this->photo_id,
                     'cloud_filename' => $transformed['cloud_filename'],
-                    'user_id' => $this->mrt_user->user_id,
                     'cloud_path' => $transformed['cloud_path'],
                     'view_type' => $key,
-                    'last_updated' => date('Y-m-d H:i:s'),
                 ];
-                $this->mrt_file_stack->insert($data);
             }
+            
             $response[$key] = $data;
         }
-       
-        die(json_encode($response));
+
+        return $response;
     }
 
-    public function transformImage($path, $width, $height) {
+    public function transform_image($path, $width, $height) {
 
         $resize_options = array();
         if ($width != null) {
@@ -149,8 +105,6 @@ class ImgFileStackManager {
                     'cloud_filename' => $thumb['key'],
                     'cloud_path' => $thumb_url,
                     'title' => $handle,
-                    
-                    'last_updated' => Date('Y-m-d h:i:s')
                 );
             }
             // print_r($data); exit;
@@ -182,6 +136,3 @@ class ImgFileStackManager {
     }
 
 }
-
-$obj = new ImgFileStackManager;
-$obj->process();

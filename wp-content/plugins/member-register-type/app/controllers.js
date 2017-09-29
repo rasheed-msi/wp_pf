@@ -10,6 +10,7 @@ app.controller('albumController', function (
         WebService,
         PageService,
         PhotoCommentService,
+        AvatarService,
         FilestackAlbumProcessingService
         ) {
 
@@ -42,6 +43,31 @@ app.controller('albumController', function (
     $scope.appSettings = angular.copy(AppService.settings);
     $scope.downloadSettings = angular.copy(AppService.download);
     $scope.photoCommentSettings = angular.copy(PhotoCommentService.settings);
+
+    $scope.featherEditor = new Aviary.Feather({
+        apiKey: 'fd418edeb42a8eca',
+        apiVersion: 3,
+        theme: 'light', // Check out our new 'light' and 'dark' themes!
+        tools: 'all',
+        appendTo: '',
+        onSave: function (imageID, newURL) {
+            var img = document.getElementById(imageID);
+            img.src = newURL;
+
+            PhotoService.update({
+                pf_photo_id: imageID,
+                pf_album_id: $scope.lastModel.pf_album_id,
+                url: newURL,
+                change_photo: true,
+            }).then(function (response) {
+                console.log(response);
+            });
+
+        },
+        onError: function (errorObj) {
+            alert(errorObj.message);
+        }
+    });
 
     $scope.showAlbum = function () {
 
@@ -254,14 +280,14 @@ app.controller('albumController', function (
         }).then(function (result) {
 
             var i = result.filesUploaded.length;
-            
+
             $scope.photoSettings.photoLoader = AppService.arrayFill(i);
-            
+
             angular.forEach(result.filesUploaded, function (value, index) {
-                
+
                 value.pf_album_id = $scope.selectedAlbumId;
                 value.mode = 'album';
-                
+
                 PhotoService.create(value).then(function (response) {
                     var newPhoto = {
                         pf_album_id: value.pf_album_id,
@@ -269,12 +295,12 @@ app.controller('albumController', function (
                         Title: "",
                         thumb: response.thumb.cloud_path,
                     };
-                    
+
                     $scope.photos = $scope.photos.mrtprepend(newPhoto);
                     $scope.photoSettings.photoLoader = AppService.arrayFill(--i);
                 });
             });
-            
+
         });
 
 //        $scope.photoSettings.preloadIntervalHandle = $interval(function () {
@@ -543,6 +569,7 @@ app.controller('albumController', function (
                 ++i;
                 if (i == $scope.photoSettings.selectListCount) {
                     $scope.photoSettings.selectList = [];
+                    $scope.photoSettings.selectListCount = 0;
                     $scope.albumSettings.refresh = true;
                     $scope.executeBackButton();
                 }
@@ -569,6 +596,15 @@ app.controller('albumController', function (
 
     $scope.setAllowAlbumViewText = function (status) {
         $scope.albumSettings.allowAlbumViewText = (status == $scope.albumSettings.statusIdEveryone) ? "EVERYONE (ON)" : "EVERYONE (OFF)";
+    }
+
+    $scope.editPhoto = function (id, url) {
+
+        $scope.featherEditor.launch({
+            image: id,
+            url: url
+        });
+
     }
 
 });

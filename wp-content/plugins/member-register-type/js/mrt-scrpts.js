@@ -1,4 +1,3 @@
-
 jQuery(function ($) {
     $(".select_country").change(function () {
         var countryId = $(this).val();
@@ -82,7 +81,6 @@ jQuery(function ($) {
 
 
     $("body").on("click", ".file-uploader-test", function () {
-        console.log("clicked");
 
         var userid = $(this).data('userid');
         var albumid = $(this).data('albumid');
@@ -108,14 +106,13 @@ jQuery(function ($) {
                 console.log(error);
             }
         }).then(function (result) {
-            
+
             $.each(result.filesUploaded, function (index, value) {
                 value.pf_album_id = albumid;
-                
-                //wp-filestack
-                value.mode = 'album';
+
+                // marking processing images
                 $.ajax({
-                    url: appConst.base_url + '/filestack/wp-filestack.php',
+                    url: appConst.apiRequest + '/' + value.pf_album_id + '/filestack-album-processing',
                     method: 'POST',
                     dataType: 'json',
                     data: value,
@@ -125,19 +122,6 @@ jQuery(function ($) {
                 }).success(function (response) {
                     console.log(response);
                 });
-                
-                // marking processing images
-//                $.ajax({
-//                    url: appConst.apiRequest + '/' + value.pf_album_id + '/filestack-album-processing',
-//                    method: 'POST',
-//                    dataType: 'json',
-//                    data: value,
-//                    headers: {
-//                        Token: appConst.mrtToken
-//                    }
-//                }).success(function (response) {
-//                    console.log(response);
-//                });
 
 
             });
@@ -164,36 +148,37 @@ jQuery(function ($) {
 //            localStorage.setItem("Token", response.token);
 //            window.location.href = appConst.base_url + '/about';
 //        });
-//        
-//        
 //
 //    });
 
-    $.ajax({
-        url: appConst.apiRequest + '/users/about',
-        method: 'GET',
-        dataType: 'json',
-        headers: {
-            Token: appConst.mrtToken
-        }
-    }).success(function (response) {
-        var profile = response.profile;
-        var info = response.info;
-        var preferences = response.preferences;
+    if ($(".profileHeadding").length) {
+        $.ajax({
+            url: appConst.apiRequest + '/users/about',
+            method: 'GET',
+            dataType: 'json',
+            headers: {
+                Token: appConst.mrtToken
+            }
+        }).success(function (response) {
+            var profile = response.profile;
+            var info = response.info;
+            var preferences = response.preferences;
 
-        if (response.info.YoutubeLink == 1) {
-            var videoHtml = ' <iframe width="100%" height="100%" src="' + info.video_url + '"></iframe>';
-        } else {
-            var videoHtml = '<video width="100%" height="100%" controls>'
-                    + '<source src="' + info.video_url + '" type="video/mp4">'
-                    + '</video>';
-        }
+            if (response.info.YoutubeLink == 1) {
+                var videoHtml = ' <iframe width="100%" height="100%" src="' + info.video_url + '"></iframe>';
+            } else {
+                var videoHtml = '<video width="100%" height="100%" controls>'
+                        + '<source src="' + info.video_url + '" type="video/mp4">'
+                        + '</video>';
+            }
 
-        $(".profileHeadding").text(profile.display_name);
-        $(".profileImage").html('<img class="change-avatar" src="' + profile.avatar + '">');
-        $(".profileMediaVideo").html(videoHtml);
-        $(".intro").html(preferences.intro);
-    });
+            $(".profileHeadding").text(profile.display_name);
+            $(".profileImage").html('<img class="change-avatar" src="' + profile.avatar + '">');
+            $(".profileMediaVideo").html(videoHtml);
+            $(".intro").html(preferences.intro);
+        });
+    }
+
 
 
     var prefrences = true;
@@ -218,10 +203,8 @@ jQuery(function ($) {
 
         }
     });
-    
-    
-    
-    $("body").on("click", ".change-avatar", function(){
+
+    $("body").on("click", ".change-avatar", function () {
         var client = filestack.init(appConst.fileStackClient);
 
         client.pick({
@@ -238,16 +221,14 @@ jQuery(function ($) {
                 // console.log(error);
             }
         }).then(function (result) {
-            
+
             $(".profileImage").html('<span class="preloader-image"></span>');
-  
+
             result.filesUploaded.forEach(function (value, index) {
-                
-                value.pf_album_id = 0;
+
                 value.mode = 'avatar';
-                
                 $.ajax({
-                    url: appConst.apiRequest + '/' + value.pf_album_id + '/photos',
+                    url: appConst.apiRequest + '/transform-img',
                     method: 'POST',
                     dataType: 'json',
                     data: value,
@@ -255,15 +236,29 @@ jQuery(function ($) {
                         Token: appConst.mrtToken
                     }
                 }).success(function (response) {
-                    // console.log(response);
+
                     $(".profileImage").html('<img class="change-avatar" src="' + response.thumb.cloud_path + '">');
-                    
-                    
+
+                    $.each(response, function (index, value) {
+
+                        $.ajax({
+                            url: appConst.apiRequest + '/avatar',
+                            method: 'POST',
+                            dataType: 'json',
+                            data: value,
+                            headers: {
+                                Token: appConst.mrtToken
+                            }
+                        }).success(function (response) {
+                            console.log(response);
+                        });
+                    });
+
                 });
-                
-                
+
+
             });
-            
+
         });
     });
 
